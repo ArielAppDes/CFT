@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificaciones | CFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/certificaciones.css?v=2.2">
+</head>
+
+<body>
+
+    <!-- Barra para dispositivos móviles -->
+    <div class="mobile-header">
+        <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+        <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+    </div>
+
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+        <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" class="activo" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="contenido">
+        <header>
+            <div>
+                <h2>Gestión de Certificaciones</h2>
+                <p class="subtitulo">Control de habilitaciones técnicas, homologaciones y vencimientos.</p>
+            </div>
+            <div class="usuario">👤 Usuario</div>
+        </header>
+
+        <!-- Barra de Navegación / Migas de Pan -->
+        <div id="certBreadcrumbNav" class="cert-breadcrumb-nav"></div>
+
+        <!-- Contenedor Dinámico de Niveles (Nivel 1, 2, 3 o 4) -->
+        <div id="certMainContainer"></div>
+
+    </main>
+
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: REGISTRO / EDICIÓN DE CERTIFICADO   -->
+<!-- ========================================== -->
+<div id="modalFormCertificado" class="cert-modal-overlay" style="display: none;">
+    <div class="cert-modal-container">
+        <div class="cert-modal-header">
+            <h3 id="modalFormCertTitle">➕ Registrar Certificación Externa</h3>
+            <button class="cert-modal-close" onclick="cerrarModalFormCert()">×</button>
+        </div>
+
+        <form onsubmit="guardarCertificadoForm(event)">
+            <input type="hidden" id="formCertId">
+
+            <div class="cert-modal-body">
+                <div class="cert-form-grid">
+                    
+                    <!-- LÍNEA 1: Proveedor, ENTE, N° Certificado -->
+                    <div class="cert-form-row-3 cert-form-full">
+                        <div class="cert-form-group">
+                            <label for="formCertProveedorSelect">Proveedor *</label>
+                            <select id="formCertProveedorSelect" required onchange="onProveedorSeleccionado(this.value)">
+                                <option value="">Seleccione Proveedor...</option>
+                            </select>
+                        </div>
+                        <div class="cert-form-group">
+                            <label for="formCertEnte">ENTE *</label>
+                            <input type="text" id="formCertEnte" readonly placeholder="Auto-completado al elegir proveedor" style="background-color: #f1f5f9; font-weight: 600; color: #1e293b;">
+                        </div>
+                        <div class="cert-form-group">
+                            <label for="formCertCodigo">N° Certificado *</label>
+                            <input type="text" id="formCertCodigo" required placeholder="Ej. IRAM-UT-2026-984">
+                        </div>
+                    </div>
+
+                    <!-- LÍNEA 2: Especialidad, Método, Alcance/Nivel -->
+                    <div class="cert-form-row-3 cert-form-full">
+                        <div class="cert-form-group">
+                            <label for="formCertCategoria">Especialidad *</label>
+                            <select id="formCertCategoria" required onchange="actualizarSelectSubcategoriasModal()">
+                                <option value="END">🔬 END (Ensayos No Destructivos)</option>
+                                <option value="Soldadores">👨‍🏭 Soldadores</option>
+                                <option value="Equipos de Izaje">🏗️ Equipos de Izaje</option>
+                            </select>
+                        </div>
+                        <div class="cert-form-group">
+                            <label for="formCertSubcategoria">Método *</label>
+                            <select id="formCertSubcategoria" required></select>
+                        </div>
+                        <div class="cert-form-group">
+                            <label for="formCertAlcance">Alcance / Nivel *</label>
+                            <input type="text" id="formCertAlcance" required placeholder="Ej. Nivel 2 (END), 45 Ton (Izaje), 6G (Soldadura)...">
+                        </div>
+                    </div>
+
+                    <!-- Búsqueda y Selección de Colaborador por Legajo o Nombre -->
+                    <div class="cert-form-group cert-form-full">
+                        <label for="inputBuscarEmpleadoModal">Buscar Colaborador por Legajo o Nombre *</label>
+                        <div class="buscador-empleado-container">
+                            <div class="buscador-empleado-input-wrap" id="wrapInputBuscarEmpleado">
+                                <input type="text" id="inputBuscarEmpleadoModal" class="input-buscar-colaborador" placeholder="🔍 Ingrese Legajo (ej. 9880) o Nombre / Apellido..." autocomplete="off">
+                                <button type="button" class="btn-buscar-colaborador" id="btnBuscarColaboradorModal">Buscar</button>
+                            </div>
+                            
+                            <!-- Dropdown flotante con resultados predictivos -->
+                            <div id="dropdownResultadosEmpleados" class="dropdown-resultados-empleados" style="display: none;"></div>
+
+                            <!-- Tarjeta de Colaborador Seleccionado -->
+                            <div id="cardColaboradorSeleccionado" class="card-colaborador-seleccionado" style="display: none;">
+                                <div class="colab-info">
+                                    <span class="colab-badge-legajo" id="colabBadgeLegajo">Legajo: —</span>
+                                    <strong id="colabNombreDisplay" class="colab-nombre-txt">—</strong>
+                                    <span id="colabPuestoDisplay" class="colab-sub-txt">—</span>
+                                </div>
+                                <button type="button" class="btn-cambiar-colaborador" id="btnCambiarColaborador" title="Cambiar colaborador seleccionado">✕ Cambiar</button>
+                            </div>
+
+                            <!-- Campo oculto para almacenar el Legajo seleccionado -->
+                            <input type="hidden" id="formCertLegajo" required>
+                        </div>
+                    </div>
+
+                    <!-- Nombre y Apellido (Autocompletado) -->
+                    <div class="cert-form-group">
+                        <label for="formCertNombre">Nombre y Apellido *</label>
+                        <input type="text" id="formCertNombre" required placeholder="Nombre del colaborador">
+                    </div>
+
+                    <!-- Puesto (Autocompletado) -->
+                    <div class="cert-form-group">
+                        <label for="formCertPuesto">Puesto</label>
+                        <input type="text" id="formCertPuesto" placeholder="Puesto de trabajo">
+                    </div>
+
+                    <!-- Área / Jefatura -->
+                    <div class="cert-form-group cert-form-full">
+                        <label for="formCertArea">Área / Jefatura</label>
+                        <input type="text" id="formCertArea" placeholder="Jefatura o sector de pertenencia">
+                    </div>
+
+                    <!-- Fecha de Emisión -->
+                    <div class="cert-form-group">
+                        <label for="formCertFechaEmision">Fecha de Emisión / Obtención *</label>
+                        <input type="date" id="formCertFechaEmision" required>
+                    </div>
+
+                    <!-- Toggle ¿Posee Vencimiento? -->
+                    <div class="cert-form-group" style="justify-content: center;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 15px;">
+                            <input type="checkbox" id="formTieneVencimiento" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span>¿Posee Fecha de Vencimiento?</span>
+                        </label>
+                    </div>
+
+                    <!-- Fecha de Vencimiento -->
+                    <div class="cert-form-group cert-form-full" id="grupoFechaVencimiento">
+                        <label for="formCertFechaVencimiento">Fecha de Vencimiento *</label>
+                        <input type="date" id="formCertFechaVencimiento">
+                    </div>
+
+                    <!-- Carga de Archivo PDF (Drag & Drop) -->
+                    <div class="cert-form-group cert-form-full">
+                        <label>Adjuntar Certificado Digital (PDF)</label>
+                        <div class="pdf-drop-zone" id="pdfDropZone">
+                            <div class="drop-icon">📁</div>
+                            <p><strong>Hacé clic</strong> o arrastrá el archivo <strong>PDF</strong> aquí</p>
+                            <span class="drop-hint">Formato soportado: .pdf (Máx. 10 MB)</span>
+                            <div id="pdfFileNameDisplay" style="display:none; margin-top:10px; font-weight:700; color:var(--verde);"></div>
+                        </div>
+                        <input type="file" id="inputCertPdf" accept="application/pdf" style="display: none;">
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="cert-form-group cert-form-full">
+                        <label for="formCertObservaciones">Observaciones Técnicas</label>
+                        <textarea id="formCertObservaciones" rows="2" placeholder="Norma aplicada, especificaciones adicionales, etc."></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="cert-modal-footer">
+                <button type="button" class="btn-secondary-cert" onclick="cerrarModalFormCert()">Cancelar</button>
+                <button type="submit" class="btn-primary-cert">💾 Guardar Certificado</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: VISOR DE CERTIFICADO PDF            -->
+<!-- ========================================== -->
+<div id="modalVisorPDF" class="cert-modal-overlay" style="display: none;">
+    <div class="cert-modal-container cert-modal-pdf">
+        <div class="cert-modal-header">
+            <h3 id="modalVisorTitle">📄 Certificado Digital</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn-secondary-cert" style="padding: 5px 12px; font-size: 13px; color: #fff; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);" onclick="imprimirCertificadoActual()">
+                    🖨️ Imprimir
+                </button>
+                <button class="cert-modal-close" onclick="cerrarModalVisorPDF()">×</button>
+            </div>
+        </div>
+
+        <div class="cert-modal-body pdf-viewer-frame-wrap" id="pdfViewerContainer">
+            <!-- Frame de PDF o Vista Previa Digital se inyecta dinámicamente -->
+        </div>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: RENOVAR CERTIFICADO (HISTÓRICO)     -->
+<!-- ========================================== -->
+<div id="modalRenovarCertificado" class="cert-modal-overlay" style="display: none;">
+    <div class="cert-modal-container" style="max-width: 680px;">
+        <div class="cert-modal-header" style="background: linear-gradient(135deg, #1e3a8a, #0284c7);">
+            <div>
+                <h3 id="modalRenovarTitle" style="color: #ffffff; margin: 0; font-size: 1.15rem;">🔄 Renovar Certificación Técnica</h3>
+                <div style="color: #e0f2fe; font-size: 0.8rem; margin-top: 2px;">El certificado actual se preservará intacto en la base de datos como histórico de capacitación del operario.</div>
+            </div>
+            <button class="cert-modal-close" onclick="cerrarModalRenovar()">×</button>
+        </div>
+
+        <form onsubmit="guardarRenovacionCertificado(event)">
+            <input type="hidden" id="renovarCertIdAnterior">
+
+            <div class="cert-modal-body">
+                <!-- Ficha del Certificado Previo -->
+                <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 14px; margin-bottom: 18px;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">
+                        📌 Certificado a Renovar (Quedará como Histórico)
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 0.86rem;">
+                        <div>
+                            <span style="color: #64748b; display: block; font-size: 0.75rem;">Operario:</span>
+                            <strong id="renovarColaboradorNombre" style="color: #0f172a;">—</strong>
+                            <div id="renovarColaboradorLegajo" style="font-size: 0.75rem; color: #475569;">Legajo: —</div>
+                        </div>
+                        <div>
+                            <span style="color: #64748b; display: block; font-size: 0.75rem;">Certificado Anterior:</span>
+                            <strong id="renovarCodigoAnterior" style="color: #b91c1c;">—</strong>
+                            <div id="renovarAlcanceAnterior" style="font-size: 0.75rem; color: #475569;">—</div>
+                        </div>
+                        <div>
+                            <span style="color: #64748b; display: block; font-size: 0.75rem;">Ente / Proveedor Anterior:</span>
+                            <strong id="renovarEnteAnterior" style="color: #334155;">—</strong>
+                            <div id="renovarVencimientoAnterior" style="font-size: 0.75rem; color: #dc2626;">Vencimiento: —</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cert-form-grid">
+                    <!-- Nuevo Código de Certificado -->
+                    <div class="cert-form-group cert-form-full">
+                        <label for="renovarNuevoCodigo">Nuevo N° de Certificado (Renovación) *</label>
+                        <input type="text" id="renovarNuevoCodigo" required placeholder="Ej. IRAM-UT-2026-985 / 002">
+                    </div>
+
+                    <!-- Ente / Proveedor -->
+                    <div class="cert-form-group">
+                        <label for="renovarProveedorSelect">Proveedor / Ente Emisor *</label>
+                        <select id="renovarProveedorSelect" required onchange="onRenovarProveedorSeleccionado(this.value)">
+                            <option value="">Seleccione Proveedor...</option>
+                        </select>
+                    </div>
+
+                    <div class="cert-form-group">
+                        <label for="renovarEnte">Ente Certificador *</label>
+                        <input type="text" id="renovarEnte" required placeholder="Ente certificador">
+                    </div>
+
+                    <!-- Alcance / Nivel de Renovación -->
+                    <div class="cert-form-group cert-form-full">
+                        <label for="renovarAlcance">Alcance / Nivel Homologado *</label>
+                        <input type="text" id="renovarAlcance" required placeholder="Ej. Nivel 2 (END), 6G (Soldadura), etc.">
+                    </div>
+
+                    <!-- Fechas de la Renovación -->
+                    <div class="cert-form-group">
+                        <label for="renovarFechaEmision">Nueva Fecha de Emisión *</label>
+                        <input type="date" id="renovarFechaEmision" required>
+                    </div>
+
+                    <div class="cert-form-group">
+                        <label for="renovarFechaVencimiento">Nueva Fecha de Vencimiento *</label>
+                        <input type="date" id="renovarFechaVencimiento" required>
+                    </div>
+
+                    <!-- Adjuntar Nuevo PDF -->
+                    <div class="cert-form-group cert-form-full">
+                        <label>Adjuntar Nuevo Certificado Digital (PDF)</label>
+                        <div class="pdf-drop-zone" id="pdfDropZoneRenovar" style="padding: 18px;">
+                            <div class="drop-icon" style="font-size: 24px; margin-bottom: 4px;">📁</div>
+                            <p style="margin: 0; font-size: 0.85rem;"><strong>Hacé clic</strong> o arrastrá el nuevo archivo <strong>PDF</strong> aquí</p>
+                            <span class="drop-hint" style="font-size: 0.75rem;">Formato: .pdf (Máx. 10 MB)</span>
+                            <div id="pdfRenovarFileNameDisplay" style="display:none; margin-top:6px; font-weight:700; color:var(--verde); font-size:0.82rem;"></div>
+                        </div>
+                        <input type="file" id="inputRenovarPdf" accept="application/pdf" style="display: none;">
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="cert-form-group cert-form-full">
+                        <label for="renovarObservaciones">Observaciones de la Renovación</label>
+                        <textarea id="renovarObservaciones" rows="2" placeholder="Ej. Renovación periódica de calificación. Examen visual y práctico aprobado."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cert-modal-footer">
+                <button type="button" class="btn-secondary-cert" onclick="cerrarModalRenovar()">Cancelar</button>
+                <button type="submit" class="btn-primary-cert" style="background: #0284c7; border-color: #0284c7;">
+                    ✅ Guardar Renovación y Archivar Histórico
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: HISTORIAL DE CAPACITACIONES / CERTS -->
+<!-- ========================================== -->
+<div id="modalHistorialCertificados" class="cert-modal-overlay" style="display: none;">
+    <div class="cert-modal-container" style="max-width: 860px;">
+        <div class="cert-modal-header" style="background: linear-gradient(135deg, #312e81, #4338ca);">
+            <div>
+                <h3 id="modalHistorialTitle" style="color: #ffffff; margin: 0; font-size: 1.15rem;">📜 Historial de Certificaciones y Renovaciones</h3>
+                <div id="modalHistorialSubtitle" style="color: #c7d2fe; font-size: 0.8rem; margin-top: 2px;">Cronología completa de capacitaciones, habilitaciones y renovaciones del colaborador.</div>
+            </div>
+            <button class="cert-modal-close" onclick="cerrarModalHistorial()">×</button>
+        </div>
+
+        <div class="cert-modal-body" style="padding: 20px; max-height: 70vh; overflow-y: auto;">
+            <!-- Resumen de Colaborador -->
+            <div id="historialFichaColaborador" style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <!-- Dinámico -->
+            </div>
+
+            <!-- Línea de Tiempo / Tabla de Histórico -->
+            <div id="historialTimelineContainer">
+                <!-- Dinámico -->
+            </div>
+        </div>
+
+        <div class="cert-modal-footer">
+            <button type="button" class="btn-secondary-cert" onclick="cerrarModalHistorial()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="jss/dbLocal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="jss/supaBaseClient.js"></script>
+<script src="jss/authGuard.js"></script>
+<script src="jss/iconosCertificaciones.js?v=2.2"></script>
+<script src="jss/certificaciones.js?v=2.2"></script>
+
+</body>
+</html>

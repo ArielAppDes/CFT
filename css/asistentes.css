@@ -1,0 +1,383 @@
+/* ===================================================
+   ASISTENTES - ACADEMIA EMOVA
+   Release 1.0.1
+===================================================*/
+
+body{
+
+    background:#ECECEC;
+
+}
+
+/*-----------------------------
+ENCABEZADO
+------------------------------*/
+
+.subtitulo{
+
+    margin-top:6px;
+
+    color:#666;
+
+    font-size:15px;
+
+}
+
+/*-----------------------------
+CABECERA CAPACITACIÓN
+------------------------------*/
+
+.cabecera{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    margin-top:25px;
+
+    margin-bottom:25px;
+
+    display:grid;
+
+    grid-template-columns:180px 1fr 120px 180px;
+
+    gap:18px;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+}
+
+.dato{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.dato label{
+
+    font-weight:600;
+
+    margin-bottom:8px;
+
+    color:#1F2A44;
+
+}
+
+.dato input{
+
+    height:46px;
+
+    border:1px solid #D8D8D8;
+
+    border-radius:10px;
+
+    padding:12px;
+
+    background:#F8F8F8;
+
+    box-sizing:border-box;
+
+}
+
+.ancho2{
+
+    grid-column:span 2;
+
+}
+
+
+/*-----------------------------
+CARGA PARTICIPANTE
+------------------------------*/
+
+.carga{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:30px;
+
+    display:grid;
+
+    grid-template-columns:160px 100px 1fr 170px;
+
+    gap:18px;
+
+    align-items:end;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+}
+
+.grupo{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.grupo label{
+
+    font-weight:600;
+
+    margin-bottom:10px;
+
+    color:#1F2A44;
+
+}
+
+.grupo input{
+
+    height:46px;
+
+    border:1px solid #D8D8D8;
+
+    border-radius:10px;
+
+    padding:12px;
+
+    box-sizing:border-box;
+
+}
+
+.grupo input:focus{
+
+    outline:none;
+
+    border-color:#18C48F;
+
+    box-shadow:0 0 0 4px rgba(24,196,143,.15);
+
+}
+
+
+/*-----------------------------
+BOTÓN AGREGAR
+------------------------------*/
+
+.agregar{
+
+    height:46px;
+
+    border:none;
+
+    border-radius:10px;
+
+    background:#18C48F;
+
+    color:white;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+
+/*-----------------------------
+TABLA
+------------------------------*/
+
+.tabla{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:25px;
+
+    margin-top:25px;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+    overflow-x:auto;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+}
+
+th{
+
+    background:#1F2A44;
+
+    color:white;
+
+    padding:12px;
+
+    text-align:left;
+
+}
+
+td{
+
+    padding:12px;
+
+    border-bottom:1px solid #E5E5E5;
+
+}
+
+
+/*-----------------------------
+COLUMNA FIRMA
+------------------------------*/
+
+th:nth-child(6),
+td:nth-child(6){
+
+    min-width:180px;
+
+}
+
+
+/*-----------------------------
+COLUMNA ACCIÓN
+------------------------------*/
+
+th:last-child,
+td:last-child{
+
+    width:70px;
+
+    text-align:center;
+
+}
+
+
+/*-----------------------------
+BOTONES GENERALES
+------------------------------*/
+
+.acciones{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:18px;
+
+    margin-top:25px;
+
+}
+
+
+.acciones button{
+
+    width:170px;
+
+    height:48px;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+}
+
+.guardar{
+
+    background:#18C48F;
+
+    color:white;
+
+}
+
+.buscar{
+
+    background:#1F6FEB;
+
+    color:white;
+
+}
+
+.nuevo{
+
+    background:#F4A62A;
+
+    color:white;
+
+}
+
+
+/*-----------------------------
+RESPONSIVE
+------------------------------*/
+
+@media(max-width:900px){
+
+.cabecera{
+
+grid-template-columns:1fr 1fr;
+
+}
+
+.carga{
+
+grid-template-columns:1fr;
+
+}
+
+.ancho2{
+
+grid-column:span 1;
+
+}
+
+}
+
+/*-----------------------------
+MODAL CONFIRMACIÓN Y OPCIÓN PDF
+------------------------------*/
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6); /* Fondo semi-oscuro */
+    justify-content: center;
+    align-items: center;
+    z-index: 99999; /* Por encima de todo */
+}
+
+.modal-contenido {
+    background: white;
+    padding: 30px;
+    border-radius: 18px;
+    width: 480px; /* Ampliado para acomodar los 2 botones de acción */
+    max-width: 90%;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+}
+
+.modal-acciones {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.modal-acciones button {
+    height: 45px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+}

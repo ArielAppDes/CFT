@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dotación | CFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+            
+                <!-- Barra para dispositivos móviles -->
+            <div class="mobile-header">
+                <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+                <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+            </div>
+
+<div class="contenedor">
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+        <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="administracion.html" class="activo" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO: PANEL DOTACIÓN -->
+    <main class="contenido">
+        <div id="panelDotacion">
+            <div class="dotacion-header">
+                <h2>Dotación</h2>
+                <div class="fecha-dotacion">
+                    Última actualización: <span id="fechaDotacion">--/--/----</span>
+                </div>
+            </div>
+
+            <div class="dotacion-card" style="background: white; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                <h3>Buscar Empleado</h3>
+                
+                <form onsubmit="event.preventDefault(); ejecutarBusquedaLegajo();" class="grupo" style="margin-bottom: 15px;">
+                    <label>Legajo</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="search" id="legajo" inputmode="numeric" maxlength="5" placeholder="Ej: 102 o 01001" style="flex: 1; padding: 8px;">
+                        <button type="button" class="btn cancelar" onclick="limpiarCamposDotacion()" style="padding: 8px 15px;">Nueva búsqueda</button>
+                    </div>
+                </form>
+
+                <div class="grupo"><label>Apellido</label><input type="text" id="apellido" readonly></div>
+                <div class="grupo"><label>Nombre</label><input type="text" id="nombreEmpleado" readonly></div>
+                <div class="grupo"><label>Puesto</label><input type="text" id="puesto" readonly></div>
+                <div class="grupo"><label>Categoría</label><input type="text" id="categoria" readonly></div>
+                <div class="grupo"><label>Dirección</label><input type="text" id="direccion" readonly></div>
+                <div class="grupo"><label>Gerencia</label><input type="text" id="gerencia" readonly></div>
+                <div class="grupo"><label>Coordinación</label><input type="text" id="coordinacion" readonly></div>
+                <div class="grupo"><label>Jefatura</label><input type="text" id="jefatura" readonly></div>
+                <div class="grupo"><label>Manager</label><input type="text" id="manager" readonly></div>
+                <div class="grupo"><label>Email</label><input type="text" id="email" readonly></div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- CARGA DE ARCHIVOS LOCALES (Respetar este orden) -->
+<script src="jss/dbLocal.js"></script>
+<script src="jss/dotacion.js"></script>
+
+</body>
+</html>

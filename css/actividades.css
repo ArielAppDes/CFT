@@ -1,0 +1,106 @@
+/* ===================================================
+   ACTIVIDADES - SIGA / ACADEMIA EMOVA
+   Release 1.2.0
+===================================================*/
+
+body {
+    background: #ECECEC;
+}
+
+/*-----------------------------
+ENCABEZADO
+------------------------------*/
+
+.subtitulo {
+    margin-top: 6px;
+    color: #666;
+    font-size: 15px;
+}
+
+/*-----------------------------
+CONTENEDOR DE TARJETAS (Grilla 2x3)
+------------------------------*/
+.tarjetas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas exactas */
+    gap: 25px;
+    margin-top: 30px;
+}
+
+/*-----------------------------
+TARJETAS
+------------------------------*/
+
+.tarjeta {
+    background: white;
+    border-radius: 18px;
+    padding: 30px;
+    text-decoration: none;
+    color: #1F2A44;
+    box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 180px;
+    border: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+.tarjeta:hover {
+    transform: translateY(-5px);
+    border-color: #18C48F;
+    box-shadow: 0 12px 25px rgba(0,0,0,.15);
+}
+
+/*-----------------------------
+ICONO
+------------------------------*/
+
+.icono {
+    font-size: 38px;
+    margin-bottom: 16px;
+    line-height: 1;
+}
+
+/*-----------------------------
+TÍTULO
+------------------------------*/
+
+.tarjeta h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1F2A44;
+}
+
+/*-----------------------------
+DESCRIPCIÓN
+------------------------------*/
+
+.tarjeta p {
+    margin-top: 10px;
+    margin-bottom: 0;
+    color: #666;
+    line-height: 1.5;
+    font-size: 14px;
+}
+
+/*-----------------------------
+RESPONSIVE
+------------------------------*/
+
+@media(max-width: 768px) {
+    .tarjetas {
+        grid-template-columns: 1fr; /* Pasa a 1 columna en pantallas reducidas */
+    }
+
+    .tarjeta {
+        min-height: 150px;
+        padding: 20px;
+    }
+}
+
+.oculta {
+    display: none;
+}

@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administración | CFT</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/administracion.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+</head>
+
+<body>
+
+                <!-- Barra para dispositivos móviles -->
+            <div class="mobile-header">
+                <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+                <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+            </div>
+
+    
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+
+        <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" class="activo" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido">
+
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h2>Sistema de Gestión Académica</h2>
+                <p class="subtitulo">Administración de catálogos y parámetros del sistema</p>
+            </div>
+            <div class="usuario">
+                👤 Usuario
+            </div>
+        </header>
+
+        <section class="panel-admin">
+
+            <!-- MENÚ CATÁLOGOS -->
+            <aside class="menu-admin">
+                <h3>Catálogos</h3>
+                <ul>
+                    <li id="btn-cat-programas" class="activo" onclick="cambiarCatalogo('programas')">
+                        <span class="material-symbols-outlined">folder_open</span> Programas
+                    </li>
+                    <li id="btn-cat-cursos" onclick="cambiarCatalogo('cursos')">
+                        <span class="material-symbols-outlined">menu_book</span> Cursos
+                    </li>
+                    <li id="btn-cat-instructores" onclick="cambiarCatalogo('instructores')">
+                        <span class="material-symbols-outlined">school</span> Instructores
+                    </li>
+                    <li id="btn-cat-proveedores" onclick="cambiarCatalogo('proveedores')">
+                        <span class="material-symbols-outlined">verified</span> Proveedores / Entes
+                    </li>
+                    <li id="btn-cat-dotacion" onclick="cambiarCatalogo('dotacion')">
+                        <span class="material-symbols-outlined">badge</span> Dotación
+                    </li>
+                    <li id="btn-cat-usuarios" onclick="cambiarCatalogo('usuarios')">
+                        <span class="material-symbols-outlined">group</span> Usuarios y Permisos
+                    </li>
+                    <li id="btn-cat-bases" onclick="cambiarCatalogo('bases')">
+                        <span class="material-symbols-outlined">database</span> Bases
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- PANEL DERECHO -->
+            <section class="contenido-admin">
+
+                <div id="panelGenerico">
+                    <div class="cabecera-admin">
+                        <h2 id="tituloCatalogo">Programas</h2>
+                        <div class="acciones" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                            <button class="btn" id="btnDocumentosProveedor" style="display:none; background:#0284c7; color:#fff;" onclick="abrirModalDocumentosProveedor()">📁 Seguimiento OS / Facturas</button>
+                            <button class="btn" id="btnImportarCatalogo" style="background:#059669; color:#fff;" onclick="abrirModalImportarCatalogo()" title="Importar registros desde Excel (.xlsx, .xls), CSV o JSON">📥 Importar</button>
+                            <button class="btn" id="btnExportarCatalogo" style="background:#475569; color:#fff;" onclick="exportarCatalogoActual()" title="Exportar catálogo actual a Excel (.xlsx)">📤 Exportar</button>
+                            <button class="btn nuevo" onclick="abrirFormularioNuevo()">+ Agregar</button>
+                            <button class="btn editar" onclick="abrirFormularioEditar()">✏️ Editar</button>
+                            <button class="btn eliminar" onclick="eliminarRegistro()">🗑️ Eliminar</button>
+                        </div>
+                    </div>
+
+                    <!-- BUSCADOR EN TIEMPO REAL -->
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" id="inputBuscarCatalogo" placeholder="🔍 Buscar por código, nombre..." oninput="filtrarTablaCatalogo()" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.95rem;">
+                    </div>
+
+                    <!-- GRILLA CON ALTURA MÁXIMA Y DESPLAZAMIENTO -->
+                    <div class="grilla-admin" style="max-height: 320px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead id="tablaHeader" style="position: sticky; top: 0; background: #2c3e50; color: white; z-index: 10;">
+                                <tr>
+                                    <th id="colCodigo" style="padding: 10px; text-align: left; background: #2c3e50;">Código</th>
+                                    <th id="colNombre" style="padding: 10px; text-align: left; background: #2c3e50;">Programa</th>
+                                    <th id="colEstado" style="padding: 10px; text-align: left; background: #2c3e50;">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCatalogo">
+                                <!-- Se llena dinámicamente desde JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- FORMULARIO OCULTO POR DEFECTO -->
+                    <div class="formulario-admin" id="contenedorFormulario" style="display: none; margin-top: 25px; padding-top: 20px; border-top: 2px solid #27ae60;">
+                        <h3 id="tituloFormulario">Datos del Registro</h3>
+                        
+                        <!-- 1. FORMULARIO PROGRAMAS -->
+                        <div id="form-programas">
+                            <div class="grupo">
+                                <label>Código Programa</label>
+                                <input type="text" id="pro_codigo" readonly placeholder="Autogenerado" style="background-color: #e9ecef;">
+                            </div>
+                            <div class="grupo">
+                                <label>Nombre del Programa</label>
+                                <input type="text" id="pro_nombre" required>
+                            </div>
+                            <div class="grupo">
+                                <label>Descripción</label>
+                                <textarea id="pro_descripcion" rows="3"></textarea>
+                            </div>
+                            <div class="grupo">
+                                <label>Estado</label>
+                                <select id="pro_estado">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
+                            </div>
+
+                            <!-- SECCIÓN: ASIGNACIÓN DE CURSOS Y PÚBLICO DESTINATARIO -->
+                            <div style="margin-top: 25px; border-top: 2px dashed #cbd5e1; padding-top: 20px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+                                    <div>
+                                        <h4 style="margin: 0; color: #1e293b; font-size: 1.08rem; display: flex; align-items: center; gap: 8px;">
+                                            <span>📚</span> Cursos Asignados y Público Objetivo por Curso
+                                        </h4>
+                                        <p style="margin: 4px 0 0; font-size: 0.82rem; color: #64748b;">
+                                            Defina qué cursos integran este programa y configure para cada uno su público destinatario independiente (por jerarquía de dotación o legajos específicos).
+                                        </p>
+                                    </div>
+                                    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                                        <select id="pro_select_curso_agregar" style="padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.88rem; min-width: 260px; max-width: 360px; background: #ffffff;">
+                                            <option value="">-- Seleccionar curso del catálogo --</option>
+                                        </select>
+                                        <button type="button" class="btn" style="background: #0284c7; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.88rem;" onclick="agregarCursoAPrograma()">
+                                            ➕ Asignar Curso
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Contenedor interactivo de tarjetas de cursos asignados -->
+                                <div id="pro_lista_cursos_asignados" style="display: flex; flex-direction: column; gap: 14px; margin-top: 15px;">
+                                    <!-- Se inyecta dinámicamente desde JS -->
+                                </div>
+
+                                <!-- Resumen Métrico Global del Programa -->
+                                <div id="pro_resumen_global_panel" style="margin-top: 18px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px; display: none;">
+                                    <!-- Totales calculados en tiempo real -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. FORMULARIO CURSOS -->
+                        <div id="form-cursos" style="display: none;">
+                            <div class="grupo">
+                                <label>Código Curso</label>
+                                <input type="text" id="curso_codigo" readonly placeholder="Autogenerado" style="background-color: #e9ecef;">
+                            </div>
+                            <div class="grupo">
+                                <label>Nombre del Curso</label>
+                                <input type="text" id="curso_nombre" required>
+                            </div>
+                            <div class="grupo">
+                                <label>Modalidad</label>
+                                <select id="curso_modalidad">
+                                    <option value="Presencial">Presencial</option>
+                                    <option value="Virtual Sincrónico">Virtual Sincrónico</option>
+                                    <option value="Virtual Asincrónico">Virtual Asincrónico</option>
+                                    <option value="Híbrido">Híbrido</option>
+                                </select>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Hs Teoría</label>
+                                    <input type="number" id="curso_teoria" min="0" value="0" oninput="sumarHorasCurso()">
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Hs Práctica</label>
+                                    <input type="number" id="curso_practica" min="0" value="0" oninput="sumarHorasCurso()">
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Carga Horaria Total</label>
+                                    <input type="number" id="curso_carga" readonly value="0" style="background-color: #e9ecef; font-weight: bold;">
+                                </div>
+                            </div>
+                            <div class="grupo">
+                                <label>Contenido</label>
+                                <textarea id="curso_contenido" rows="3"></textarea>
+                            </div>
+                            <div class="grupo">
+                                <label>Estado</label>
+                                <select id="curso_estado">
+                                    <option value="Activo">Activo</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                    <option value="Baja">Baja</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 3. FORMULARIO INSTRUCTORES -->
+                        <div id="form-instructores" style="display: none;">
+                            <div class="grupo">
+                                <label>Código Instructor</label>
+                                <input type="text" id="ins_codigo" readonly placeholder="Autogenerado" style="background-color: #e9ecef;">
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Nombre</label>
+                                    <input type="text" id="ins_nombre" required>
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Apellido</label>
+                                    <input type="text" id="ins_apellido" required>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>DNI / Identificación</label>
+                                    <input type="text" id="ins_dni">
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Email</label>
+                                    <input type="email" id="ins_email">
+                                </div>
+                            </div>
+                            <div class="grupo">
+                                <label>Especialidad / Temática</label>
+                                <input type="text" id="ins_especialidad" placeholder="Ej: Seguridad, Liderazgo, Sistemas">
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Tipo de Instructor</label>
+                                    <select id="ins_tipo">
+                                        <option value="Interno">Interno</option>
+                                        <option value="Externo">Externo</option>
+                                    </select>
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Estado</label>
+                                    <select id="ins_estado">
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                        <option value="Baja">Baja</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. FORMULARIO PROVEEDORES / ENTES -->
+                        <div id="form-proveedores" style="display: none;">
+                            <div class="grupo">
+                                <label>Código Proveedor</label>
+                                <input type="text" id="prv_codigo" readonly placeholder="Autogenerado (Ej: PRV-001)" style="background-color: #e9ecef;">
+                            </div>
+                            <div class="grupo">
+                                <label>Razón Social / Nombre del Proveedor *</label>
+                                <input type="text" id="prv_razon_social" placeholder="Ej: IRAM - Instituto Argentino de Normalización" required>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Ente Certificador / Sigla Oficial *</label>
+                                    <input type="text" id="prv_ente" placeholder="Ej: IRAM, Bureau Veritas, TÜV" required>
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Rubro / Especialidad</label>
+                                    <input type="text" id="prv_rubro" placeholder="Ej: END, Soldadura, Izaje">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Contacto / Responsable</label>
+                                    <input type="text" id="prv_contacto" placeholder="Ej: Ing. Gustavo Martínez">
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Teléfono</label>
+                                    <input type="text" id="prv_telefono" placeholder="Ej: +54 11 4346-0600">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 2;">
+                                    <label>Email de Contacto</label>
+                                    <input type="email" id="prv_email" placeholder="certificaciones@proveedor.com">
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Estado</label>
+                                    <select id="prv_estado">
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                        <option value="Baja">Baja</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. FORMULARIO USUARIOS Y PERMISOS -->
+                        <div id="form-usuarios" style="display: none;">
+                            <input type="hidden" id="usr_id">
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Nombre de Usuario (Login) *</label>
+                                    <input type="text" id="usr_usuario" placeholder="Ej: jperez o Admin" required>
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Contraseña / Clave *</label>
+                                    <input type="text" id="usr_clave" placeholder="Ej: CFT2026" required>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Nombre y Apellido *</label>
+                                    <input type="text" id="usr_nombre" placeholder="Ej: Juan Pérez" required>
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Correo Electrónico / Contacto</label>
+                                    <input type="email" id="usr_email" placeholder="usuario@empresa.com">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 15px;">
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Perfil / Rol en el Sistema *</label>
+                                    <select id="usr_rol">
+                                        <option value="Administrador">👑 Administrador (Acceso Total: Actividades, Reportes y Administración)</option>
+                                        <option value="Operador">✍️ Operador (Carga de Capacitaciones, Toma de Lista, QR, Agenda)</option>
+                                        <option value="Reportes">📊 Solo Reportes (Consulta de Indicadores, Dashboards y Reportes)</option>
+                                    </select>
+                                </div>
+                                <div class="grupo" style="flex: 1;">
+                                    <label>Estado de Cuenta</label>
+                                    <select id="usr_estado">
+                                        <option value="Activo">Activo (Habilitado para ingresar)</option>
+                                        <option value="Inactivo">Inactivo (Acceso bloqueado)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ACCIONES AL PIE DEL FORMULARIO -->
+                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                            <button class="btn cancelar" onclick="ocultarFormulario()">Cancelar</button>
+                            <button class="btn guardar" onclick="guardarRegistro()">Guardar Registro</button>
+                        </div>
+
+                    </div>
+                </div>
+
+               <div id="panelDotacion" style="display:none;">
+    <div class="dotacion-header">
+        <h2>Dotación</h2>
+        <div class="fecha-dotacion">
+            Última actualización: <span id="fechaDotacion">--/--/----</span>
+        </div>
+    </div>
+    <div class="dotacion-card">
+        <h3>Buscar Empleado</h3>
+        
+        <!-- FORMULARIO DE BÚSQUEDA (Para activar la tecla Buscar/Ir en tablets) -->
+        <form onsubmit="event.preventDefault(); ejecutarBusquedaLegajo();" class="grupo">
+            <label>Legajo</label>
+            <div style="display: flex; gap: 10px;">
+                <input 
+                    type="search" 
+                    id="legajo" 
+                    inputmode="numeric" 
+                    maxlength="5" 
+                    placeholder="Ej: 102 o 01099" 
+                    style="flex: 1;">
+                <button type="button" id="btnNuevoEmpleado" class="btn cancelar" onclick="limpiarCamposDotacion()">Nueva búsqueda</button>
+            </div>
+        </form>
+
+        <div class="grupo"><label>Apellido</label><input type="text" id="apellido" readonly></div>
+        <div class="grupo"><label>Nombre</label><input type="text" id="nombreEmpleado" readonly></div>
+        <div class="grupo"><label>Puesto</label><input type="text" id="puesto" readonly></div>
+        <div class="grupo"><label>Categoría</label><input type="text" id="categoria" readonly></div>
+        <div class="grupo"><label>Dirección</label><input type="text" id="direccion" readonly></div>
+        <div class="grupo"><label>Gerencia</label><input type="text" id="gerencia" readonly></div>
+        <div class="grupo"><label>Coordinación</label><input type="text" id="coordinacion" readonly></div>
+        <div class="grupo"><label>Jefatura</label><input type="text" id="jefatura" readonly></div>
+        <div class="grupo"><label>Manager</label><input type="text" id="manager" readonly></div>
+        <div class="grupo"><label>Email</label><input type="text" id="email" readonly></div>
+    </div>
+</div>
+
+                <!-- PANEL BASES -->
+                <div id="panelBases" style="display:none;">
+
+                    <!-- Tarjeta Supabase Cloud Persistente -->
+                    <div class="card-supabase-cloud" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 12px; padding: 20px; margin-bottom: 25px; border: 1px solid #334155; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.6rem;">⚡</span>
+                                <div>
+                                    <h3 style="margin: 0; color: #38bdf8; font-size: 1.15rem;">Conexión Supabase (PostgreSQL Cloud)</h3>
+                                    <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">Base de datos SQL persistente en la nube con sincronización dual local (IndexedDB)</p>
+                                </div>
+                            </div>
+                            <span id="badgeEstadoSupabase" style="background: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ffffff;"></span>
+                                Conectado a Supabase
+                            </span>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                            <div class="grupo" style="margin-bottom: 0;">
+                                <label style="color: #cbd5e1; font-size: 0.82rem; font-weight: 600;">Project URL (Supabase)</label>
+                                <input type="text" id="inputSupabaseUrl" placeholder="https://tu-proyecto.supabase.co" style="background: #0f172a; border: 1px solid #475569; color: #f8fafc; font-family: monospace; font-size: 0.85rem;" />
+                            </div>
+                            <div class="grupo" style="margin-bottom: 0;">
+                                <label style="color: #cbd5e1; font-size: 0.82rem; font-weight: 600;">Anon Public Key (API Key)</label>
+                                <input type="password" id="inputSupabaseKey" placeholder="sb_publishable_..." style="background: #0f172a; border: 1px solid #475569; color: #f8fafc; font-family: monospace; font-size: 0.85rem;" />
+                            </div>
+                        </div>
+
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                            <button type="button" id="btnGuardarSupabase" class="btn-primary" style="background: #38bdf8; color: #0f172a; font-weight: 700; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                                💾 Guardar y Probar
+                            </button>
+                            <button type="button" id="btnSubirTodoSupabase" class="btn-secundario" style="background: #059669; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                                ☁️ Subir Todo a Supabase (Migración)
+                            </button>
+                            <button type="button" id="btnDescargarTodoSupabase" class="btn-secundario" style="background: #475569; color: #ffffff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                                ⬇️ Descargar desde Supabase
+                            </button>
+                            <button type="button" id="btnDescargarScriptSQL" class="btn-secundario" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 8px 16px; border-radius: 6px; cursor: pointer;">
+                                📄 Descargar supabase_schema.sql
+                            </button>
+                        </div>
+                        <div id="progresoSupabaseContenedor" style="display: none; margin-top: 12px;">
+                            <div style="font-size: 0.8rem; color: #38bdf8; margin-bottom: 4px;" id="textoProgresoSupabase">Sincronizando...</div>
+                            <div style="width: 100%; height: 6px; background: #334155; border-radius: 4px; overflow: hidden;">
+                                <div id="barraProgresoSupabase" style="width: 0%; height: 100%; background: #38bdf8; transition: width 0.3s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Tarjeta 1: Importar -->
+                    <h3>Administrador de Bases de Datos (Importación Local)</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px;">
+                        Cargá o actualizá tus bases de datos maestras directamente desde archivos <strong>Excel (.xlsx, .xls)</strong>, <strong>JSON (.json)</strong>, <strong>SQL (.sql)</strong> o <strong>CSV</strong>.
+                    </p>
+                    <div class="grupo">
+                        <label>Seleccionar Base de Datos de Destino</label>
+                        <select id="baseDatos">
+                            <option value="TODAS">📦 Restaurar Backup Completo (Auto-detectar todas las tablas)</option>
+                            <option value="dotacion">👥 Dotación de Personal (RRHH)</option>
+                            <option value="capacitaciones">📚 Registro de Capacitaciones</option>
+                            <option value="asistentes">✍️ Registro de Asistentes</option>
+                            <option value="cursos">🎓 Catálogo de Cursos</option>
+                            <option value="programas">📋 Catálogo de Programas</option>
+                            <option value="instructores">👨‍🏫 Catálogo de Instructores</option>
+                            <option value="proveedores">🏢 Catálogo de Proveedores / Entes</option>
+                            <option value="evaluaciones_satisfaccion">⭐ Evaluaciones de Satisfacción (QR/Link)</option>
+                            <option value="transferencias">🔄 Evaluaciones de Transferencia al Puesto</option>
+                            <option value="encuestas_transferencia">📝 Encuestas de Transferencia</option>
+                            <option value="certificaciones_externas">🏆 Certificaciones Externas y Calificaciones</option>
+                            <option value="profiles">👤 Usuarios y Permisos</option>
+                        </select>
+                    </div>
+                    <div class="grupo">
+                        <label>Modo de Importación</label>
+                        <select id="modoImportacion" style="font-weight: 600; color: #1e293b; background: #f8fafc;">
+                            <option value="reemplazar">🔄 Reemplazar completamente (Sobreescribe / Iniciar de cero)</option>
+                            <option value="fusionar">➕ Fusionar / Conservar existentes (Actualiza e inserta sin borrar el resto)</option>
+                        </select>
+                    </div>
+                    <div class="grupo">
+                        <label>Archivo (Excel, JSON, SQL o CSV)</label>
+                        <input type="file" id="archivoBase" accept=".xlsx,.xls,.json,.sql,.csv,.txt">
+                    </div>
+                    <div class="grupo">
+                        <label>Estado</label>
+                        <input type="text" id="estadoBase" value="Esperando archivo..." readonly>
+                    </div>
+                    <div class="acciones" style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <button class="btn guardar" id="btnGenerarBase">Importar Archivo Seleccionado</button>
+                        <button class="btn" style="background:#0284c7; color:#fff;" id="btnSincronizarData" onclick="sincronizarDesdeCarpetaData()">🔄 Cargar / Sincronizar todos los JSON de /data/</button>
+                        <button class="btn" style="background:#dc2626; color:#fff;" id="btnVaciarBase" onclick="vaciarBaseDeDatos()">🗑️ Vaciar / Reiniciar Base de Datos</button>
+                    </div>
+
+                    <!-- Tarjeta 2: Exportar -->
+                    <div style="margin-top: 35px; border-top: 2px solid #eee; padding-top: 25px;">
+                        <h3>Exportar Bases de Datos (Backup Local)</h3>
+                        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">
+                            Descargá la información almacenada en tu sistema local a un archivo Excel (.xlsx) o JSON para guardarlo en tu disco.
+                        </p>
+
+                        <div class="grupo">
+                            <label for="selectTablaExportar">Seleccionar Base a Exportar</label>
+                            <select id="selectTablaExportar">
+                                <option value="TODAS">📦 Backup Completo (Todas las 12 tablas en un solo Excel)</option>
+                                <option value="dotacion">👥 Dotación Completa de Personal</option>
+                                <option value="capacitaciones">📚 Capacitaciones Realizadas</option>
+                                <option value="asistentes">✍️ Registro de Asistentes</option>
+                                <option value="cursos">🎓 Cursos</option>
+                                <option value="instructores">👨‍🏫 Instructores</option>
+                                <option value="programas">📋 Programas</option>
+                                <option value="proveedores">🏢 Proveedores y Entes Calificadores</option>
+                                <option value="evaluaciones_satisfaccion">⭐ Evaluaciones de Satisfacción</option>
+                                <option value="transferencias">🔄 Evaluaciones de Transferencia</option>
+                                <option value="encuestas_transferencia">📝 Encuestas de Transferencia</option>
+                                <option value="certificaciones_externas">🏆 Certificaciones Externas y Calificaciones</option>
+                                <option value="profiles">👤 Usuarios y Permisos</option>
+                            </select>
+                        </div>
+
+                        <div class="grupo">
+                            <label for="estadoExportacion">Estado de Exportación</label>
+                            <input type="text" id="estadoExportacion" value="Listo para exportar..." readonly>
+                        </div>
+
+                        <div class="acciones" style="display:flex; gap:12px; flex-wrap:wrap;">
+                            <button class="btn guardar" id="btnExportarBase" onclick="exportarBaseExcel()">
+                                Exportar a Excel (.xlsx)
+                            </button>
+                            <button class="btn" style="background:#0284c7; color:#fff;" id="btnExportarCSV" onclick="exportarBaseCSV()">
+                                Exportar a CSV (.csv)
+                            </button>
+                            <button class="btn" style="background:#475569; color:#fff;" id="btnExportarJSON" onclick="exportarBaseJSON()">
+                                Exportar a JSON (.json)
+                            </button>
+                        </div>
+                    </div>
+
+                </div> <!-- FIN DE PANEL BASES -->
+
+            </section>
+        </section>
+
+    </main>
+
+</div>
+
+<!-- MODAL GESTIÓN DOCUMENTAL Y SEGUIMIENTO DE PROVEEDORES -->
+<div id="modalDocumentosProveedor" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.65); z-index:9999; backdrop-filter:blur(3px); align-items:center; justify-content:center;">
+    <div style="background:#fff; width:94%; max-width:900px; max-height:90vh; border-radius:12px; box-shadow:0 20px 25px -5px rgba(0,0,0,0.2); display:flex; flex-direction:column; overflow:hidden; border:1px solid #e2e8f0;">
+        
+        <!-- Header Modal -->
+        <div style="background:#0f172a; color:#fff; padding:16px 22px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 style="margin:0; font-size:1.15rem; font-weight:700; display:flex; align-items:center; gap:8px;">
+                    📁 Seguimiento Documental de Proveedor
+                </h3>
+                <span id="docProvSubtitulo" style="font-size:0.85rem; color:#94a3b8;">Razón Social - Código</span>
+            </div>
+            <button onclick="cerrarModalDocumentosProveedor()" style="background:transparent; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; padding:4px 8px; border-radius:6px;" title="Cerrar">✕</button>
+        </div>
+
+        <!-- Cuerpo del Modal -->
+        <div style="padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px;">
+            
+            <!-- Barra de control y búsqueda -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; background:#f8fafc; padding:12px 16px; border-radius:8px; border:1px solid #e2e8f0;">
+                <div style="flex:1; min-width:240px; position:relative;">
+                    <input type="text" id="busquedaSeguimientoProv" placeholder="🔍 Buscar por descripción (ej: END US - 03/09/2026)..." oninput="filtrarCarpetasSeguimiento()" style="width:100%; padding:9px 12px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.9rem;">
+                </div>
+                <button class="btn" style="background:#0284c7; color:#fff; font-weight:600; padding:9px 16px; border-radius:6px; display:flex; align-items:center; gap:6px;" onclick="mostrarFormularioNuevaCarpeta()">
+                    ➕ Nueva Carpeta de Actividad
+                </button>
+            </div>
+
+            <!-- Formulario de Carpeta de Actividad (Oculto por defecto) -->
+            <div id="formCarpetaActividad" style="display:none; background:#f1f5f9; border:2px solid #0284c7; border-radius:10px; padding:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h4 id="tituloFormCarpeta" style="margin:0; color:#0f172a; font-size:1rem; font-weight:700;">
+                        📁 Registrar Carpeta de Actividad (Presupuesto + Facturas + OS)
+                    </h4>
+                    <button onclick="cancelarFormularioCarpeta()" style="background:none; border:none; color:#64748b; font-size:1.1rem; cursor:pointer;">✕</button>
+                </div>
+
+                <input type="hidden" id="editCarpetaId">
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-bottom:12px;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:4px;">Descripción de Búsqueda / Actividad *</label>
+                        <input type="text" id="carpetaDescripcion" placeholder="Ej: END US - 03/09/2026 o Calificación Soldadura" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.9rem;" required>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:4px;">Fecha de la Actividad</label>
+                        <input type="date" id="carpetaFecha" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.9rem;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:4px;">Estado del Seguimiento</label>
+                        <select id="carpetaEstado" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.9rem;">
+                            <option value="Completado">✅ Completado / Aprobado</option>
+                            <option value="Pendiente OS">⏳ Pendiente de Generación de OS</option>
+                            <option value="Pendiente Factura">🧾 Factura Pendiente</option>
+                            <option value="En Curso">🔄 En Curso / Proceso</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:600; color:#334155; margin-bottom:4px;">N° Referencia / OS / Factura</label>
+                        <input type="text" id="carpetaNroRef" placeholder="Ej: OS-2026-045 / FC-A-000123" style="width:100%; padding:8px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.9rem;">
+                    </div>
+                </div>
+
+                <!-- Carga de Archivos de la Carpeta -->
+                <div style="background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:14px; margin-bottom:14px;">
+                    <div style="font-weight:700; font-size:0.88rem; color:#1e293b; margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        📎 Archivos de la Carpeta (Presupuesto, Múltiples Facturas, Múltiples OS y Certificados)
+                    </div>
+                    
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px;">
+                        <div style="flex:1; min-width:180px;">
+                            <label style="display:block; font-size:0.75rem; color:#64748b; margin-bottom:3px;">Tipo de Documento</label>
+                            <select id="tipoArchivoNuevo" style="width:100%; padding:7px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.85rem;">
+                                <option value="Presupuesto">📄 Presupuesto</option>
+                                <option value="Factura">🧾 Factura (A, B o C)</option>
+                                <option value="Orden de Servicio (OS)">📝 Orden de Servicio (OS)</option>
+                                <option value="Certificado / Informe">🏆 Certificado / Informe Técnico</option>
+                                <option value="Otro">📎 Otro Documento</option>
+                            </select>
+                        </div>
+                        <div style="flex:1.5; min-width:200px;">
+                            <label style="display:block; font-size:0.75rem; color:#64748b; margin-bottom:3px;">Etiqueta / Detalle (Opcional)</label>
+                            <input type="text" id="etiquetaArchivoNuevo" placeholder="Ej: Factura 001, OS Aprobada..." style="width:100%; padding:7px; border-radius:6px; border:1px solid #cbd5e1; font-size:0.85rem;">
+                        </div>
+                        <div style="flex:2; min-width:240px;">
+                            <label style="display:block; font-size:0.75rem; color:#64748b; margin-bottom:3px;">Seleccionar Archivo (PDF o Imagen)</label>
+                            <input type="file" id="inputArchivoSeguimiento" accept=".pdf,image/*" multiple onchange="agregarArchivosACarpeta(event)" style="width:100%; font-size:0.85rem;">
+                        </div>
+                    </div>
+
+                    <!-- Lista de archivos temporales adjuntos a esta carpeta -->
+                    <div id="listaArchivosCarpeta" style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+                        <span style="color:#94a3b8; font-size:0.8rem; font-style:italic;">No hay archivos adjuntos en esta carpeta aún. Podés agregar más de 2 archivos.</span>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:10px;">
+                    <button class="btn" style="background:#94a3b8; color:#fff;" onclick="cancelarFormularioCarpeta()">Cancelar</button>
+                    <button class="btn guardar" onclick="guardarCarpetaSeguimiento()">💾 Guardar Carpeta de Seguimiento</button>
+                </div>
+            </div>
+
+            <!-- Lista Histórica de Carpetas de Seguimiento -->
+            <div id="contenedorListaCarpetas" style="display:flex; flex-direction:column; gap:12px;">
+                <!-- Se llena dinámicamente con JS -->
+            </div>
+
+        </div>
+
+        <!-- Footer Modal -->
+        <div style="background:#f8fafc; padding:12px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.8rem; color:#64748b;" id="resumenCarpetasProv">0 carpetas registradas</span>
+            <button class="btn" style="background:#334155; color:#fff;" onclick="cerrarModalDocumentosProveedor()">Cerrar</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL VISOR PDF EMBEBIDO -->
+<div id="modalVisorPDF" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.75); z-index:10000; align-items:center; justify-content:center; backdrop-filter:blur(3px);">
+    <div style="background:#1e293b; width:92%; max-width:960px; height:88vh; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);">
+        <div style="background:#0f172a; color:#fff; padding:12px 18px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:1.2rem;">📄</span>
+                <span id="tituloVisorPDF" style="font-weight:600; font-size:0.95rem;">Documento Adjunto</span>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <button id="btnDescargarVisorPDF" class="btn" style="background:#0284c7; color:#fff; font-size:0.8rem; padding:5px 12px; border-radius:5px;">⬇️ Descargar</button>
+                <button onclick="cerrarVisorPDF()" style="background:transparent; border:none; color:#cbd5e1; font-size:1.3rem; cursor:pointer; padding:2px 8px;">✕</button>
+            </div>
+        </div>
+        <div style="flex:1; background:#334155; position:relative;">
+            <iframe id="iframeVisorPDF" src="" style="width:100%; height:100%; border:none;" title="Visor Documento"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================== -->
+<!-- MODAL: DETALLE, COMPOSICIÓN Y CUMPLIMIENTO DE PROGRAMA   -->
+<!-- ======================================================== -->
+<div id="modalDetallePrograma" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:9998; align-items:center; justify-content:center; backdrop-filter:blur(3px);">
+    <div style="background:#ffffff; width:94%; max-width:980px; max-height:90vh; border-radius:14px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden;">
+        
+        <!-- Header Modal -->
+        <div style="background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; padding:16px 22px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.3rem;">📊</span>
+                    <h3 id="det_prog_titulo" style="margin:0; font-size:1.2rem; font-weight:700; color:#f8fafc;">Seguimiento del Programa</h3>
+                </div>
+                <div id="det_prog_subtitulo" style="font-size:0.83rem; color:#94a3b8; margin-top:3px;">
+                    Detalle de cursos asignados, público objetivo y cálculo de cumplimiento real.
+                </div>
+            </div>
+            <button onclick="cerrarModalDetallePrograma()" style="background:transparent; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; padding:2px 8px; line-height:1;">✕</button>
+        </div>
+
+        <!-- Body Modal con Scroll -->
+        <div style="padding:22px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:20px; background:#f8fafc;">
+            
+            <!-- Tarjetas de KPIs Globales -->
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:12px;">
+                <div class="prog-kpi-card">
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Cursos Asignados</div>
+                    <div id="det_kpi_cursos" style="font-size:1.6rem; font-weight:800; color:#0f172a; margin-top:4px;">0</div>
+                    <div style="font-size:0.75rem; color:#94a3b8; margin-top:2px;">en este programa</div>
+                </div>
+                <div class="prog-kpi-card">
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Cursadas Requeridas</div>
+                    <div id="det_kpi_cursadas_obj" style="font-size:1.6rem; font-weight:800; color:#0284c7; margin-top:4px;">0</div>
+                    <div id="det_kpi_empleados_unicos" style="font-size:0.75rem; color:#0284c7; margin-top:2px;">(0 personas únicas)</div>
+                </div>
+                <div class="prog-kpi-card">
+                    <div style="font-size:0.75rem; font-weight:700; color:#64748b; text-transform:uppercase;">Cursadas Cumplidas</div>
+                    <div id="det_kpi_cursadas_cumplidas" style="font-size:1.6rem; font-weight:800; color:#16a34a; margin-top:4px;">0</div>
+                    <div style="font-size:0.75rem; color:#16a34a; margin-top:2px;">asistencias registradas</div>
+                </div>
+                <div class="prog-kpi-card" style="background:#ffffff; border:2px solid #bbf7d0;">
+                    <div style="font-size:0.75rem; font-weight:700; color:#15803d; text-transform:uppercase;">Cumplimiento Global</div>
+                    <div id="det_kpi_porcentaje_global" style="font-size:1.6rem; font-weight:800; color:#15803d; margin-top:4px;">0%</div>
+                    <div class="prog-progress-wrap" style="height:6px; margin-top:6px;">
+                        <div id="det_kpi_progress_bar" class="prog-progress-fill" style="width:0%; background:#16a34a;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado Detallado de Cursos del Programa -->
+            <div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="margin:0; font-size:0.98rem; color:#1e293b; font-weight:700;">
+                        📚 Desglose por Curso y Público Objetivo
+                    </h4>
+                    <span id="det_prog_total_horas" style="font-size:0.8rem; color:#64748b; background:#e2e8f0; padding:3px 9px; border-radius:12px; font-weight:600;">
+                        0 hs totales
+                    </span>
+                </div>
+                <div id="det_prog_lista_cursos" style="display:flex; flex-direction:column; gap:14px;">
+                    <!-- Se inyecta dinámicamente -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Modal -->
+        <div style="background:#ffffff; padding:14px 22px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div id="det_prog_footer_resumen" style="font-size:0.82rem; color:#64748b;">
+                Progreso calculado sobre capacitaciones y asistencias efectivas.
+            </div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <button type="button" class="btn" style="background:#dc2626; color:#fff; font-weight:600; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;" onclick="abrirModalOpcionesPdfPrograma()">
+                    📄 Guardar Reporte PDF
+                </button>
+                <button type="button" class="btn" style="background:#059669; color:#fff; font-weight:600; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;" onclick="exportarDetalleProgramaExcel()">
+                    📊 Exportar Informe (.xlsx)
+                </button>
+                <button type="button" class="btn" style="background:#475569; color:#fff; font-size:0.85rem;" onclick="cerrarModalDetallePrograma()">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: CONFIGURAR REPORTE DE ESTADO DE PROGRAMA EN PDF   -->
+<!-- ======================================================= -->
+<div id="modalOpcionesPdfPrograma" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(3px);">
+    <div style="background:#ffffff; width:92%; max-width:580px; border-radius:14px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.35); display:flex; flex-direction:column; overflow:hidden; animation:fadeIn 0.2s ease-out;">
+        
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.3rem;">📄</span>
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:700; color:#f8fafc;">Exportar Reporte de Estado en PDF</h3>
+                </div>
+                <div id="pdf_prog_subtitulo" style="font-size:0.82rem; color:#94a3b8; margin-top:2px;">
+                    Seleccioná los módulos a incluir en el documento ejecutivo.
+                </div>
+            </div>
+            <button onclick="cerrarModalOpcionesPdfPrograma()" style="background:transparent; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; padding:2px 8px; line-height:1;">✕</button>
+        </div>
+
+        <!-- Body con Opciones -->
+        <div style="padding:20px; background:#f8fafc; display:flex; flex-direction:column; gap:14px;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.82rem; font-weight:700; color:#475569; text-transform:uppercase;">
+                    Secciones Disponibles del Informe:
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" onclick="marcarTodosChecksPdf(true)" style="background:none; border:none; color:#0284c7; font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:underline;">Marcar Todos</button>
+                    <span style="color:#cbd5e1;">|</span>
+                    <button type="button" onclick="marcarTodosChecksPdf(false)" style="background:none; border:none; color:#64748b; font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:underline;">Desmarcar</button>
+                </div>
+            </div>
+
+            <!-- Checkboxes de Selección -->
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                
+                <!-- 1. Indicadores Generales de Gestión -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all 0.15s ease;">
+                    <input type="checkbox" id="chkPdfSecGenerales" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                            <span>📊</span> Indicadores Generales de Gestión
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Cursos asignados, cursadas objetivo requeridas, asistencias computadas, personas únicas y porcentaje global de cumplimiento.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 2. Carga Horaria e Intensidad -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all 0.15s ease;">
+                    <input type="checkbox" id="chkPdfSecHoraria" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                            <span>⏱️</span> Carga Horaria e Intensidad
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Total de horas dictadas, horas-hombre (H-H) proyectadas vs. cumplidas, promedio de horas por curso y horas per cápita.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 3. Origen y E-Learning -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all 0.15s ease;">
+                    <input type="checkbox" id="chkPdfSecOrigen" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                            <span>🏢</span> Origen y E-Learning
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Desglose por modalidad (Presencial vs. Virtual / E-Learning), porcentaje de virtualidad y formación interna vs. externa.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 4. Análisis de Tendencias y Distribución -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all 0.15s ease;">
+                    <input type="checkbox" id="chkPdfSecTendencias" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                            <span>📈</span> Análisis de Tendencias y Distribución
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Matriz comparativa de cursos del programa, avance individual, estado de cumplimiento y cursos pendientes.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 5. Anexo: Nómina Detallada de Personal -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer; transition:all 0.15s ease;">
+                    <input type="checkbox" id="chkPdfSecNomina" style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a; display:flex; align-items:center; gap:6px;">
+                            <span>📋</span> Anexo: Nómina Detallada de Personal y Estados
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Listado completo de personal alcanzado (legajo, nombre, puesto, área) indicando condición de cumplimiento o pendiente.
+                        </div>
+                    </div>
+                </label>
+
+            </div>
+
+            <div id="pdfMensajeEstado" style="display:none; font-size:0.83rem; padding:8px 12px; border-radius:6px; background:#e0f2fe; color:#0369a1; text-align:center;">
+                Generando documento PDF...
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#ffffff; padding:14px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <button type="button" class="btn" style="background:#64748b; color:#fff; font-size:0.85rem;" onclick="cerrarModalOpcionesPdfPrograma()">
+                Cancelar
+            </button>
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn" style="background:#0284c7; color:#fff; font-weight:600; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;" onclick="generarReporteEstadoProgramaPDF(true)">
+                    🖨️ Vista Previa / Imprimir
+                </button>
+                <button type="button" id="btnDescargarPdfPrograma" class="btn" style="background:#dc2626; color:#fff; font-weight:700; font-size:0.85rem; display:inline-flex; align-items:center; gap:6px;" onclick="generarReporteEstadoProgramaPDF(false)">
+                    📥 Descargar PDF
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<!-- ========================================== -->
+<!-- MODAL: IMPORTAR REGISTROS DE CATÁLOGO       -->
+<!-- ========================================== -->
+<div id="modalImportarCatalogo" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(3px);">
+    <div style="background:#ffffff; width:92%; max-width:620px; border-radius:12px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); display:flex; flex-direction:column; overflow:hidden;">
+        
+        <!-- Header Modal -->
+        <div style="background:linear-gradient(135deg, #065f46, #059669); color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <h3 id="tituloModalImportarCatalogo" style="margin:0; font-size:1.15rem; font-weight:700;">📥 Importar Catálogo</h3>
+                <div id="subtituloModalImportarCatalogo" style="font-size:0.8rem; color:#a7f3d0; margin-top:3px;">Carga masiva de registros desde Excel (.xlsx, .xls), CSV o JSON.</div>
+            </div>
+            <button onclick="cerrarModalImportarCatalogo()" style="background:transparent; border:none; color:#ffffff; font-size:1.4rem; cursor:pointer; padding:2px 8px; line-height:1;">✕</button>
+        </div>
+
+        <!-- Body Modal -->
+        <div style="padding:22px; display:flex; flex-direction:column; gap:16px;">
+            
+            <!-- Selector de Modo de Importación -->
+            <div>
+                <label for="selectModoImportacionCatalogo" style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:6px;">
+                    Modo de Importación:
+                </label>
+                <select id="selectModoImportacionCatalogo" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.9rem; background:#f8fafc; font-weight:600; color:#0f172a;">
+                    <option value="fusionar">➕ Fusionar / Actualizar existentes (Conserva los demás registros)</option>
+                    <option value="reemplazar">⚠️ Reemplazar catálogo completo (Borra los actuales e ingresa los del archivo)</option>
+                </select>
+                <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">
+                    En modo fusión, los registros con el mismo código o nombre se actualizarán, y los nuevos se agregarán automáticamente.
+                </div>
+            </div>
+
+            <!-- Zona de Carga de Archivo -->
+            <div>
+                <label style="display:block; font-size:0.85rem; font-weight:700; color:#334155; margin-bottom:6px;">
+                    Seleccionar Archivo (.xlsx, .xls, .csv, .json):
+                </label>
+                <div id="dropZoneImportarCatalogo" onclick="document.getElementById('inputArchivoImportarCatalogo').click()" style="border:2px dashed #94a3b8; border-radius:10px; padding:24px 15px; text-align:center; background:#f8fafc; cursor:pointer; transition:all 0.2s;">
+                    <div style="font-size:32px; margin-bottom:6px;">📊</div>
+                    <div style="font-size:0.9rem; font-weight:700; color:#1e293b;">
+                        Hacé clic o arrastrá tu planilla Excel / CSV aquí
+                    </div>
+                    <div style="font-size:0.78rem; color:#64748b; margin-top:4px;">
+                        Formatos soportados: Excel (.xlsx, .xls), CSV delimitado por comas o punto y coma, y JSON.
+                    </div>
+                    <div id="nombreArchivoImportarDisplay" style="display:none; margin-top:10px; font-weight:700; color:#059669; font-size:0.88rem; background:#ecfdf5; padding:6px 12px; border-radius:6px; border:1px solid #a7f3d0;">
+                        <!-- Nombre del archivo seleccionado -->
+                    </div>
+                </div>
+                <input type="file" id="inputArchivoImportarCatalogo" accept=".xlsx,.xls,.csv,.json" style="display:none;" onchange="onArchivoImportarSeleccionado(this)">
+            </div>
+
+            <!-- Estado o previsualización rápida -->
+            <div id="contenedorEstadoImportacion" style="display:none; font-size:0.85rem; padding:10px 14px; border-radius:8px;"></div>
+
+            <!-- Descargar Plantilla Modelo -->
+            <div style="background:#f1f5f9; padding:10px 14px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <span style="font-size:0.8rem; color:#475569;">
+                    💡 ¿Necesitás el formato de columnas recomendado?
+                </span>
+                <button type="button" onclick="descargarPlantillaExcelCatalogo()" style="background:#ffffff; border:1px solid #cbd5e1; color:#0f172a; font-size:0.78rem; font-weight:700; padding:6px 12px; border-radius:6px; cursor:pointer;">
+                    📥 Descargar Plantilla de Ejemplo (.xlsx)
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Footer Modal -->
+        <div style="background:#f8fafc; padding:12px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px; align-items:center;">
+            <button type="button" class="btn" style="background:#64748b; color:#fff;" onclick="cerrarModalImportarCatalogo()">Cancelar</button>
+            <button type="button" class="btn" id="btnEjecutarImportacion" style="background:#059669; color:#fff; font-weight:700;" onclick="ejecutarImportacionCatalogo()" disabled>
+                ✅ Importar y Guardar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- CDN / LIBRERÍAS EXTERNAS -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="jss/dbLocal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- CONEXIÓN SUPABASE -->
+<script src="jss/supaBaseClient.js"></script>
+<script src="jss/authGuard.js"></script>
+
+<!-- LÓGICA DE ADMINISTRACIÓN Y PANELES -->
+<script src="jss/administracion.js?v=7.1"></script>
+<script src="jss/dotacion.js"></script>
+<script src="jss/bases.js"></script>
+
+
+</body>
+</html>

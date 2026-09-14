@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda | CFT</title>
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/agenda.css">
+</head>
+
+<body>
+
+<!-- Barra para dispositivos móviles -->
+<div class="mobile-header">
+    <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+    <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+</div>
+
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+        <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" class="activo" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="contenido">
+        <header style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <h2>Agenda de Capacitaciones</h2>
+                <p class="subtitulo">Planificación y cronograma mensual de actividades.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <button id="btnAbrirModalReporteAgenda" class="btn-reporte-agenda" title="Generar reporte en PDF de actividades agendadas">
+                    <span style="font-size: 16px;">📑</span> Generar Reporte PDF
+                </button>
+                <div class="usuario">
+                    👤 Ariel Pizzutto
+                </div>
+            </div>
+        </header>
+
+        <!-- Banner equivalente al de Actividad de la semana -->
+        <section class="actividad" style="margin-bottom: 15px;">
+            <div class="actividad-card">
+                <p id="resumenAnualAgenda">
+                    Cargando panorama de actividades...
+                </p>
+            </div>
+        </section>
+
+        <!-- Barra de Control Centralizada -->
+        <div class="agenda-control-bar">
+            <button class="agenda-nav-btn" id="btnMesAnterior">← Mes Anterior</button>
+            
+            <div class="agenda-control-centro">
+                <h3 id="txtMesAno" style="margin:0; font-size: 20px; color:#1a252f;">Cargando...</h3>
+                <div class="leyenda-estados">
+                    <div class="item-leyenda"><span class="dot dot-programado"></span> Programada</div>
+                    <div class="item-leyenda"><span class="dot dot-encurso"></span> En curso</div>
+                    <div class="item-leyenda"><span class="dot dot-finalizado"></span> Finalizada</div>
+                </div>
+            </div>
+
+            <button class="agenda-nav-btn" id="btnMesSiguiente">Mes Siguiente →</button>
+        </div>
+
+        <!-- Grilla Calendario Unificada -->
+        <div class="calendario-contenedor">
+            <div class="calendario-grid-header">
+                <div class="dia-semana-header">Dom</div>
+                <div class="dia-semana-header">Lun</div>
+                <div class="dia-semana-header">Mar</div>
+                <div class="dia-semana-header">Mié</div>
+                <div class="dia-semana-header">Jue</div>
+                <div class="dia-semana-header">Vie</div>
+                <div class="dia-semana-header">Sáb</div>
+            </div>
+
+            <div class="calendario-grid" id="gridDias"></div>
+        </div>
+    </main>
+
+</div>
+
+<!-- Modal -->
+<div id="modalDia" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; width:90%; max-width:800px; padding:25px; border-radius:12px; max-height:85vh; overflow-y:auto; box-shadow:0 10px 25px rgba(0,0,0,0.3);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:10px;">
+            <h3 id="tituloModalDia" style="margin:0; color:#1a252f;">Capacitaciones del Día</h3>
+            <button id="btnCerrarModalDia" style="background:none; border:none; font-size:24px; cursor:pointer; color:#888;">&times;</button>
+        </div>
+        
+        <div id="tablaContenedorDia">
+            <table style="width:100%; border-collapse:collapse; text-align:left;">
+                <thead>
+                    <tr style="background:#f4f6f7; border-bottom:2px solid #ddd;">
+                        <th style="padding:10px;">ID CAP</th>
+                        <th style="padding:10px;">Curso</th>
+                        <th style="padding:10px;">Horario</th>
+                        <th style="padding:10px;">Estado</th>
+                        <th style="padding:10px; text-align:center;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyDia"></tbody>
+            </table>
+        </div>
+    </div>
+</div> 
+
+<!-- Modal para Generar Reporte de Agenda en PDF -->
+<div id="modalReporteAgenda" class="modal-reporte-overlay" style="display:none;">
+    <div class="modal-reporte-caja">
+        <!-- Encabezado Modal -->
+        <div class="modal-reporte-header">
+            <div>
+                <h3 style="margin:0; font-size:1.25rem; color:#1e293b; display:flex; align-items:center; gap:8px;">
+                    <span>📑</span> Generar Reporte de Agenda en PDF
+                </h3>
+                <p style="margin:4px 0 0 0; font-size:0.83rem; color:#64748b;">
+                    Configure el período o semana, filtre por estados y seleccione qué actividades incluir en el reporte final.
+                </p>
+            </div>
+            <button id="btnCerrarModalReporte" class="btn-cerrar-modal" title="Cerrar ventana">&times;</button>
+        </div>
+
+        <!-- Cuerpo Modal con Controles y Verificación -->
+        <div class="modal-reporte-body">
+            <!-- Bloque 1: Controles de Período y Filtros -->
+            <div class="reporte-panel-filtros">
+                <!-- Selector de Semana / Rango -->
+                <div class="reporte-col-filtro" style="flex: 1.4;">
+                    <label class="rep-label-titulo">📅 Período / Selección de Fechas:</label>
+                    <div class="rep-presets-semana">
+                        <button type="button" class="btn-preset-rango activo" data-preset="esta_semana">Esta Semana</button>
+                        <button type="button" class="btn-preset-rango" data-preset="proxima_semana">Semana Próxima</button>
+                        <button type="button" class="btn-preset-rango" data-preset="semana_anterior">Semana Anterior</button>
+                        <button type="button" class="btn-preset-rango" data-preset="mes_visible">Mes Visible</button>
+                        <button type="button" class="btn-preset-rango" data-preset="mes_completo">Todo el Mes</button>
+                    </div>
+
+                    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:10px;">
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <label for="repFechaDesde" style="font-size:0.8rem; font-weight:600; color:#475569;">Desde:</label>
+                            <input type="date" id="repFechaDesde" class="rep-input-date">
+                        </div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <label for="repFechaHasta" style="font-size:0.8rem; font-weight:600; color:#475569;">Hasta:</label>
+                            <input type="date" id="repFechaHasta" class="rep-input-date">
+                        </div>
+                        <span id="lblInfoRangoFechas" class="badge-rango-info">Semana en curso</span>
+                    </div>
+                </div>
+
+                <!-- Filtro de Estados de Actividad -->
+                <div class="reporte-col-filtro" style="flex: 1;">
+                    <label class="rep-label-titulo">🎯 Estados de Actividad a Considerar:</label>
+                    <div class="rep-estados-checks">
+                        <label class="check-estado check-estado-fin">
+                            <input type="checkbox" id="chkEstadoFin" checked>
+                            <span class="dot dot-finalizado"></span>
+                            Finalizadas
+                        </label>
+                        <label class="check-estado check-estado-curso">
+                            <input type="checkbox" id="chkEstadoCurso" checked>
+                            <span class="dot dot-encurso"></span>
+                            En curso
+                        </label>
+                        <label class="check-estado check-estado-prog">
+                            <input type="checkbox" id="chkEstadoProg" checked>
+                            <span class="dot dot-programado"></span>
+                            Programadas
+                        </label>
+                    </div>
+
+                    <!-- Orientación de hoja para PDF -->
+                    <div style="margin-top:10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <span style="font-size:0.8rem; font-weight:600; color:#475569;">Orientación:</span>
+                        <label style="font-size:0.82rem; cursor:pointer; display:flex; align-items:center; gap:5px; color:#334155;">
+                            <input type="radio" name="orientacionPdf" value="landscape" checked> 📄 Apaisado (Horizontal)
+                        </label>
+                        <label style="font-size:0.82rem; cursor:pointer; display:flex; align-items:center; gap:5px; color:#334155;">
+                            <input type="radio" name="orientacionPdf" value="portrait"> 📄 Vertical
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bloque 2: Etapa de Verificación (Ocultar/Quitar actividades para el reporte sin borrarlas de la agenda) -->
+            <div class="reporte-seccion-verificacion">
+                <div class="reporte-verif-barra-superior">
+                    <div>
+                        <h4 style="margin:0; font-size:0.95rem; color:#1e293b; display:flex; align-items:center; gap:6px;">
+                            <span>🔍</span> Verificación de Actividades a Reportar
+                        </h4>
+                        <p style="margin:2px 0 0 0; font-size:0.78rem; color:#64748b;">
+                            Desmarque o presione "Omitir" en las actividades que no requiera reportar. No se eliminarán de la agenda.
+                        </p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span id="lblConteoSeleccionadas" class="badge-conteo-rep">0 seleccionadas</span>
+                        <button type="button" id="btnRepSeleccionarTodas" class="btn-rep-accion-chica">✓ Marcar Todas</button>
+                        <button type="button" id="btnRepDeseleccionarTodas" class="btn-rep-accion-chica">✗ Desmarcar Todas</button>
+                        <button type="button" id="btnRepToggleOcultas" class="btn-rep-accion-chica" title="Oculta las actividades omitidas para visualizar solo las incluidas">👁️ Ocultar Omitidas</button>
+                    </div>
+                </div>
+
+                <!-- Lista de tarjetas de actividades con datos de curso -->
+                <div id="contenedorListaVerificacion" class="contenedor-lista-verif">
+                    <p style="text-align:center; padding:30px; color:#94a3b8;">Cargando actividades del período...</p>
+                </div>
+            </div>
+
+            <!-- Sección de Vista Previa del PDF -->
+            <div id="seccionVistaPreviaPdf" style="display:none; margin-top:15px; border-top:1px solid #e2e8f0; padding-top:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h4 style="margin:0; color:#1e293b; font-size:0.95rem;">📄 Vista Previa del Reporte</h4>
+                    <button type="button" id="btnOcultarVistaPrevia" class="btn-rep-accion-chica">✕ Ocultar Previa</button>
+                </div>
+                <div id="contenedorPrevisualizacionHtml" class="previsualizacion-pdf-wrap"></div>
+            </div>
+        </div>
+
+        <!-- Pie Modal con Acciones -->
+        <div class="modal-reporte-footer">
+            <button type="button" id="btnCerrarModalReporteSec" class="btn-rep-cancelar">Cerrar</button>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                <button type="button" id="btnVerVistaPreviaReporte" class="btn-rep-secundario">
+                    <span>👁️</span> Vista Previa
+                </button>
+                <button type="button" id="btnImprimirReporteAgenda" class="btn-rep-secundario">
+                    <span>🖨️</span> Imprimir
+                </button>
+                <button type="button" id="btnGenerarPdfAgenda" class="btn-rep-primario">
+                    <span>📥</span> Descargar Reporte PDF
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor Oficial para Generación de PDF e Impresión -->
+<div id="contenedorReporteImprimible" class="contenedor-reporte-imprimible" style="display:none;"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="jss/dbLocal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="jss/supaBaseClient.js"></script>
+<script src="jss/authGuard.js"></script>
+<script src="jss/agenda.js?v=0.8"></script>
+
+    
+</body>
+</html>

@@ -1,0 +1,631 @@
+/* ===================================================
+   SIGA_APP - ESTILOS MÓDULO DE REPORTES Y HUB
+   =================================================== */
+
+/* --- HUB PRINCIPAL (MENU DE 4 TARJETAS) --- */
+.reportes-hub-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 15px;
+}
+
+.hub-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.hub-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+.hub-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+}
+
+.hub-card h3 {
+    font-size: 1.20rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+}
+
+.hub-card p {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* --- BOTÓN VOLVER Y ENCABEZADOS --- */
+.btn-volver-hub {
+    background: #1e293b;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-volver-hub:hover {
+    background: #334155;
+}
+
+.seccion-titulo {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #10b981;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- GRILLAS DE DETALLE DE KPIS --- */
+.kpi-grid-4cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+.kpi-grid-3cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+.kpi-grid-2cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+
+/* --- DISEÑO DE TARJETAS DE INDICADORES (KPI CARDS) --- */
+.kpi-card-item {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Título de indicador dentro de la tarjeta */
+.kpi-lbl-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Número gigante de indicador */
+.kpi-num-val {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* VARIANTES DE COLOR PARA LAS TARJETAS */
+.card-blue { border-top: 4px solid #0284c7; }
+.card-green { border-top: 4px solid #10b981; }
+.card-cyan { border-top: 4px solid #06b6d4; }
+.card-purple { border-top: 4px solid #8b5cf6; }
+.card-orange { border-top: 4px solid #f97316; }
+.card-darkblue { border-top: 4px solid #1e293b; }
+
+/* Colores de texto para los números */
+.blue { color: #0284c7; }
+.green { color: #10b981; }
+.cyan { color: #06b6d4; }
+.purple { color: #8b5cf6; }
+.orange { color: #f97316; }
+.dark-blue { color: #1e293b; }
+
+/* --- CONTENEDORES DE GRÁFICOS (CHART.JS) --- */
+.chart-box-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+    margin-bottom: 20px;
+}
+
+.chart-box-card h4 {
+    margin: 0 0 15px 0;
+    font-size: 1rem;
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+}
+
+.pie-container {
+    height: 280px;
+}
+
+/* Adaptación Responsive */
+@media (max-width: 1024px) and (min-width: 641px) {
+    .kpi-grid-4cols {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .reportes-hub-grid,
+    .kpi-grid-4cols,
+    .kpi-grid-3cols,
+    .kpi-grid-2cols {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ===================================================
+   PANEL DE FILTROS Y SLICERS ESTILO POWER BI
+   =================================================== */
+
+.pbi-panel {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+
+.pbi-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #ffffff;
+    padding: 14px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pbi-header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pbi-icon {
+    font-size: 1.4rem;
+    background: rgba(255, 255, 255, 0.12);
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pbi-title {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+    color: #f8fafc;
+}
+
+.pbi-subtitle {
+    margin: 2px 0 0 0;
+    font-size: 0.78rem;
+    color: #94a3b8;
+}
+
+.pbi-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pbi-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pbi-badge-neutral {
+    background: rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+}
+
+.pbi-badge-active {
+    background: #f59e0b;
+    color: #0f172a;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.pbi-btn-limpiar {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pbi-btn-limpiar:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+
+.pbi-btn-toggle {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pbi-btn-toggle:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.pbi-body {
+    padding: 18px 20px;
+    background: #ffffff;
+}
+
+/* Grilla de los 2 grupos de filtros: Dotación y Capacitaciones */
+.pbi-grid-grupos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+@media (max-width: 1024px) {
+    .pbi-grid-grupos {
+        grid-template-columns: 1fr;
+    }
+}
+
+.pbi-card-grupo {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pbi-grupo-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #1e293b;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 8px;
+}
+
+.pbi-grupo-icon {
+    font-size: 1.15rem;
+}
+
+.pbi-grupo-tag {
+    margin-left: auto;
+    font-size: 0.7rem;
+    background: #e2e8f0;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+/* Grilla de campos en cada grupo */
+.pbi-campos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+}
+
+.pbi-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.pbi-campo label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.pbi-select,
+.pbi-input,
+.pbi-input-date {
+    width: 100%;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #ffffff;
+    font-size: 0.82rem;
+    color: #1e293b;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.pbi-select:hover,
+.pbi-input:hover,
+.pbi-input-date:hover {
+    border-color: #94a3b8;
+}
+
+.pbi-select:focus,
+.pbi-input:focus,
+.pbi-input-date:focus {
+    outline: none;
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.pbi-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pbi-input-wrap .pbi-input {
+    padding-right: 28px;
+}
+
+.pbi-btn-input-clear {
+    position: absolute;
+    right: 6px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+.pbi-btn-input-clear:hover {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+.pbi-campo-fechas {
+    grid-column: span 2;
+}
+
+@media (max-width: 600px) {
+    .pbi-campo-fechas {
+        grid-column: span 1;
+    }
+}
+
+.pbi-fechas-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.pbi-fecha-sub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pbi-fecha-lbl {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+/* Barra inferior del panel de filtros */
+.pbi-footer-bar {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pbi-resumen-metricas {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.82rem;
+    color: #475569;
+    flex-wrap: wrap;
+}
+
+.pbi-resumen-item {
+    background: #f1f5f9;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
+}
+
+.pbi-resumen-item strong {
+    color: #0284c7;
+    font-weight: 800;
+}
+
+.pbi-resumen-sep {
+    color: #94a3b8;
+}
+
+/* Chips de filtros activos (Power BI style) */
+.pbi-chips-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 28px;
+    align-items: center;
+}
+
+.pbi-chip-item {
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    color: #0369a1;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(2, 132, 199, 0.08);
+}
+
+.pbi-chip-item:hover {
+    background: #bae6fd;
+    border-color: #38bdf8;
+}
+
+.pbi-chip-close {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #0284c7;
+    line-height: 1;
+    padding: 0 2px;
+    border-radius: 50%;
+}
+
+.pbi-chip-close:hover {
+    color: #dc2626;
+}
+
+.pbi-chips-vacio {
+    font-size: 0.78rem;
+    color: #94a3b8;
+    font-style: italic;
+}
+
+/* Botón Navegación Directa entre secciones */
+.secciones-nav-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.btn-sec-nav {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-sec-nav:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.btn-sec-nav.activo {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+}
+
+/* Tarjeta destacada en el Hub */
+.hub-card-accent {
+    border: 2px solid #0284c7;
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+}
+
+.hub-card-accent:hover {
+    box-shadow: 0 10px 24px rgba(2, 132, 199, 0.15);
+}
+
+/* Tabla de detalle Power BI */
+.pbi-tabla-contenedor {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-top: 12px;
+}
+
+.pbi-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: left;
+}
+
+.pbi-tabla th {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: 800;
+    padding: 10px 12px;
+    border-bottom: 2px solid #cbd5e1;
+    white-space: nowrap;
+}
+
+.pbi-tabla td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.pbi-tabla tr:hover {
+    background: #f8fafc;
+}
+
+.badge-estado-pbi {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.estado-programado { background: #ffedd5; color: #c2410c; }
+.estado-encurso { background: #e0f2fe; color: #0369a1; }
+.estado-finalizado { background: #dcfce7; color: #15803d; }
+

@@ -1,0 +1,357 @@
+/* ===================================================
+   ACTIVIDAD - ACADEMIA EMOVA
+   Release 0.3.2
+===================================================*/
+
+body{
+
+    background:#ECECEC;
+
+}
+
+/*-----------------------------
+ENCABEZADO
+------------------------------*/
+
+.subtitulo{
+
+    margin-top:6px;
+
+    color:#666;
+
+    font-size:15px;
+
+}
+
+.estado{
+
+    background:#FFF8DD;
+
+    color:#A36A00;
+
+    padding:10px 18px;
+
+    border-radius:25px;
+
+    font-weight:600;
+
+    border:1px solid #F2D27A;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    min-width:160px;
+
+}
+
+/*-----------------------------
+FORMULARIO
+------------------------------*/
+.formulario{
+
+    background:white;
+
+    border-radius:18px;
+
+    padding:35px;
+
+    margin-top:25px;
+
+    box-shadow:0 8px 18px rgba(0,0,0,.08);
+
+    display:grid;
+
+    grid-template-columns:1.5fr 1fr 1fr;
+
+    column-gap:18px;
+
+    row-gap:24px;
+
+    align-items:end;
+
+}
+/*-----------------------------
+GRUPOS
+------------------------------*/
+
+.grupo{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.grupo label{
+
+    font-size:15px;
+
+    font-weight:600;
+
+    color:#1F2A44;
+
+    margin-bottom:8px;
+
+}
+.grupo input,
+.grupo select,
+.grupo textarea{
+
+    border:1px solid #D8D8D8;
+
+    border-radius:10px;
+
+    padding:12px;
+
+    font-size:15px;
+
+    transition:.25s;
+
+    background:white;
+
+    font-family:Segoe UI;
+
+    box-sizing:border-box;
+
+    width:100%;
+
+}
+
+.grupo input,
+.grupo select{
+
+    height:46px;
+
+}
+
+.grupo textarea{
+
+    resize:vertical;
+
+    min-height:85px;
+
+}
+/*-----------------------------
+FOCUS
+------------------------------*/
+
+.grupo input:focus,
+.grupo select:focus,
+.grupo textarea:focus{
+
+    outline:none;
+
+    border-color:#18C48F;
+
+    box-shadow:0 0 0 4px rgba(24,196,143,.15);
+
+}
+
+/*-----------------------------
+ANCHO COMPLETO
+------------------------------*/
+
+.largura{
+
+    grid-column:1 / 4;
+
+}
+
+.ancho2{
+    grid-column:span 2;
+}
+
+.ancho3{
+    grid-column:1 / 4;
+}
+
+/*-----------------------------
+BOTONES
+------------------------------*/
+
+.acciones{
+
+    margin-top:30px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:18px;
+
+    flex-wrap:wrap;
+
+}
+
+.acciones button{
+
+    width:160px;
+
+    height:48px;
+
+    border:none;
+
+    border-radius:10px;
+
+    font-size:15px;
+
+    font-weight:bold;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.acciones button:hover{
+
+    transform:translateY(-2px);
+
+    box-shadow:0 5px 15px rgba(0,0,0,.18);
+
+}
+
+/*-----------------------------
+COLORES
+------------------------------*/
+
+.nuevo{
+
+    background:#F4A62A;
+
+    color:white;
+
+}
+
+.guardar{
+
+    background:#18C48F;
+
+    color:white;
+
+}
+
+.buscar{
+
+    background:#1F6FEB;
+
+    color:white;
+
+}
+
+.cancelar{
+
+    background:#D9D9D9;
+
+    color:#333;
+
+}
+
+/*-----------------------------
+TABLET
+------------------------------*/
+
+@media(max-width:1000px){
+
+.formulario{
+
+grid-template-columns:repeat(2,1fr);
+
+}
+
+.largura{
+
+grid-column:1 / 3;
+
+}
+
+}
+
+/*-----------------------------
+CELULAR
+------------------------------*/
+
+@media(max-width:700px){
+
+.formulario{
+
+grid-template-columns:1fr;
+
+padding:20px;
+
+}
+
+.largura{
+
+grid-column:1;
+
+}
+
+.estado{
+
+margin-top:15px;
+
+}
+
+header{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+}
+
+.acciones{
+
+flex-direction:column;
+
+align-items:center;
+
+}
+
+.acciones button{
+
+width:100%;
+
+max-width:320px;
+
+}
+
+}
+
+/*--------------------------------
+ANCHOS PERSONALIZADOS
+--------------------------------*/
+
+.pequeno{
+
+    width:180px;
+
+}
+
+.mediano{
+
+    width:220px;
+
+}
+
+.grande{
+
+    width:100%;
+
+}
+
+.numero{
+
+    width:90px;
+
+}
+
+.estadoSelect{
+
+    width:170px;
+
+}

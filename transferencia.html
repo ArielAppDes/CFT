@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación de Transferencia de Conocimiento - CFT</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #0284c7;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --border: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            border-bottom: 3px solid var(--accent);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            margin: 0 0 6px 0;
+            font-size: 1.3rem;
+            color: var(--primary);
+        }
+
+        .meta-box {
+            background-color: #f1f5f9;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        select, input[type="text"], textarea, input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .conditional-block {
+            display: none;
+            background-color: #fff8f1;
+            border-left: 4px solid #f97316;
+            padding: 14px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 16px;
+        }
+
+        .btn-submit {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+
+        .btn-submit:hover {
+            background-color: #0369a1;
+        }
+
+        .success-msg {
+            display: none;
+            text-align: center;
+            padding: 30px 10px;
+        }
+
+        .success-msg h3 {
+            color: #16a34a;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="formContainer">
+        <div class="header">
+            <h2>Evaluación de Transferencia de Conocimiento al Puesto</h2>
+            <small style="color: #64748b;">A completar por el jefe o superior directo</small>
+        </div>
+
+        <div class="meta-box">
+            <div><strong>ID CAP:</strong> <span id="lblIdCap" style="font-weight:700; color:var(--accent);">Cargando...</span></div>
+            <div><strong>Curso:</strong> <span id="lblCurso">Cargando...</span></div>
+            <div><strong>Fecha Curso:</strong> <span id="lblFecha">--/--/----</span></div>
+            <div><strong>Jefatura:</strong> <span id="lblJefatura">Todas / General</span></div>
+            <div style="grid-column: 1 / -1;"><strong>Participante/s:</strong> <span id="lblParticipante">Cargando...</span></div>
+            <div style="grid-column: 1 / -1;"><strong>Legajo/s:</strong> <span id="lblLegajo">----</span></div>
+        </div>
+
+        <form id="frmTransferencia">
+            <div class="form-group">
+                <label>1. ¿El participante aplica a su tarea los contenidos impartidos en el curso?</label>
+                <select id="aplicaContenidos" required onchange="evaluarRespuesta()">
+                    <option value="">-- Seleccione una opción --</option>
+                    <option value="SI">SI</option>
+                    <option value="PARCIALMENTE">PARCIALMENTE (*)</option>
+                    <option value="NO">NO (*)</option>
+                </select>
+            </div>
+
+            <div id="bloqueDetalle" class="conditional-block">
+                <div class="form-group">
+                    <label>2. ¿Por qué crees que no se aplican los contenidos? (Especifica/Ejemplifica las dificultades)</label>
+                    <textarea id="motivoDificultad" placeholder="Describa brevemente las dificultades detectadas..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>3. Plan de Acción (Acciones necesarias para lograr el desempeño requerido)</label>
+                    <textarea id="planAccion" placeholder="Enumerar las acciones acordadas..."></textarea>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Nombre y Apellido del Responsable (Evaluador):</label>
+                <input type="text" id="firmaResponsable" placeholder="Ej: Juan Pérez (Jefe Directo)" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Enviar Evaluación</button>
+        </form>
+    </div>
+
+    <div id="successMsg" class="success-msg">
+        <h3>¡Evaluación Registrada con Éxito!</h3>
+        <p>Los datos han sido guardados correctamente en el sistema CFT.</p>
+    </div>
+</div>
+
+<script src="jss/dbLocal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="jss/supaBaseClient.js"></script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCapParam = urlParams.get('id_cap') || '';
+    const cursoParam = urlParams.get('curso') || '';
+    const fechaParam = urlParams.get('fecha') || '';
+    const jefaturaParam = urlParams.get('jefatura') || '';
+    const nombresParam = urlParams.get('nombres') || '';
+    const legajosParam = urlParams.get('legajos') || '';
+
+    let datosCap = { 
+        nombre_curso: cursoParam || '', 
+        fecha: fechaParam || '' 
+    };
+    let textoNombres = nombresParam || '';
+    let textoLegajos = legajosParam || '';
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        document.getElementById('lblIdCap').textContent = idCapParam || 'Sin ID especificado';
+        if (cursoParam) document.getElementById('lblCurso').textContent = cursoParam;
+        if (fechaParam) document.getElementById('lblFecha').textContent = fechaParam;
+        if (jefaturaParam) document.getElementById('lblJefatura').textContent = jefaturaParam;
+        if (nombresParam) document.getElementById('lblParticipante').textContent = nombresParam;
+        if (legajosParam) document.getElementById('lblLegajo').textContent = legajosParam;
+
+        await cargarDatos();
+    });
+
+    function obtenerDB() {
+        return window.dbLocal || window.supabaseClient || window.supabase || null;
+    }
+
+    async function cargarDatos() {
+        if (!idCapParam) {
+            console.warn("Falta ID_CAP en la URL.");
+            if (!cursoParam) document.getElementById('lblCurso').textContent = "Capacitación no especificada";
+            if (!nombresParam) document.getElementById('lblParticipante').textContent = "-";
+            return;
+        }
+
+        try {
+            // 1. Obtener datos de la capacitación
+            let cap = null;
+            if (window.dbLocal && window.dbLocal.raw) {
+                const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+                cap = caps.find(c => String(c.id_cap).trim() === idCapParam.trim());
+            }
+
+            if (!cap) {
+                try {
+                    const rawCaps = JSON.parse(localStorage.getItem('SIGA_DB_capacitaciones') || '[]');
+                    cap = rawCaps.find(c => String(c.id_cap).trim() === idCapParam.trim());
+                } catch(e) {}
+            }
+
+            if (!cap && (window.supabaseCloudClient || window.supabaseClient || window.supabase)) {
+                const db = window.supabaseCloudClient || window.supabaseClient || window.supabase;
+                const { data } = await db.from('capacitaciones').select('*').eq('id_cap', idCapParam).maybeSingle();
+                if (data) cap = data;
+            }
+
+            if (cap) {
+                datosCap = cap;
+                if (!cursoParam) document.getElementById('lblCurso').textContent = cap.nombre_curso || cap.programa || idCapParam;
+                if (!fechaParam) document.getElementById('lblFecha').textContent = cap.fecha || "--/--/----";
+            } else if (!cursoParam) {
+                document.getElementById('lblCurso').textContent = idCapParam;
+            }
+
+            // 2. Si no vienen nombres en la URL, consultar asistentes
+            if (!textoNombres || textoNombres.trim() === '') {
+                let listaAsistentes = [];
+                if (window.dbLocal && window.dbLocal.raw) {
+                    const todosAsistentes = window.dbLocal.raw.leerTabla('asistentes') || [];
+                    listaAsistentes = todosAsistentes.filter(a => String(a.id_cap).trim() === idCapParam.trim());
+                }
+
+                if (listaAsistentes.length === 0) {
+                    try {
+                        const rawAsis = JSON.parse(localStorage.getItem('SIGA_DB_asistentes') || '[]');
+                        listaAsistentes = rawAsis.filter(a => String(a.id_cap).trim() === idCapParam.trim());
+                    } catch(e) {}
+                }
+
+                if (listaAsistentes.length === 0 && (window.supabaseCloudClient || window.supabaseClient || window.supabase)) {
+                    const db = window.supabaseCloudClient || window.supabaseClient || window.supabase;
+                    let q = db.from('asistentes').select('*').eq('id_cap', idCapParam);
+                    if (jefaturaParam) q = q.eq('jefatura', jefaturaParam);
+                    const { data } = await q;
+                    if (data) listaAsistentes = data;
+                }
+
+                if (jefaturaParam && listaAsistentes.length > 0) {
+                    const filtrados = listaAsistentes.filter(a => {
+                        let j = a.jefatura || a.Jefatura || (a.datos_completos && a.datos_completos.jefatura) || a.manager || '';
+                        if (!j || j === '-' || j.trim() === '') {
+                            if (window.dbLocal && window.dbLocal.raw) {
+                                const dota = window.dbLocal.raw.leerTabla('dotacion') || [];
+                                const emp = dota.find(d => String(d.legajo).padStart(5, '0') === String(a.legajo).padStart(5, '0'));
+                                if (emp) j = emp.jefatura || emp.manager || emp.gerencia || '';
+                            }
+                        }
+                        return j.toLowerCase().trim() === jefaturaParam.toLowerCase().trim();
+                    });
+                    if (filtrados.length > 0) {
+                        listaAsistentes = filtrados;
+                    }
+                }
+
+                if (listaAsistentes.length > 0) {
+                    textoNombres = listaAsistentes.map(a => {
+                        const nom = a.nombre || a.Nombre || '';
+                        const ape = a.apellido || a.Apellido || '';
+                        return `${ape}, ${nom}`.replace(/^,\s*|\s*,$/g, '').trim() || `Legajo ${a.legajo}`;
+                    }).join(" | ");
+
+                    textoLegajos = listaAsistentes.map(a => String(a.legajo || a.Legajo || '-')).join(" | ");
+
+                    document.getElementById('lblParticipante').textContent = textoNombres;
+                    document.getElementById('lblLegajo').textContent = textoLegajos;
+                } else {
+                    document.getElementById('lblParticipante').textContent = "Participantes de la actividad";
+                    document.getElementById('lblLegajo').textContent = "-";
+                }
+            }
+        } catch (err) {
+            console.error("Error al cargar datos en la encuesta de transferencia:", err);
+        }
+    }
+
+    function evaluarRespuesta() {
+        const val = document.getElementById('aplicaContenidos').value;
+        const bloque = document.getElementById('bloqueDetalle');
+        if (val === 'PARCIALMENTE' || val === 'NO') {
+            bloque.style.display = 'block';
+            document.getElementById('motivoDificultad').required = true;
+            document.getElementById('planAccion').required = true;
+        } else {
+            bloque.style.display = 'none';
+            document.getElementById('motivoDificultad').required = false;
+            document.getElementById('planAccion').required = false;
+        }
+    }
+
+    document.getElementById('frmTransferencia').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btn = document.querySelector('#frmTransferencia button[type="submit"]');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = "Guardando evaluación...";
+        }
+
+        const payload = {
+            id_cap: idCapParam,
+            jefatura: jefaturaParam || "General",
+            nombre_curso: document.getElementById('lblCurso')?.textContent || datosCap.nombre_curso || cursoParam || idCapParam,
+            fecha_curso: document.getElementById('lblFecha')?.textContent || datosCap.fecha || fechaParam || new Date().toLocaleDateString('es-AR'),
+            legajo: textoLegajos || legajosParam || '-',
+            nombre: textoNombres || nombresParam || '-',
+            aplica_contenidos: document.getElementById('aplicaContenidos').value,
+            motivo_dificultad: document.getElementById('motivoDificultad').value || null,
+            plan_accion: document.getElementById('planAccion').value || null,
+            firma_responsable: document.getElementById('firmaResponsable').value,
+            fecha_registro: new Date().toISOString()
+        };
+
+        // 1. Guardar en Base de Datos Local
+        if (window.dbLocal && window.dbLocal.raw) {
+            const transferencias = window.dbLocal.raw.leerTabla('transferencias') || [];
+            transferencias.push({ ...payload, id_tra: Date.now() });
+            window.dbLocal.raw.escribirTabla('transferencias', transferencias);
+            window.dbLocal.raw.escribirTabla('encuestas_transferencia', transferencias);
+
+            const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+            const idx = caps.findIndex(c => String(c.id_cap).trim() === idCapParam.trim());
+            if (idx !== -1) {
+                caps[idx].estado_tra = 'Recibida';
+                window.dbLocal.raw.escribirTabla('capacitaciones', caps);
+            }
+        }
+
+        // 2. Sincronizar en Supabase
+        try {
+            let cloudDB = window.supabaseCloudClient;
+            if (!cloudDB && typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY) {
+                cloudDB = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+            }
+            if (cloudDB) {
+                await cloudDB.from('transferencias').insert([payload]);
+                await cloudDB.from('capacitaciones').update({ estado_tra: 'Recibida' }).eq('id_cap', idCapParam);
+            }
+        } catch(err) {
+            console.warn("Aviso al sincronizar transferencia en la nube:", err);
+        }
+
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+    });
+</script>
+</body>
+</html>

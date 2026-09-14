@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actividades | CFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/actividades.css">
+</head>
+
+<body>
+
+    <!-- Barra para dispositivos móviles -->
+    <div class="mobile-header">
+        <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+        <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+    </div>
+
+    <div class="contenedor">
+        
+        <!-- Menú lateral inteligente estilo HBO TV -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1 class="logo-title">CFT</h1>
+                <p class="logo-sub">Centro de Formación Técnica</p>
+            </div>
+            <nav>
+                <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+                <a href="actividades.html" class="activo" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+                <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+                <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+                <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+                <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+                <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+                <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+            </nav>
+        </aside>
+
+        <!-- Contenido -->
+        <main class="contenido">
+            <header style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2>Actividades</h2>
+                    <p class="subtitulo">Centro de gestión de capacitaciones.</p>
+                </div>
+                <div class="usuario">
+                    👤 Usuario
+                </div>
+            </header>
+
+            <section class="tarjetas">
+                <!-- Fila 1 -->
+                <a href="capacitaciones.html" id="cardNueva" class="tarjeta">
+                    <div class="icono">➕</div>
+                    <h3>Nueva capacitación</h3>
+                    <p>Crear una nueva capacitación.</p>
+                </a>
+
+                <a href="#" id="cardProgramadas" class="tarjeta">
+                    <div class="icono">📅</div>
+                    <h3>Programadas</h3>
+                    <p>Consultar y editar capacitaciones programadas.</p>
+                </a>
+
+                <!-- Fila 2 -->
+                <a href="#" id="cardEnCurso" class="tarjeta">
+                    <div class="icono">▶</div>
+                    <h3>En curso</h3>
+                    <p>Continuar capacitaciones en ejecución.</p>
+                </a>
+
+                <a href="#" id="cardFinalizadas" class="tarjeta">
+                    <div class="icono">✔</div>
+                    <h3>Finalizadas</h3>
+                    <p>Consultar historial de capacitaciones.</p>
+                </a>
+
+                <!-- Fila 3 -->
+                <a href="#" id="cardTransferencia" class="tarjeta">
+                    <div class="icono">📋</div>
+                    <h3>Encuesta de Transferencia</h3>
+                    <p>Evaluación de impacto laboral post-capacitación.</p>
+                </a>
+
+                <a href="#" id="cardSatisfaccion" class="tarjeta">
+                    <div class="icono">📱</div>
+                    <h3>Encuesta de Satisfacción</h3>
+                    <p>Gestión y generación de códigos QR de evaluación.</p>
+                </a>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- Modal Listado Capacitaciones -->
+    <div id="modalCapacitaciones" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+        <div style="background:#fff; width:90%; max-width:900px; padding:25px; border-radius:12px; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.3);">
+            
+            <!-- CABECERA: TÍTULO Y BOTÓN CERRAR -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:2px solid #eee; padding-bottom:10px;">
+                <h3 id="tituloModal" style="margin:0; color:#1a252f;">Capacitaciones</h3>
+                <button id="btnCerrarModal" style="background:none; border:none; font-size:24px; cursor:pointer; color:#888;">&times;</button>
+            </div>
+            
+            <!-- BARRA DE BÚSQUEDA -->
+            <div style="margin-bottom:15px;">
+                <input 
+                    type="text" 
+                    id="inputBuscarModal" 
+                    oninput="filtrarModal()"
+                    placeholder="🔍 Buscar por ID, Curso o Instructor..." 
+                    style="width:100%; padding:10px 14px; border:1px solid #cbd5e1; border-radius:8px; font-size:0.95rem; box-sizing:border-box; outline:none;">
+            </div>
+
+            <!-- TABLA DE RESULTADOS CON ALTURA MÁXIMA Y SCROLL VERTICAL -->
+            <div id="tablaContenedor" style="max-height:380px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px;">
+                <table style="width:100%; border-collapse:collapse; text-align:left;">
+                    <thead>
+                        <tr style="background:#f4f6f7; border-bottom:2px solid #ddd; position:sticky; top:0; z-index:10;">
+                            <th style="padding:10px; background:#f4f6f7;">ID CAP</th>
+                            <th style="padding:10px; background:#f4f6f7;">Curso</th>
+                            <th style="padding:10px; background:#f4f6f7;">Clase</th>
+                            <th style="padding:10px; background:#f4f6f7;">Fecha</th>
+                            <th style="padding:10px; background:#f4f6f7;">Instructor</th>
+                            <th style="padding:10px; text-align:center; background:#f4f6f7;">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyCapacitaciones"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE CÓDIGO QR Y ENLACES POR JEFATURA -->
+    <div id="modalQR" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:1100; align-items:center; justify-content:center;">
+        <div style="background:#fff; width:90%; max-width:600px; padding:25px; border-radius:16px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.3); position:relative; max-height:85vh; overflow-y:auto;">
+            <button id="btnCerrarQR" style="position:absolute; top:12px; right:15px; background:none; border:none; font-size:24px; cursor:pointer; color:#888;">&times;</button>
+            
+            <h3 id="qrTituloModal" style="margin:0 0 5px 0; color:#1a252f;">Encuesta de Transferencia</h3>
+            <p id="qrSubtitulo" style="font-size:13px; color:#64748b; margin-bottom:15px;">Evaluación de Impacto Post-Capacitación</p>
+            
+            <p id="qrIdCapText" style="font-weight:700; color:#18C48F; margin:5px 0 15px 0; font-size:15px;"></p>
+
+            <!-- CONTENEDOR PRINCIPAL PARA UNICO O MULTIPLES JEFES -->
+            <div id="contenedorJefaturas" style="display:flex; flex-direction:column; gap:15px; text-align:left;">
+                <!-- QR por defecto cuando no hay desglose por jefe -->
+                <div id="contenedorQRSimple" style="display:flex; flex-direction:column; align-items:center; padding:15px; background:#f8fafc; border-radius:12px; border:1px solid #e2e8f0;">
+                    <div id="contenedorQR" style="margin:10px 0;"></div>
+                </div>
+            </div>
+
+            <button onclick="window.print()" style="margin-top:20px; background:#0f172a; color:#fff; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:14px; font-weight:600;">
+                🖨️ Imprimir / Descargar Vista
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE AUTENTICACIÓN ADMIN PARA EDITAR FINALIZADA -->
+    <div id="modalAdminAuth" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index:1200; align-items:center; justify-content:center; padding: 20px;">
+        <div style="background:#fff; width:100%; max-width:440px; border-radius:16px; box-shadow:0 20px 40px rgba(0,0,0,0.25); overflow:hidden; text-align:left; font-family:inherit;">
+            <div style="background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; padding:18px 22px; display:flex; justify-content:space-between; align-items:center;">
+                <h3 style="margin:0; font-size:17px; font-weight:700; display:flex; align-items:center; gap:8px;">
+                    🔒 Permiso de Administrador
+                </h3>
+                <button id="btnCerrarAdminAuth" style="background:none; border:none; color:#94a3b8; font-size:22px; cursor:pointer; line-height:1;">&times;</button>
+            </div>
+            <form id="formAdminAuth" style="padding:22px;">
+                <p style="margin:0 0 16px 0; color:#475569; font-size:14px; line-height:1.4;">
+                    Para modificar los datos o la lista de asistentes de una capacitación finalizada, ingresá tus credenciales de administrador:
+                </p>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">Usuario Administrador</label>
+                    <input type="text" id="adminAuthUser" placeholder="Ej: Admin" required style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px;">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label style="display:block; font-size:13px; font-weight:600; color:#334155; margin-bottom:6px;">Contraseña</label>
+                    <input type="password" id="adminAuthPass" placeholder="••••••••" required style="width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px;">
+                </div>
+                <div id="adminAuthError" style="display:none; color:#e11d48; background:#ffe4e6; padding:8px 12px; border-radius:6px; font-size:13px; margin-bottom:14px; border:1px solid #fecdd3;">
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                    <button type="button" id="btnCancelarAdminAuth" style="background:#64748b; color:#fff; border:none; padding:9px 18px; border-radius:8px; cursor:pointer; font-weight:600; font-size:13.5px;">
+                        Cancelar
+                    </button>
+                    <button type="submit" style="background:#18C48F; color:#fff; border:none; padding:9px 20px; border-radius:8px; cursor:pointer; font-weight:700; font-size:13.5px; box-shadow:0 4px 10px rgba(24,196,143,0.3);">
+                        Desbloquear y Editar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Librería para Generación de Código QR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <!-- Base de datos local y offline -->
+    <script src="jss/dbLocal.js"></script>
+
+    <!-- Librería Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Cliente de conexión -->
+    <script src="jss/supaBaseClient.js?v=9.0"></script>
+    <script src="jss/authGuard.js"></script>
+
+    <!-- Lógica principal -->
+    <script src="jss/actividades.js?v=13"></script>
+
+</body>
+</html>

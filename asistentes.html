@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistentes | CFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/asistentes.css">
+</head>
+
+<body>
+
+                    <!-- Barra para dispositivos móviles -->
+                <div class="mobile-header">
+                    <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+                    <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+                </div>
+
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+
+        <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" class="activo" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!---------------- CONTENIDO ---------------->
+    <main class="contenido">
+
+        <header>
+            <div>
+                <h2>Registro de Asistentes</h2>
+                <p class="subtitulo">
+                    Registro de participantes de la capacitación.
+                </p>
+            </div>
+        </header>
+
+        <!---------------- DATOS CAPACITACIÓN ---------------->
+        <section class="cabecera">
+            <div class="dato">
+                <label>ID_CAP</label>
+                <input type="text" id="idcap" readonly>
+            </div>
+
+            <div class="dato">
+                <label>Curso</label>
+                <input type="text" id="curso" readonly>
+            </div>
+
+            <div class="dato">
+                <label>Clase Nº</label>
+                <input type="text" id="clase" readonly>
+            </div>
+
+            <div class="dato">
+                <label>Fecha</label>
+                <input type="text" id="fecha" readonly>
+            </div>
+
+            <div class="dato ancho2">
+                <label>Instructor</label>
+                <input type="text" id="instructor" readonly>
+            </div>
+
+            <div class="dato">
+                <label>Estado</label>
+                <input type="text" id="resumenEstado" readonly>
+            </div>
+        </section>
+
+        <!---------------- CARGA ---------------->
+        <section class="carga">
+            <div class="grupo">
+                <label>Legajo</label>
+                <input type="text" id="legajo" placeholder="Ej: 01001">
+            </div>
+
+            <div class="grupo">
+                <label>Calificación</label>
+                <input type="number" id="calificacion" min="1" max="10" placeholder="1-10">
+            </div>
+
+            <div class="grupo ancho2">
+                <label>Observaciones</label>
+                <input type="text" id="observaciones" placeholder="Ingrese observaciones...">
+            </div>
+        </section>
+
+        <div class="acciones">
+            <button class="guardar" id="btnAgregar">
+                Agregar participante
+            </button>
+        </div>
+
+        <!---------------- TABLA ---------------->
+        <section class="tabla">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Legajo</th>
+                        <th>Apellido</th>
+                        <th>Nombre</th>
+                        <th>Calificación</th>
+                        <th>Observaciones</th>
+                        <th>Firma</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaAsistentes">
+                    <!-- Filas dinámicas -->
+                </tbody>
+            </table>
+        </section>
+
+        <!---------------- BOTONES ---------------->
+        <section class="acciones">
+           
+            <button class="guardar" id="btnCerrarRegistro">
+                Cerrar registro
+            </button>
+
+            <button class="cancelar" id="btnCancelar">
+                Cancelar
+            </button>
+        </section>
+
+    </main>
+
+</div>
+
+<!---------------- MODAL DE CONFIRMACIÓN ---------------->
+<div id="confirmacion" class="modal">
+    <div class="modal-contenido">
+        <h3 style="color: #1F2A44; margin-bottom: 10px;">✅ Registro Guardado Exitosamente</h3>
+        <p id="mensajeConfirmacion" style="color: #64748b; font-size: 14px; margin-bottom: 20px;"></p>
+        
+        <div class="modal-acciones">
+            <button id="btnModalImprimir" class="buscar" style="background:#1F6FEB; color:white;">
+                🖨️ Guardar / Imprimir PDF
+            </button>
+            <button id="btnModalFinalizar" class="guardar" style="background:#18C48F; color:white;">
+                Finalizar y Salir
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 1. Base de datos local y offline -->
+<script src="jss/dbLocal.js"></script>
+
+<!-- 2. Librería CDN de Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- 2. Cliente centralizado -->
+<script src="jss/supaBaseClient.js?v=9.0"></script>
+<script src="jss/authGuard.js"></script>
+
+<!-- 4. Lógica específica de la pantalla -->
+<script src="jss/asistentes.js?v=11.1"></script>
+<script src="jss/imprimir.js"></script>
+</body>
+</html>

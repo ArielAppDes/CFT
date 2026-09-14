@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Actividad | CFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/actividad.css">
+</head>
+
+<body>
+
+                <!-- Barra para dispositivos móviles -->
+            <div class="mobile-header">
+                <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+                <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+            </div>
+
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+      <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" class="activo" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!---------------- CONTENIDO ---------------->
+    <main class="contenido">
+
+        <header>
+            <div>
+                <h2>Registro de Actividad</h2>
+                <p class="subtitulo">
+                    Registrar y administrar actividades de capacitación.
+                </p>
+            </div>
+            <div class="estado">
+                🟡 En edición
+            </div>
+        </header>
+
+        <!---------------- FORMULARIO ---------------->
+        <section class="formulario">
+
+            <!-- ID_CAP -->
+            <div class="grupo">
+                <label>ID_CAP</label>
+                <input 
+                    type="text" 
+                    id="idCap"
+                    placeholder="CAP-2026-001-01"
+                    readonly>
+            </div>
+
+            <!-- PROGRAMA -->
+            <div class="grupo ancho2">
+                <label>Programa</label>
+                <select id="programa">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+
+           <!-- CURSO -->
+<div class="grupo">
+    <label>Curso</label>
+    <select id="curso">
+        <option value="">Seleccione...</option>
+    </select>
+</div>
+
+<!-- BLOQUE DE CLASES (Clase Nº | de | Total Clases) -->
+<div class="grupo">
+    <div style="display: flex; align-items: flex-end; gap: 8px;">
+        <div>
+            <label style="display: block; margin-bottom: 5px;">Clase Nº</label>
+            <input 
+                type="number"
+                id="clase"
+                class="numero"
+                min="1"
+                max="99"
+                value="1"
+                placeholder="01"
+                style="width: 75px; text-align: center;">
+        </div>
+
+        <span style="font-weight: bold; color: #555; padding-bottom: 8px;">de</span>
+
+        <div>
+            <label style="display: block; margin-bottom: 5px;">Total Clases</label>
+            <input 
+                type="number"
+                id="totalClases"
+                class="numero"
+                min="1"
+                max="99"
+                value="1"
+                placeholder="01"
+                style="width: 75px; text-align: center;">
+        </div>
+    </div>
+</div>
+
+<!-- ESTADO Y TRANSFERENCIA -->
+<div class="grupo" style="display: flex; flex-direction: row; gap: 12px;">
+    <div style="flex: 1.2;">
+        <label>Estado</label>
+        <select id="estado" class="estadoSelect" style="width: 100%;">
+            <option value="Programado">Programado</option>
+            <option value="En curso">En curso</option>
+            <option value="Finalizado">Finalizado</option>
+        </select>
+    </div>
+    <div style="flex: 1.2;">
+        <label title="¿Aplica encuesta de evaluación de transferencia a los 90 días?">Req. Transferencia</label>
+        <select id="requiereTransferencia" style="width: 100%;">
+            <option value="NO">No</option>
+            <option value="SI">Sí</option>
+        </select>
+    </div>
+</div>
+
+           
+            <!-- TEMA -->
+            <div class="grupo largura">
+                <label>Tema desarrollado</label>
+                <textarea 
+                    id="tema"
+                    rows="4"
+                    placeholder="Detalle los temas desarrollados durante la actividad...">
+                </textarea>
+            </div>
+
+            <!-- FECHA -->
+            <div class="grupo">
+                <label>Fecha</label>
+                <input type="date" id="fecha">
+            </div>
+
+            <!-- HORA INICIO -->
+            <div class="grupo">
+                <label>Hora inicio</label>
+                <input type="time" id="horaInicio">
+            </div>
+
+            <!-- HORA FIN -->
+            <div class="grupo">
+                <label>Hora fin</label>
+                <input type="time" id="horaFin">
+            </div>
+
+            <!-- LUGAR -->
+            <div class="grupo">
+                <label>Lugar</label>
+                <input
+                    type="text"
+                    id="lugar"
+                    placeholder="Ingrese el lugar de la capacitación">
+            </div>
+
+            <!-- CENTRO -->
+            <div class="grupo ancho2">
+                <label>Centro</label>
+                <select id="centro">
+                    <option value="">Seleccione...</option>
+                    <option value="CFT - Centro de Formación Técnica">CFT - Centro de Formación Técnica</option>
+                    <option value="CFLyG - Centro de Formación en Gestión y Liderazgo">CFLyG - Centro de Formación en Gestión y Liderazgo</option>
+                    <option value="CFOyST - Centro de Formación Operacional y de Seguridad en el Transporte">CFOyST - Centro de Formación Operacional y de Seguridad en el Transporte</option>
+                </select>
+            </div>
+
+            <!-- INSTRUCTOR 1 -->
+            <div class="grupo ancho2">
+                <label>Instructor 1</label>
+                <select id="instructor1">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+
+            <!-- INSTRUCTOR 2 -->
+            <div class="grupo ancho2">
+                <label>Instructor 2</label>
+                <select id="instructor2">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+
+            <!-- OBSERVACIONES -->
+            <div class="grupo largura">
+                <label>Observaciones</label>
+                <textarea
+                    id="observaciones"
+                    rows="4"
+                    placeholder="Ingrese observaciones...">
+                </textarea>
+            </div>
+
+        </section>
+
+        <!---------------- BOTONES ---------------->
+        <section class="acciones">
+            <button class="guardar" id="btnGuardar">
+                Guardar
+            </button>
+
+            <button class="buscar" id="btnAsistentes">
+                Registrar asistentes
+            </button>
+
+            <button class="cancelar" id="btnVolver">
+                Volver
+            </button>
+        </section>
+
+    </main>
+
+</div>
+
+<!-- MODAL DE REVISIÓN Y CONFIRMACIÓN DE CABECERA -->
+<div id="modalConfirmacionCabecera" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+    <div style="background: #ffffff; width: 100%; max-width: 680px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); overflow: hidden; font-family: inherit; animation: fadeInModal 0.2s ease-out;">
+        <div style="background: linear-gradient(135deg, #18C48F, #12a175); color: #fff; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 19px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+                📋 Verificar Datos de la Actividad
+            </h3>
+        </div>
+        <div style="padding: 22px 26px 16px 26px; max-height: 72vh; overflow-y: auto;">
+            <p style="margin-top: 0; margin-bottom: 16px; color: #475569; font-size: 14.5px; line-height: 1.4;">
+                Por favor, verificá que los datos de cabecera sean correctos antes de continuar:
+            </p>
+            <div id="resumenCabeceraModal" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 14px;">
+                <!-- Rellenado dinámicamente -->
+            </div>
+        </div>
+        <div style="padding: 16px 26px; background: #f1f5f9; display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #e2e8f0;">
+            <button id="btnModalModificar" type="button" style="background: #64748b; color: #fff; border: none; padding: 10px 22px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; transition: background 0.2s;">
+                ✏️ Modificar
+            </button>
+            <button id="btnModalContinuar" type="button" style="background: #18C48F; color: #fff; border: none; padding: 10px 26px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 14px; box-shadow: 0 4px 10px rgba(24, 196, 143, 0.3); transition: transform 0.1s;">
+                ✅ Continuar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 1. Base de datos local y offline -->
+<script src="jss/dbLocal.js"></script>
+
+<!-- 2. Librería Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- 2. Cliente de conexión -->
+<script src="jss/supaBaseClient.js?v=10.2"></script>
+<script src="jss/authGuard.js"></script>
+
+<!-- 3. Lógica principal (versión forzada para evitar caché de GitHub) -->
+<script src="jss/capacitaciones.js?v=10.0"></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Asistentes - CFT</title>
+    <!-- Supabase CDN y BD Local -->
+    <script src="jss/dbLocal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="jss/supaBaseClient.js?v=9.0"></script>
+    <style>
+        :root {
+            --azul: #1F2A44;
+            --verde: #18C48F;
+            --gris-claro: #f8fafc;
+            --borde-color: #cbd5e1;
+            --texto-oscuro: #0f172a;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            padding: 15px;
+            color: var(--texto-oscuro);
+        }
+
+        .no-print {
+            max-width: 800px;
+            margin: 0 auto 12px auto;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-imprimir {
+            background-color: var(--verde);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* HOJA A4 PERFECTA */
+        .hoja-a4 {
+            background: white;
+            width: 800px;
+            margin: 0 auto;
+            padding: 28px 40px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+
+        /* ENCABEZADO PRINCIPAL */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px; /* Más espacio abajo del título/logo */
+        }
+
+        .titulo-seccion h1 {
+            font-size: 24px; /* Un poco más grande */
+            font-weight: 800;
+            color: var(--azul);
+        }
+
+        .titulo-seccion .subtitulo {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #64748b;
+            margin-left: 2px;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-box {
+            background-color: var(--azul);
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-align: center;
+            border-bottom: 3px solid var(--verde);
+        }
+
+        .logo-box h2 {
+            font-size: 26px;
+            font-weight: 900;
+            color: var(--verde);
+            line-height: 1;
+        }
+
+        .logo-box p {
+            font-size: 9.5px;
+            color: white;
+            margin-top: 2px;
+        }
+
+        /* METADATOS CON MÁS AIRE Y MAYOR TIPOGRAFÍA */
+        .info-container {
+            display: flex;
+            flex-direction: column;
+            gap: 9px; /* Mayor separación vertical entre líneas (antes 5px) */
+            margin-bottom: 14px;
+            font-size: 11.5px; /* Base tipográfica aumentada */
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            width: 100%;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: baseline;
+            flex: 1;
+        }
+
+        .info-item label {
+            font-weight: 700;
+            color: var(--azul);
+            margin-right: 8px;
+            flex-shrink: 0;
+            font-size: 11.5px; /* Etiqueta más clara y visible */
+        }
+
+        .info-item .valor {
+            border-bottom: 1px dotted #94a3b8;
+            flex: 1;
+            min-height: 16px;
+            color: #1e293b;
+            font-size: 11.5px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .info-item .valor-id {
+            border-bottom: 1.5px solid var(--azul);
+            flex: 1;
+            font-weight: 800;
+            font-size: 13px; /* Destacado superior para el ID */
+            color: var(--azul);
+            letter-spacing: 0.5px;
+        }
+
+        .row-hoja {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 3px;
+        }
+
+        .hoja-num {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: var(--azul);
+            text-align: right;
+        }
+
+        .seccion-titulo-tabla {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: var(--azul);
+            margin-bottom: 6px;
+            margin-top: 6px;
+        }
+
+        /* TABLA OPTIMIZADA */
+        .tabla-contenedor {
+            border: 1px solid var(--borde-color);
+            border-top: 4px solid var(--verde);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+        }
+
+        thead {
+            background-color: var(--azul);
+            color: white;
+        }
+
+        th {
+            padding: 6px 4px;
+            font-weight: 700;
+            text-align: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        td {
+            padding: 3px 6px;
+            border-bottom: 1px solid var(--borde-color);
+            border-right: 1px solid var(--borde-color);
+            height: 23px;
+            vertical-align: middle;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: var(--gris-claro);
+        }
+
+        .col-n { width: 30px; text-align: center; font-weight: bold; color: #64748b; }
+        .col-leg { width: 60px; text-align: center; }
+        .col-nombre { width: 270px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .col-sector { width: 110px; }
+        .col-linea { width: 85px; }
+        .col-firma { width: 110px; }
+
+        /* FIRMAS Y OBSERVACIONES */
+        .footer-seccion {
+            margin-top: 10px;
+            font-size: 11px;
+        }
+
+        .linea-firma {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .linea-firma label {
+            font-weight: 700;
+            color: var(--azul);
+            width: 140px;
+        }
+
+        .linea-firma .puntos {
+            border-bottom: 1px dotted #64748b;
+            flex: 1;
+        }
+
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
+        }
+
+        @media print {
+            body { background: none; padding: 0; margin: 0; }
+            .no-print { display: none !important; }
+            .hoja-a4 { width: 100%; box-shadow: none; padding: 0; margin: 0; }
+            .tabla-contenedor, .logo-box, thead {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="no-print">
+        <button class="btn-imprimir" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    </div>
+
+    <div id="hojas-container"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const idCapParam = urlParams.get('id_cap');
+
+            let cabecera = {};
+            let asistentes = [];
+
+            let capData = null;
+
+            // 1. CARGA POR ID_CAP (Historial / Finalizadas / Programadas)
+            if (idCapParam) {
+                // Intento A: dbLocal
+                if (window.dbLocal && window.dbLocal.raw) {
+                    const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+                    capData = caps.find(c => String(c.id_cap).trim() === idCapParam.trim());
+
+                    const allAsis = window.dbLocal.raw.leerTabla('asistentes') || [];
+                    asistentes = allAsis.filter(a => String(a.id_cap).trim() === idCapParam.trim());
+                }
+
+                // Intento B: localStorage directo
+                if (!capData) {
+                    try {
+                        const capsLS = JSON.parse(localStorage.getItem('SIGA_DB_capacitaciones') || '[]');
+                        capData = capsLS.find(c => String(c.id_cap).trim() === idCapParam.trim());
+                    } catch(e) {}
+                }
+                if (asistentes.length === 0) {
+                    try {
+                        const asisLS = JSON.parse(localStorage.getItem('SIGA_DB_asistentes') || '[]');
+                        asistentes = asisLS.filter(a => String(a.id_cap).trim() === idCapParam.trim());
+                    } catch(e) {}
+                }
+
+                // Intento C: Supabase
+                if (!capData && (window.supabaseClient || window.supabase)) {
+                    const db = window.supabaseClient || window.supabase;
+                    try {
+                        const { data } = await db.from('capacitaciones').select('*').eq('id_cap', idCapParam).maybeSingle();
+                        if (data) capData = data;
+
+                        if (asistentes.length === 0) {
+                            const { data: asisData } = await db.from('asistentes').select('*').eq('id_cap', idCapParam);
+                            if (asisData && asisData.length > 0) asistentes = asisData;
+                        }
+                    } catch (e) {
+                        console.error("Error consultando en Supabase:", e);
+                    }
+                }
+            }
+
+            // 2. SI HAY capData OBTENIDO POR ID_CAP
+            if (capData) {
+                let fechaFormateada = capData.fecha || '';
+                if (window.formatearFecha && fechaFormateada) {
+                    fechaFormateada = window.formatearFecha(fechaFormateada);
+                } else if (fechaFormateada.includes('-') && fechaFormateada.split('-').length === 3) {
+                    const [y, m, d] = fechaFormateada.split('-');
+                    if (y.length === 4) fechaFormateada = `${d}/${m}/${y}`;
+                }
+
+                let horarioVal = '-';
+                if (capData.hs_inicio && capData.hs_fin) {
+                    horarioVal = `${capData.hs_inicio} a ${capData.hs_fin}`;
+                } else if (capData.hs_inicio) {
+                    horarioVal = `${capData.hs_inicio}`;
+                } else if (capData.horario && capData.horario !== '-') {
+                    horarioVal = capData.horario;
+                } else if (capData.duracion || capData.duracion_horas) {
+                    horarioVal = `${capData.duracion || capData.duracion_horas} hs`;
+                }
+
+                const cActual = capData.clase_nro || '1';
+                const cTotal = capData.total_clases || '1';
+                const cursoNom = capData.nombre_curso || capData.curso || '-';
+                const cursoCompleto = capData.nombre_curso ? `${cursoNom} (Clase Nº ${cActual} de ${cTotal})` : (capData.curso || '-');
+
+                cabecera = {
+                    id_cap: capData.id_cap || idCapParam || '-',
+                    fecha: fechaFormateada || new Date().toLocaleDateString('es-AR'),
+                    horario: horarioVal,
+                    programa: capData.programa || capData.nombre_curso || '-',
+                    curso: cursoCompleto,
+                    temas: capData.tema || capData.temas || capData.descripcion || capData.modulo || '-',
+                    capacitador: [capData.instructor_1, capData.instructor_2, capData.capacitador, capData.instructor].filter(Boolean).join(', ') || '-',
+                    lugar: capData.lugar || 'Planta General',
+                    modalidad: capData.modalidad || 'Presencial'
+                };
+            } else {
+                // 3. CARGA DESDE LOCALSTORAGE (NUEVA / REGISTRO EN CURSO)
+                const cabLocal = JSON.parse(localStorage.getItem('siga_impresion_cabecera')) || {};
+                const asisLocal = JSON.parse(localStorage.getItem('siga_impresion_asistentes')) || [];
+                const capActiva = JSON.parse(localStorage.getItem('capacitacion_activa')) || {};
+
+                if (asistentes.length === 0) {
+                    asistentes = asisLocal.length > 0 ? asisLocal : (capActiva.asistentes || []);
+                }
+
+                let idCapVal = cabLocal.id_cap || capActiva.id_cap || idCapParam || '-';
+                let fechaVal = cabLocal.fecha || capActiva.fecha || new Date().toLocaleDateString('es-AR');
+                if (window.formatearFecha && fechaVal) {
+                    fechaVal = window.formatearFecha(fechaVal);
+                } else if (fechaVal.includes('-') && fechaVal.split('-').length === 3) {
+                    const [y, m, d] = fechaVal.split('-');
+                    if (y.length === 4) fechaVal = `${d}/${m}/${y}`;
+                }
+
+                let horarioLocal = cabLocal.horario;
+                if (!horarioLocal || horarioLocal === '-') {
+                    if (capActiva.hs_inicio && capActiva.hs_fin) {
+                        horarioLocal = `${capActiva.hs_inicio} a ${capActiva.hs_fin}`;
+                    } else if (capActiva.hs_inicio) {
+                        horarioLocal = `${capActiva.hs_inicio}`;
+                    } else if (capActiva.horario) {
+                        horarioLocal = capActiva.horario;
+                    } else if (capActiva.duracion) {
+                        horarioLocal = `${capActiva.duracion} hs`;
+                    } else {
+                        horarioLocal = '-';
+                    }
+                }
+
+                let temaLocal = cabLocal.temas || cabLocal.tema || capActiva.tema || capActiva.temas || cabLocal.descripcion || capActiva.descripcion || '-';
+                if (temaLocal && String(temaLocal).includes('ID Capacitación:')) {
+                    temaLocal = capActiva.tema || '-';
+                }
+
+                const cActual = capActiva.clase_nro || '1';
+                const cTotal = capActiva.total_clases || '1';
+                const cursoNombre = cabLocal.curso || capActiva.nombre_curso || cabLocal.programa || 'Capacitación General';
+
+                cabecera = {
+                    id_cap: idCapVal,
+                    fecha: fechaVal,
+                    horario: horarioLocal,
+                    programa: cabLocal.programa || capActiva.programa || capActiva.nombre_curso || 'Capacitación General',
+                    curso: cursoNombre.includes('Clase Nº') ? cursoNombre : (capActiva.nombre_curso ? `${capActiva.nombre_curso} (Clase Nº ${cActual} de ${cTotal})` : cursoNombre),
+                    temas: temaLocal,
+                    capacitador: cabLocal.capacitador || [capActiva.instructor_1, capActiva.instructor_2, capActiva.instructor].filter(Boolean).join(', ') || '-',
+                    lugar: cabLocal.lugar || capActiva.lugar || 'Planta General',
+                    modalidad: cabLocal.modalidad || capActiva.modalidad || 'Presencial'
+                };
+            }
+
+            // Sanitizar valores de cabecera para nunca mostrar "undefined"
+            Object.keys(cabecera).forEach(k => {
+                if (cabecera[k] === undefined || cabecera[k] === null || cabecera[k] === 'undefined') {
+                    cabecera[k] = '-';
+                }
+            });
+
+            // PAGINACIÓN A4 (22 FILAS POR HOJA)
+            const FILAS_POR_HOJA = 22;
+            const totalAsistentes = asistentes.length;
+            const totalHojas = Math.max(1, Math.ceil(totalAsistentes / FILAS_POR_HOJA));
+
+            const container = document.getElementById('hojas-container');
+            container.innerHTML = '';
+
+            for (let numHoja = 1; numHoja <= totalHojas; numHoja++) {
+                const inicioIndex = (numHoja - 1) * FILAS_POR_HOJA;
+                const asistentesHoja = asistentes.slice(inicioIndex, inicioIndex + FILAS_POR_HOJA);
+
+                let filasHTML = '';
+                for (let i = 0; i < FILAS_POR_HOJA; i++) {
+                    const emp = asistentesHoja[i];
+                    const numGlobal = inicioIndex + i + 1;
+
+                    if (emp) {
+                        const legajoVal = emp.legajo || emp.Legajo || '';
+                        const apeVal = emp.apellido || emp.Apellido || '';
+                        const nomVal = emp.nombre || emp.Nombre || '';
+                        const nombreCompleto = apeVal ? `${apeVal}, ${nomVal}` : (nomVal || emp.nombre_completo || '');
+                        const sectorVal = emp.sector || emp.Sector || emp.gerencia || emp.Gerencia || emp.jefatura || emp.direccion || '';
+                        const lineaVal = emp.linea || emp.Linea || emp.puesto || emp.Puesto || emp.categoria || '';
+
+                        filasHTML += `
+                            <tr>
+                                <td class="col-n">${numGlobal}</td>
+                                <td class="col-leg">${legajoVal}</td>
+                                <td class="col-nombre">${nombreCompleto}</td>
+                                <td class="col-sector"></td>
+                                <td class="col-linea"></td>
+                                <td class="col-firma"></td>
+                            </tr>
+                        `;
+                    } else {
+                        filasHTML += `
+                            <tr>
+                                <td class="col-n">${numGlobal}</td>
+                                <td class="col-leg"></td>
+                                <td class="col-nombre"></td>
+                                <td class="col-sector"></td>
+                                <td class="col-linea"></td>
+                                <td class="col-firma"></td>
+                            </tr>
+                        `;
+                    }
+                }
+
+                const hojaHTML = `
+                    <div class="hoja-a4">
+                        <div class="header-container">
+                            <div class="titulo-seccion">
+                                <h1>Lista de Asistentes</h1>
+                                <span class="subtitulo">"CONSTANCIA DE CAPACITACIÓN"</span>
+                            </div>
+                            <div class="logo-box">
+                                <h2>CFT</h2>
+                                <p style="font-size: 11px; text-transform: uppercase;">Centro de Formación Técnica</p>
+                            </div>
+                        </div>
+
+                        <!-- METADATOS CON MÁS AIRE Y TIPOGRAFÍA AGRANDADA -->
+                        <div class="info-container">
+                            <!-- Línea 1 -->
+                            <div class="info-row">
+                                <div class="info-item"><label>FECHA:</label><span class="valor">${cabecera.fecha}</span></div>
+                                <div class="info-item"><label>HORARIO:</label><span class="valor">${cabecera.horario}</span></div>
+                                <div class="info-item"><label>ID N°:</label><span class="valor-id">${cabecera.id_cap}</span></div>
+                            </div>
+
+                            <!-- Línea 2 -->
+                            <div class="info-row">
+                                <div class="info-item"><label>PROGRAMA:</label><span class="valor">${cabecera.programa}</span></div>
+                            </div>
+
+                            <!-- Línea 3 -->
+                            <div class="info-row">
+                                <div class="info-item"><label>CURSO:</label><span class="valor">${cabecera.curso}</span></div>
+                            </div>
+
+                            <!-- Línea 4 -->
+                            <div class="info-row">
+                                <div class="info-item"><label>TEMAS:</label><span class="valor">${cabecera.temas}</span></div>
+                            </div>
+
+                            <!-- Línea 5 -->
+                            <div class="info-row">
+                                <div class="info-item"><label>LUGAR:</label><span class="valor">${cabecera.lugar}</span></div>
+                                <div class="info-item"><label>CAPACITADOR:</label><span class="valor">${cabecera.capacitador}</span></div>
+                            </div>
+
+                            <!-- Línea 6 -->
+                            <div class="info-row row-hoja">
+                                <div class="info-item" style="max-width: 50%;"><label>MODALIDAD:</label><span class="valor">${cabecera.modalidad}</span></div>
+                                <div class="hoja-num">HOJA ${numHoja} de ${totalHojas}</div>
+                            </div>
+                        </div>
+
+                        <div class="seccion-titulo-tabla">DATOS DE LOS PARTICIPANTES:</div>
+
+                        <div class="tabla-contenedor">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th class="col-n">N°</th>
+                                        <th class="col-leg">Leg.</th>
+                                        <th class="col-nombre">Apellido y nombre</th>
+                                        <th class="col-sector">Sector</th>
+                                        <th class="col-linea">Línea</th>
+                                        <th class="col-firma">Firma</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${filasHTML}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="footer-seccion">
+                            <div class="linea-firma">
+                                <label>Firma capacitadores:</label>
+                                <div class="puntos"></div>
+                            </div>
+                            <div class="linea-firma">
+                                <label>Observaciones:</label>
+                                <div class="puntos"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.insertAdjacentHTML('beforeend', hojaHTML);
+            }
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
+        });
+    </script>
+
+</body>
+</html>

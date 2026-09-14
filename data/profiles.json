@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "usuario": "Admin",
+    "clave": "CFT2026",
+    "nombre": "Ariel Pizzutto",
+    "email": "ariel.pizzutto@alumnos.udemm.edu.ar",
+    "rol": "Administrador",
+    "estado": "Activo",
+    "creado_el": "2026-08-19"
+  },
+  {
+    "id": 2,
+    "usuario": "Operador",
+    "clave": "CFT2026",
+    "nombre": "Operador Capacitación",
+    "email": "capacitacion@empresa.com",
+    "rol": "Operador",
+    "estado": "Activo",
+    "creado_el": "2026-08-19"
+  },
+  {
+    "id": 3,
+    "usuario": "Auditor",
+    "clave": "CFT2026",
+    "nombre": "Consulta Reportes",
+    "email": "reportes@empresa.com",
+    "rol": "Reportes",
+    "estado": "Activo",
+    "creado_el": "2026-08-19"
+  }
+]

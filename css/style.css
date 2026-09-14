@@ -1,0 +1,384 @@
+/* ===================================================
+   SIGA_APP - ESTILOS BASE Y GLOBALES (style.css)
+   =================================================== */
+
+:root {
+    --azul: #1F2A44;
+    --verde: #18C48F;
+    --blanco: #FFFFFF;
+    --gris: #EDEDED;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: var(--gris);
+    margin: 0;
+}
+
+/* FIX ESTRUCTURAL: Permite que el contenedor se expanda según el contenido */
+.contenedor {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* ===================================================
+   CFT - ESTILOS BASE Y GLOBALES (style.css)
+   =================================================== */
+
+:root {
+    --azul: #1F2A44;
+    --azul-oscuro: #0f172a;
+    --verde: #18C48F;
+    --blanco: #FFFFFF;
+    --gris: #EDEDED;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: var(--gris);
+    margin: 0;
+}
+
+/* FIX ESTRUCTURAL: Permite que el contenedor se expanda según el contenido */
+.contenedor {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+/* ===================================================
+   BARRA LATERAL INTELIGENTE CON EFECTO DE ESFUMADO (ESTILO HBO TV RAIL)
+   En reposo se desvanece a una barra de iconos etérea (64px) con backdrop blur.
+   Al acercar el puntero, los textos y opciones se funden suavemente (fade dissolve),
+   y al salir se esfuma con una transición suave y progresiva sin deslizarse de golpe.
+   =================================================== */
+.sidebar {
+    width: 64px;
+    min-width: 64px;
+    background: rgba(15, 23, 42, 0.82);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: 1000;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+    /* Transición fluida con amortiguación suave: se esfuma armónicamente sin golpes sólidos */
+    transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), 
+                background 0.32s ease, 
+                box-shadow 0.32s ease,
+                border-color 0.32s ease;
+    box-shadow: 1px 0 10px rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Efecto de fundido al pasar el puntero hacia la barra / margen izquierdo */
+.sidebar:hover {
+    width: 240px;
+    background: rgba(13, 20, 38, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.38);
+    border-right-color: rgba(24, 196, 143, 0.25);
+}
+
+/* LOGO CFT Y SUBTÍTULO COMPACTO */
+.logo {
+    text-align: center;
+    padding: 16px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 64px;
+    box-sizing: border-box;
+    transition: padding 0.3s ease;
+    overflow: hidden;
+}
+
+.logo h1, .logo .logo-title {
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0;
+    color: var(--verde);
+    letter-spacing: 1.5px;
+    line-height: 1;
+    transition: font-size 0.3s ease, letter-spacing 0.3s ease;
+    opacity: 0.9;
+}
+
+.logo p, .logo .logo-sub {
+    margin: 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+    white-space: normal;
+    max-height: 0;
+    opacity: 0;
+    filter: blur(2px);
+    overflow: hidden;
+    /* Se esfuma al salir y aparece disolviéndose */
+    transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.28s ease, 
+                filter 0.28s ease, 
+                margin-top 0.25s ease;
+}
+
+.sidebar:hover .logo {
+    padding: 16px 14px;
+}
+
+.sidebar:hover .logo h1, .sidebar:hover .logo .logo-title {
+    font-size: 24px;
+    letter-spacing: 2px;
+    opacity: 1;
+}
+
+.sidebar:hover .logo p, .sidebar:hover .logo .logo-sub {
+    max-height: 42px;
+    opacity: 1;
+    filter: blur(0);
+    margin-top: 6px;
+}
+
+/* NAVEGACIÓN Y BOTONES CON ICONOS INDICIARIOS */
+nav {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+    gap: 3px;
+    padding: 0 4px;
+}
+
+nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 12px 0;
+    transition: background-color 0.22s ease, color 0.22s ease, border-left-color 0.22s ease;
+    font-size: 14.5px;
+    border-left: 3px solid transparent;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0 8px 8px 0;
+}
+
+nav a .nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    min-width: 54px;
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    text-align: center;
+    opacity: 0.8;
+    transition: transform 0.25s ease, opacity 0.25s ease, color 0.25s ease;
+}
+
+nav a .nav-label {
+    opacity: 0;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    filter: blur(3px);
+    /* Transición de esfumado progresivo para el texto */
+    transition: opacity 0.26s ease, max-width 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.26s ease;
+    font-weight: 500;
+}
+
+.sidebar:hover nav a .nav-label {
+    opacity: 1;
+    max-width: 170px;
+    filter: blur(0);
+    margin-left: 2px;
+}
+
+.sidebar:hover nav a .nav-icon {
+    opacity: 1;
+}
+
+nav a:hover,
+nav a.activo {
+    background: rgba(24, 196, 143, 0.14);
+    border-left-color: var(--verde);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+nav a.activo .nav-icon {
+    color: var(--verde);
+    opacity: 1;
+    transform: scale(1.06);
+}
+
+/* Scrollbar sutil para el sidebar */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+/* ===== CONTENIDO PRINCIPAL BASE ===== */
+/* Maximiza el espacio horizontal en notebooks y laptops */
+.contenido {
+    flex: 1;
+    margin-left: 64px;
+    width: calc(100% - 64px);
+    max-width: calc(100% - 64px);
+    padding: 28px 32px;
+    min-width: 0; /* Previene desbordamientos en grillas */
+    transition: margin-left 0.32s ease, width 0.32s ease;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+header h2 {
+    margin: 0;
+    color: var(--azul);
+}
+
+#fecha {
+    color: #666;
+}
+
+.usuario {
+    background: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+
+/* ===================================================
+   ADAPTACIÓN RESPONSIVE PARA CELULARES
+   =================================================== */
+@media (max-width: 768px) {
+
+    /* 1. Menú Lateral con Efecto Esfumado (Aparece y se esfuma suavemente sin deslizarse sólido) */
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0 !important;
+        width: 250px !important;
+        height: 100vh;
+        z-index: 9999;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.28s ease, box-shadow 0.28s ease;
+        box-shadow: none;
+        background: rgba(13, 20, 38, 0.97) !important;
+    }
+
+    /* Clase que activa el fundido */
+    .sidebar.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+        box-shadow: 12px 0 35px rgba(0,0,0,0.55) !important;
+    }
+
+    .sidebar .logo {
+        padding: 16px 14px !important;
+    }
+
+    .sidebar .logo p, .sidebar .logo .logo-sub {
+        max-height: 42px !important;
+        opacity: 1 !important;
+        margin-top: 6px !important;
+    }
+
+    .sidebar nav a .nav-label {
+        opacity: 1 !important;
+        max-width: 170px !important;
+        margin-left: 2px !important;
+    }
+
+    /* 2. El contenido principal aprovecha el 100% del ancho móvil */
+    .contenido, .main-content, .content, .dashboard-container {
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 14px !important;
+    }
+
+    /* 3. Reorganización de Grillas a 1 sola Columna */
+    .cards-grid, .grid-container, .metrics-grid, .charts-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    /* 4. Tablas adaptables con scroll horizontal protegido */
+    .table-container, .tabla-contenedor, .table-responsive {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 15px;
+    }
+
+    /* 5. Barra superior móvil fija con botón de tres líneas */
+    .mobile-header {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #1F2A44;
+        padding: 10px 15px;
+        position: sticky;
+        top: 0;
+        z-index: 998;
+        border-bottom: 3px solid #18C48F;
+    }
+
+    .btn-hamburger {
+        background: none;
+        border: none;
+        color: #18C48F;
+        font-size: 26px;
+        cursor: pointer;
+        padding: 0 5px;
+    }
+}
+
+/* Ocultar la barra superior en computadoras de escritorio */
+@media (min-width: 769px) {
+    .mobile-header {
+        display: none !important;
+    }
+}

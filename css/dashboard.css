@@ -1,0 +1,67 @@
+/* ===================================================
+   SIGA_APP - DASHBOARD VISTA INICIO (dashboard.css)
+   =================================================== */
+
+/* ===== TARJETAS DASHBOARD ===== */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 25px;
+}
+
+.card {
+    background: white;
+    border-top: 6px solid var(--verde);
+    border-radius: 18px;
+    padding: 30px;
+    cursor: pointer;
+    transition: .25s;
+    box-shadow: 0 4px 10px rgba(0,0,0,.10);
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0,0,0,.18);
+}
+
+.icono {
+    font-size: 48px;
+}
+
+.card h3 {
+    margin-top: 18px;
+    color: var(--azul);
+}
+
+.card p {
+    color: #777;
+    font-size: 15px;
+    line-height: 22px;
+    margin-top: 12px;
+}
+
+/* ===== ACTIVIDAD DE LA SEMANA ===== */
+.actividad {
+    margin-bottom: 30px;
+}
+
+.actividad h3 {
+    color: #24314f;
+    margin-bottom: 12px;
+}
+
+.actividad-card {
+    background: white;
+    border-left: 6px solid #27c59a;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 5px 15px rgba(0,0,0,.10);
+    font-size: 17px;
+    color: #555;
+}
+
+@media(max-width: 900px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+}

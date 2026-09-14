@@ -1,0 +1,12 @@
+[{"codigo_instructor":"INS-2026-001","nombre":"Juan","apellido":"Pérez","dni":"30000001","email":"juan.pérez@empresa.com","especialidad":"Liderazgo","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-002","nombre":"Maria","apellido":"Gómez","dni":"30000002","email":"maria.gómez@empresa.com","especialidad":"Seguridad Industrial","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-008","nombre":"Sofia","apellido":"Díaz","dni":"30000008","email":"sofia.díaz@empresa.com","especialidad":"Electricidad","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-009","nombre":"Javier","apellido":"Romero","dni":"30000009","email":"javier.romero@empresa.com","especialidad":"Normas ISO","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-010","nombre":"Elena","apellido":"Torres","dni":"30000010","email":"elena.torres@empresa.com","especialidad":"Coaching Ejecutivo","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-011","nombre":"Prueba instructor 11","apellido":"11 de agosto","dni":"11589654","email":"-","especialidad":"pruba ","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-012","nombre":"Nombre prueba 12","apellido":"Apellido prueba 12","dni":"12546254","email":"prueba@12.com.ar","especialidad":"seguridad informática","tipo":"Externo","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-006","nombre":"Laura","apellido":"Fernández","dni":"30000006","email":"laura.fernández@empresa.com","especialidad":"Recursos Humanos","tipo":"Interno","estado":"Baja"}, 
+ {"codigo_instructor":"INS-2026-007","nombre":"Diego","apellido":"Sánchez","dni":"30000007","email":"diego.sánchez@empresa.com","especialidad":"Sistemas y Datos","tipo":"Interno","estado":"Inactivo"}, 
+ {"codigo_instructor":"INS-2026-005","nombre":"Luis","apellido":"Rodríguez","dni":"30000005","email":"luis.rodríguez@empresa.com","especialidad":"Logística integral ","tipo":"Externo","estado":"Inactivo"}, 
+ {"codigo_instructor":"INS-2026-003","nombre":"ARIEL","apellido":"PIZZUTTO","dni":"","email":"APIZZUTTO@EMOVA.COM.AR","especialidad":"","tipo":"Interno","estado":"Activo"}, 
+ {"codigo_instructor":"INS-2026-004","nombre":"ANTONIO","apellido":"PADULA","dni":"","email":"apadula@emova.com.ar","especialidad":"ESPECIALISTA SEÑALES ALSTOM","tipo":"Interno","estado":"Activo"}]

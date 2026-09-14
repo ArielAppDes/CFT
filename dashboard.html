@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CFT - Centro de Formación Técnica</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+
+<body>
+
+    <!-- Barra para dispositivos móviles -->
+    <div class="mobile-header">
+        <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+        <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+    </div>
+
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+        <nav>
+            <a href="dashboard.html" class="activo" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!-- Contenido -->
+    <main class="contenido">
+        <header>
+            <div>
+               <h2 id="saludo"></h2>
+              <p id="fecha"></p>
+            </div>
+            <div class="usuario">
+                👤 Usuario
+            </div>
+        </header>
+
+        <section class="actividad">
+            <h3>📅 Actividad de la semana</h3>
+            <div class="actividad-card">
+                <p id="actividadSemana">Cargando...</p>
+            </div>
+        </section>
+
+        <section class="cards">
+            <div class="card" onclick="location.href='actividades.html'">
+                <div class="icono">🎓</div>
+                <h3>Actividades</h3>
+                <p>Registrar y administrar actividades.</p>
+            </div>
+
+            <div class="card" onclick="location.href='certificaciones.html'">
+                <div class="icono">🏆</div >
+                <h3>Certificaciones</h3>
+                <p>Gestionar certificados</p>
+            </div>
+
+            <div class="card" onclick="location.href='agenda.html'">
+                <div class="icono">📅</div>
+                <h3>Agenda</h3>
+                <p>Planificación y cronograma de actividades.</p>
+            </div>
+            
+            <div class="card" onclick="location.href='reportes.html'">
+                <div class="icono">📊</div>
+                <h3>Reportes</h3>
+                <p>Indicadores</p>
+            </div>
+
+            <div class="card" onclick="location.href='administracion.html'">
+                <div class="icono">⚙</div>
+                <h3>Administración</h3>
+                <p>Gestionar catálogos y parámetros.</p>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<!-- 1. Base de datos local y offline -->
+<script src="jss/dbLocal.js"></script>
+
+<!-- 2. Cliente CDN de Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- 3. Tu script de conexión central -->
+<script src="jss/supaBaseClient.js"></script>
+<script src="jss/authGuard.js"></script>
+
+<!-- 4. El script propio de esta pantalla -->
+<script src="jss/dashboard.js"></script>
+
+
+
+</body>
+</html>

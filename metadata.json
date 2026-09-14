@@ -1,0 +1,6 @@
+{
+  "name": "SIGA-AP",
+  "description": "Centro de Formación Técnica (CFT) - Sistema Integral de Gestión de Actividades y Capacitaciones",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes | CFT</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/reportes.css?v=12.0">
+</head>
+
+<body>
+
+                <!-- Barra para dispositivos móviles -->
+            <div class="mobile-header">
+                <button class="btn-hamburger" onclick="toggleMenu()">☰</button>
+                <span style="font-weight: 800; color: #18C48F; font-size: 18px;">CFT</span>
+            </div>
+
+<div class="contenedor">
+
+    <!-- Menú lateral inteligente estilo HBO TV -->
+    <aside class="sidebar">
+        <div class="logo">
+            <h1 class="logo-title">CFT</h1>
+            <p class="logo-sub">Centro de Formación Técnica</p>
+        </div>
+        <nav>
+            <a href="dashboard.html" title="Inicio"><span class="nav-icon">🏠</span><span class="nav-label">Inicio</span></a>
+            <a href="actividades.html" title="Actividades"><span class="nav-icon">🎓</span><span class="nav-label">Actividades</span></a>
+            <a href="agenda.html" title="Agenda"><span class="nav-icon">📅</span><span class="nav-label">Agenda</span></a>
+            <a href="certificaciones.html" title="Certificaciones"><span class="nav-icon">🏆</span><span class="nav-label">Certificaciones</span></a>
+            <a href="reportes.html" class="activo" title="Reportes"><span class="nav-icon">📊</span><span class="nav-label">Reportes</span></a>
+            <a href="administracion.html" title="Administración"><span class="nav-icon">⚙</span><span class="nav-label">Administración</span></a>
+            <a href="#" title="Ayuda"><span class="nav-icon">❓</span><span class="nav-label">Ayuda</span></a>
+            <a href="index.html" title="Salir"><span class="nav-icon">🚪</span><span class="nav-label">Salir</span></a>
+        </nav>
+    </aside>
+
+    <!-- Contenido Principal -->
+  <main class="contenido">
+    <header>
+        <div>
+            <h2>Reportes y Analíticas</h2>
+            <p class="subtitulo">Centro de control, métricas y estadísticas de capacitaciones.</p>
+        </div>
+        <div class="usuario">👤 Usuario</div>
+    </header>
+
+    <!-- ===================================================
+         PANEL DE FILTROS Y SEGMENTACIÓN (ESTILO POWER BI)
+         =================================================== -->
+    <section id="panelFiltrosPBI" class="pbi-panel">
+        <div class="pbi-header">
+            <div class="pbi-header-title">
+                <span class="pbi-icon">⚡</span>
+                <div>
+                    <h3 class="pbi-title">Segmentación y Filtros</h3>
+                    <p class="pbi-subtitle">Filtrado interactivo en tiempo real a nivel dotación y capacitaciones.</p>
+                </div>
+            </div>
+            <div class="pbi-actions">
+                <span id="badgeFiltrosActivos" class="pbi-badge pbi-badge-neutral">0 filtros activos</span>
+                <button id="btnExportarPdfReportes" class="pbi-btn-limpiar" style="background:#dc2626; color:#fff; border-color:#b91c1c; font-weight:700;" onclick="abrirModalOpcionesPdfReportes()" title="Exportar reporte en PDF">
+                    📄 Exportar PDF
+                </button>
+                <button id="btnLimpiarFiltros" class="pbi-btn-limpiar" onclick="limpiarTodosFiltros()" title="Restablecer todos los filtros">
+                    🔄 Restablecer Filtros
+                </button>
+                <button id="btnToggleFiltros" class="pbi-btn-toggle" onclick="togglePanelFiltros()" title="Plegar / Desplegar filtros">
+                    <span id="txtToggleFiltros">▲ Plegar</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="pbiFiltrosBody" class="pbi-body">
+            <div class="pbi-grid-grupos">
+                
+                <!-- GRUPO 1: FILTROS A NIVEL DOTACIÓN -->
+                <div class="pbi-card-grupo">
+                    <div class="pbi-grupo-titulo">
+                        <span class="pbi-grupo-icon">🏢</span>
+                        <span>Filtros por Dotación</span>
+                        <span class="pbi-grupo-tag">Estructura Organizacional</span>
+                    </div>
+                    <div class="pbi-campos-grid">
+                        <div class="pbi-campo">
+                            <label for="filtroDireccion" id="lblFiltroDireccion">Dirección</label>
+                            <select id="filtroDireccion" class="pbi-select" onchange="aplicarFiltrosDesdeUI('direccion')">
+                                <option value="">(Todas)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroGerencia" id="lblFiltroGerencia">Gerencia</label>
+                            <select id="filtroGerencia" class="pbi-select" onchange="aplicarFiltrosDesdeUI('gerencia')">
+                                <option value="">(Todas)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroCoordinacion" id="lblFiltroCoordinacion">Coordinación</label>
+                            <select id="filtroCoordinacion" class="pbi-select" onchange="aplicarFiltrosDesdeUI('coordinacion')">
+                                <option value="">(Todas)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroJefatura" id="lblFiltroJefatura">Jefatura</label>
+                            <select id="filtroJefatura" class="pbi-select" onchange="aplicarFiltrosDesdeUI('jefatura')">
+                                <option value="">(Todas)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroCategoria" id="lblFiltroCategoria">Categoría</label>
+                            <select id="filtroCategoria" class="pbi-select" onchange="aplicarFiltrosDesdeUI('categoria')">
+                                <option value="">(Todas)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroPuesto" id="lblFiltroPuesto">Puesto</label>
+                            <select id="filtroPuesto" class="pbi-select" onchange="aplicarFiltrosDesdeUI('puesto')">
+                                <option value="">(Todos)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroLegajo" id="lblFiltroLegajo">Legajo</label>
+                            <div class="pbi-input-wrap">
+                                <input type="text" id="filtroLegajo" class="pbi-input" placeholder="Buscar legajo o nombre..." list="dlLegajos" oninput="aplicarFiltrosDesdeUI('legajo')">
+                                <datalist id="dlLegajos"></datalist>
+                                <button type="button" class="pbi-btn-input-clear" onclick="limpiarCampoInput('filtroLegajo')" title="Limpiar">✕</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRUPO 2: FILTROS A NIVEL CAPACITACIONES -->
+                <div class="pbi-card-grupo">
+                    <div class="pbi-grupo-titulo">
+                        <span class="pbi-grupo-icon">🎓</span>
+                        <span>Filtros por Capacitaciones</span>
+                        <span class="pbi-grupo-tag">Gestión Académica</span>
+                    </div>
+                    <div class="pbi-campos-grid">
+                        <div class="pbi-campo">
+                            <label for="filtroPrograma" id="lblFiltroPrograma">Programa</label>
+                            <select id="filtroPrograma" class="pbi-select" onchange="aplicarFiltrosDesdeUI('programa')">
+                                <option value="">(Todos)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroCurso" id="lblFiltroCurso">Curso</label>
+                            <select id="filtroCurso" class="pbi-select" onchange="aplicarFiltrosDesdeUI('curso')">
+                                <option value="">(Todos)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroCentro" id="lblFiltroCentro">Centro</label>
+                            <select id="filtroCentro" class="pbi-select" onchange="aplicarFiltrosDesdeUI('centro')">
+                                <option value="">(Todos)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo">
+                            <label for="filtroLugar" id="lblFiltroLugar">Lugares</label>
+                            <select id="filtroLugar" class="pbi-select" onchange="aplicarFiltrosDesdeUI('lugar')">
+                                <option value="">(Todos)</option>
+                            </select>
+                        </div>
+                        <div class="pbi-campo pbi-campo-fechas">
+                            <label id="lblFiltroFechas">Fechas (Rango)</label>
+                            <div class="pbi-fechas-wrap">
+                                <div class="pbi-fecha-sub">
+                                    <span class="pbi-fecha-lbl">Desde:</span>
+                                    <input type="date" id="filtroFechaDesde" class="pbi-input-date" onchange="aplicarFiltrosDesdeUI('fechaDesde')">
+                                </div>
+                                <div class="pbi-fecha-sub">
+                                    <span class="pbi-fecha-lbl">Hasta:</span>
+                                    <input type="date" id="filtroFechaHasta" class="pbi-input-date" onchange="aplicarFiltrosDesdeUI('fechaHasta')">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- BARRA INFERIOR DE CHIPS ACTIVOS Y CONTADORES POWER BI -->
+            <div class="pbi-footer-bar">
+                <div class="pbi-resumen-metricas">
+                    <span class="pbi-resumen-item">
+                        Mostrando: <strong id="pbiContadorCapacitaciones">0</strong> actividades
+                    </span>
+                    <span class="pbi-resumen-sep">•</span>
+                    <span class="pbi-resumen-item">
+                        <strong id="pbiContadorAsistencias">0</strong> asistencias
+                    </span>
+                    <span class="pbi-resumen-sep">•</span>
+                    <span class="pbi-resumen-item">
+                        <strong id="pbiContadorPersonas">0</strong> personas únicas
+                    </span>
+                </div>
+                <div id="pbiChipsContenedor" class="pbi-chips-wrap">
+                    <span class="pbi-chips-vacio">Sin segmentación aplicada. Visualizando el universo total.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HUB PRINCIPAL: 5 CONTENEDORES CLICABLES -->
+    <div id="reportesHubGrid" class="reportes-hub-grid">
+        
+        <div class="hub-card" onclick="abrirReporte('generales')">
+            <div class="hub-icon">📊</div>
+            <h3>Indicadores Generales</h3>
+            <p>Volumen total de actividades, personas capacitadas y asistencias.</p>
+        </div>
+
+        <div class="hub-card" onclick="abrirReporte('horaria')">
+            <div class="hub-icon">⏱️</div>
+            <h3>Carga Horaria e Intensidad</h3>
+            <p>Promedio de horas por curso y horas de formación per cápita.</p>
+        </div>
+
+        <div class="hub-card" onclick="abrirReporte('origen')">
+            <div class="hub-icon">🏢</div>
+            <h3>Origen y E-Learning</h3>
+            <p>Capacitaciones internas vs. externas y porcentaje de virtualidad.</p>
+        </div>
+
+        <div class="hub-card" onclick="abrirReporte('graficos')">
+            <div class="hub-icon">📈</div>
+            <h3>Tendencias y Gráficos</h3>
+            <p>Evolutivo mensual de capacitaciones y distribución por modalidad.</p>
+        </div>
+
+        <div class="hub-card hub-card-accent" onclick="abrirReporte('todos')">
+            <div class="hub-icon">🖥️</div>
+            <h3>Tablero Integral (Vista Completa)</h3>
+            <p>Visualizar todos los indicadores, gráficos y métricas filtradas simultáneamente.</p>
+        </div>
+
+    </div>
+
+    <!-- VISTA DETALLADA (Se muestra al hacer clic en un contenedor) -->
+    <div id="vistaDetalleReporte" style="display: none; margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+            <button class="btn-volver-hub" onclick="volverAlHub()">← Volver al Menú de Reportes</button>
+            <div class="secciones-nav-bar" style="margin-bottom: 0;">
+                <button class="btn-sec-nav" id="btnNavGenerales" onclick="cambiarSeccionDetalle('generales')">📊 Generales</button>
+                <button class="btn-sec-nav" id="btnNavHoraria" onclick="cambiarSeccionDetalle('horaria')">⏱️ Carga Horaria</button>
+                <button class="btn-sec-nav" id="btnNavOrigen" onclick="cambiarSeccionDetalle('origen')">🏢 Origen</button>
+                <button class="btn-sec-nav" id="btnNavGraficos" onclick="cambiarSeccionDetalle('graficos')">📈 Tendencias</button>
+                <button class="btn-sec-nav" id="btnNavTodos" onclick="cambiarSeccionDetalle('todos')">🖥️ Ver Tablero Completo</button>
+                <button class="btn-sec-nav" style="background:#dc2626; color:#fff; border-color:#b91c1c; font-weight:700;" onclick="abrirModalOpcionesPdfReportes()">📄 Exportar PDF</button>
+            </div>
+        </div>
+        
+        <!-- Bloque 1: Indicadores Generales -->
+        <div id="secGenerales" class="seccion-reporte" style="display:none;">
+            <h3 class="seccion-titulo">📊 Indicadores Generales de Gestión</h3>
+            <div class="kpi-grid-4cols">
+                <div class="kpi-card-item card-purple" id="cardCapacitacionesPropuestas">
+                    <span class="kpi-lbl-title" title="Capacitaciones únicas diseñadas o en catálogo">CAPACITACIONES PROPUESTAS</span>
+                    <span class="kpi-num-val purple" id="lblCapacitacionesPropuestas">0</span>
+                </div>
+                <div class="kpi-card-item card-blue" id="cardTotalActividades">
+                    <span class="kpi-lbl-title" title="Total de actividades realizadas (sumando ediciones y repeticiones)">TOTAL ACTIVIDADES</span>
+                    <span class="kpi-num-val blue" id="lblTotalActividades">0</span>
+                </div>
+                <div class="kpi-card-item card-green" id="cardPersonasCapacitadas">
+                    <span class="kpi-lbl-title" title="Personas únicas capacitadas">PERSONAS CAPACITADAS</span>
+                    <span class="kpi-num-val green" id="lblPersonasCapacitadas">0</span>
+                </div>
+                <div class="kpi-card-item card-cyan" id="cardTotalAsistencias">
+                    <span class="kpi-lbl-title" title="Total de asistencias computadas">TOTAL ASISTENCIAS</span>
+                    <span class="kpi-num-val cyan" id="lblTotalAsistencias">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque 2: Carga Horaria -->
+        <div id="secHoraria" class="seccion-reporte" style="display:none;">
+            <h3 class="seccion-titulo">⏱️ Carga Horaria e Intensidad</h3>
+            <div class="kpi-grid-4cols">
+                <div class="kpi-card-item card-purple" id="cardTotalHorasDictadas">
+                    <span class="kpi-lbl-title" title="Suma total de horas de dictado de todas las actividades">TOTAL HORAS DICTADAS</span>
+                    <span class="kpi-num-val purple" id="lblTotalHorasDictadas">0.0 hs</span>
+                </div>
+                <div class="kpi-card-item card-blue" id="cardTotalHorasHombre">
+                    <span class="kpi-lbl-title" title="Total de horas de capacitación recibidas (Horas dictadas × Asistentes)">TOTAL HORAS-HOMBRE (H-H)</span>
+                    <span class="kpi-num-val blue" id="lblTotalHorasHombre">0.0 hs</span>
+                </div>
+                <div class="kpi-card-item card-orange" id="cardHsPromedioCurso">
+                    <span class="kpi-lbl-title">PROMEDIO HS / CURSO</span>
+                    <span class="kpi-num-val orange" id="lblHsPromedioCurso">0.0 hs</span>
+                </div>
+                <div class="kpi-card-item card-darkblue" id="cardHsPerCapita">
+                    <span class="kpi-lbl-title">HS CAPACITACIÓN PER CÁPITA</span>
+                    <span class="kpi-num-val dark-blue" id="lblHsPerCapita">0.0 hs</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque 3: Origen -->
+        <div id="secOrigen" class="seccion-reporte" style="display:none;">
+            <h3 class="seccion-titulo">🏢 Origen y E-Learning</h3>
+            <div class="kpi-grid-3cols">
+                <div class="kpi-card-item card-blue">
+                    <span class="kpi-lbl-title">CAPACITACIONES INTERNAS</span>
+                    <span class="kpi-num-val blue" id="lblActInternas">0</span>
+                </div>
+                <div class="kpi-card-item card-orange">
+                    <span class="kpi-lbl-title">CAPACITACIONES EXTERNAS</span>
+                    <span class="kpi-num-val orange" id="lblActExternas">0</span>
+                </div>
+                <div class="kpi-card-item card-green">
+                    <span class="kpi-lbl-title">% CUMPLIMIENTO E-LEARNING</span>
+                    <span class="kpi-num-val green" id="lblPctElearning">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque 4: Gráficos -->
+        <div id="secGraficos" class="seccion-reporte" style="display:none;">
+            <h3 class="seccion-titulo">📈 Análisis de Tendencias y Distribución</h3>
+            <div class="charts-col-left" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px;">
+                <div class="chart-box-card" id="cardChartCapacitaciones">
+                    <h4>Evolución Mensual de Capacitaciones</h4>
+                    <div class="chart-container"><canvas id="chartEvolucionMensual"></canvas></div>
+                </div>
+                <div class="chart-box-card" id="cardChartHoras">
+                    <h4>Evolución Mensual de Horas de Capacitación</h4>
+                    <div class="chart-container"><canvas id="chartHorasMensuales"></canvas></div>
+                </div>
+                <div class="chart-box-card" id="cardChartPersonas">
+                    <h4>Evolución Mensual de Personas Capacitadas</h4>
+                    <div class="chart-container"><canvas id="chartPersonasMensuales"></canvas></div>
+                </div>
+                <div class="chart-box-card" id="cardChartModalidad">
+                    <h4>Distribución por Modalidad</h4>
+                    <div class="chart-container pie-container"><canvas id="chartModalidad"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloque 5: Detalle de Registros Filtrados (Power BI Data View) -->
+        <div class="chart-box-card" style="margin-top: 25px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                <h4 style="margin: 0;">📋 Vista de Datos Filtrados</h4>
+                <span id="lblResumenTablaFiltrada" style="font-size: 0.8rem; color: #64748b; font-weight: 600;">0 registros</span>
+            </div>
+            <div class="pbi-tabla-contenedor">
+                <table class="pbi-tabla" id="tablaDetalleFiltrado">
+                    <thead>
+                        <tr>
+                            <th>ID Cap</th>
+                            <th>Fecha</th>
+                            <th>Curso</th>
+                            <th>Programa</th>
+                            <th>Centro</th>
+                            <th>Lugar</th>
+                            <th>Modalidad</th>
+                            <th>Estado</th>
+                            <th>Asistencias</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbodyDetalleFiltrado">
+                        <tr>
+                            <td colspan="9" style="text-align:center; padding: 20px; color:#94a3b8;">Cargando registros...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+</div>
+
+<!-- ======================================================= -->
+<!-- MODAL: CONFIGURAR REPORTE EN PDF (SELECCIÓN DE MÓDULOS) -->
+<!-- ======================================================= -->
+<div id="modalOpcionesPdfReportes" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(3px);">
+    <div style="background:#ffffff; width:92%; max-width:580px; border-radius:14px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.35); display:flex; flex-direction:column; overflow:hidden; animation:fadeIn 0.2s ease-out;">
+        
+        <!-- Header -->
+        <div style="background:linear-gradient(135deg, #1e293b, #0f172a); color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.3rem;">📄</span>
+                    <h3 style="margin:0; font-size:1.15rem; font-weight:700; color:#f8fafc;">Exportar Reporte en PDF</h3>
+                </div>
+                <div id="pdf_rep_subtitulo" style="font-size:0.82rem; color:#94a3b8; margin-top:2px;">
+                    Seleccioná qué secciones querés incluir en el documento PDF.
+                </div>
+            </div>
+            <button onclick="cerrarModalOpcionesPdfReportes()" style="background:transparent; border:none; color:#cbd5e1; font-size:1.4rem; cursor:pointer; padding:2px 8px; line-height:1;">✕</button>
+        </div>
+
+        <!-- Body con Opciones -->
+        <div style="padding:20px; background:#f8fafc; display:flex; flex-direction:column; gap:14px;">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:0.82rem; font-weight:700; color:#475569; text-transform:uppercase;">
+                    Secciones del Informe:
+                </span>
+                <div style="display:flex; gap:8px;">
+                    <button type="button" onclick="marcarTodosChecksPdfReportes(true)" style="background:none; border:none; color:#0284c7; font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:underline;">Marcar Todos</button>
+                    <span style="color:#cbd5e1;">|</span>
+                    <button type="button" onclick="marcarTodosChecksPdfReportes(false)" style="background:none; border:none; color:#64748b; font-size:0.75rem; font-weight:700; cursor:pointer; text-decoration:underline;">Desmarcar</button>
+                </div>
+            </div>
+
+            <!-- Checkboxes de Selección -->
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                
+                <!-- 1. Indicadores Generales de Gestión -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer;">
+                    <input type="checkbox" id="chkPdfRepGenerales" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a;">
+                            📊 Indicadores Generales de Gestión
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Capacitaciones propuestas, total de actividades realizadas, personas capacitadas y total de asistencias.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 2. Carga Horaria e Intensidad -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer;">
+                    <input type="checkbox" id="chkPdfRepHoraria" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a;">
+                            ⏱️ Carga Horaria e Intensidad
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Total horas dictadas, total horas-hombre (H-H), promedio de horas por curso y horas per cápita.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 3. Origen y E-Learning -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer;">
+                    <input type="checkbox" id="chkPdfRepOrigen" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a;">
+                            🏢 Origen y E-Learning
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Capacitaciones internas vs. externas y porcentaje de cumplimiento en formato E-Learning.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 4. Análisis de Tendencias y Distribución -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer;">
+                    <input type="checkbox" id="chkPdfRepGraficos" checked style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a;">
+                            📈 Análisis de Tendencias y Distribución
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Gráficos de evolución mensual de actividades, horas dictadas, personas capacitadas y distribución por modalidad.
+                        </div>
+                    </div>
+                </label>
+
+                <!-- 5. Detalle de Registros Filtrados (Opcional) -->
+                <label style="display:flex; align-items:flex-start; gap:12px; background:#ffffff; border:1px solid #e2e8f0; border-radius:10px; padding:12px 14px; cursor:pointer;">
+                    <input type="checkbox" id="chkPdfRepTabla" style="width:18px; height:18px; margin-top:2px; accent-color:#0284c7; cursor:pointer;">
+                    <div style="flex:1;">
+                        <div style="font-weight:700; font-size:0.9rem; color:#0f172a;">
+                            📋 Tabla de Registros Filtrados
+                        </div>
+                        <div style="font-size:0.78rem; color:#64748b; margin-top:2px;">
+                            Listado tabular de capacitaciones computadas con fechas, cursos, sedes, horas y asistencias.
+                        </div>
+                    </div>
+                </label>
+
+            </div>
+
+            <div id="pdfRepMensajeEstado" style="display:none; font-size:0.83rem; padding:8px 12px; border-radius:6px; background:#e0f2fe; color:#0369a1; text-align:center;">
+                Generando documento PDF...
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#ffffff; padding:14px 20px; border-top:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <button type="button" class="btn-volver-hub" style="padding:6px 14px; font-size:0.85rem;" onclick="cerrarModalOpcionesPdfReportes()">
+                Cancelar
+            </button>
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn-sec-nav" style="background:#0284c7; color:#fff; font-weight:600; font-size:0.85rem; border-color:#0369a1;" onclick="generarReportePdfReportes(true)">
+                    🖨️ Vista Previa / Imprimir
+                </button>
+                <button type="button" id="btnDescargarPdfReportes" class="btn-sec-nav" style="background:#dc2626; color:#fff; font-weight:700; font-size:0.85rem; border-color:#b91c1c;" onclick="generarReportePdfReportes(false)">
+                    📥 Descargar PDF
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="jss/dbLocal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="jss/supaBaseClient.js"></script>
+<script src="jss/authGuard.js"></script>
+<script src="jss/reportes.js?v=13.0"></script>
+
+  
+
+</body>
+</html>

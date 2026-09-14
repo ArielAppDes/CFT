@@ -1,0 +1,7 @@
+[{"codigo_curso":"CUR-2026-002","nombre":"Neumática Inicial","hs_teoria":20,"hs_practica":20,"hs_totales":40,"modalidad":"Presencial","estado":"Activo"}, 
+ {"codigo_curso":"CUR-2026-003","nombre":"Electricidad Inicial","hs_teoria":20,"hs_practica":20,"hs_totales":40,"modalidad":"Presencial","estado":"Activo"}, 
+ {"codigo_curso":"CUR-2026-004","nombre":"prueba curso 4","hs_teoria":6,"hs_practica":6,"hs_totales":12,"modalidad":"Presencial","estado":"Activo"}, 
+ {"codigo_curso":"CUR-2026-005","nombre":"prueba baja","hs_teoria":2,"hs_practica":2,"hs_totales":4,"modalidad":"Presencial","estado":"Baja"}, 
+ {"codigo_curso":"CUR-2026-006","nombre":"prueba virtual","hs_teoria":6,"hs_practica":0,"hs_totales":6,"modalidad":"Virtual Asincrónico","estado":"Activo"}, 
+ {"codigo_curso":"CUR-2026-007","nombre":"prueba virtual 2","hs_teoria":6,"hs_practica":0,"hs_totales":6,"modalidad":"Virtual Sincrónico","estado":"Activo"}, 
+ {"codigo_curso":"CUR-2026-001 ","nombre":"Mecánica inicial","hs_teoria":20,"hs_practica":20,"hs_totales":40,"modalidad":"Presencial","estado":"Activo"}]

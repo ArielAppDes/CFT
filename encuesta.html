@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta de Satisfacción de la Actividad | CFT</title>
+    <style>
+        :root {
+            --primary: #1F2A44;
+            --accent: #18C48F;
+            --accent-hover: #15ad7e;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --star-gold: #f59e0b;
+        }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg); margin: 0; padding: 20px 15px; color: var(--text); display: flex; justify-content: center; }
+        .container { background: var(--card); width: 100%; max-width: 580px; border-radius: 16px; padding: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 16px; }
+        .header h1 { color: var(--primary); margin: 0; font-size: 22px; font-weight: 800; }
+        .header p { color: var(--accent); margin: 4px 0 0 0; font-size: 15px; font-weight: 700; }
+        
+        .meta-card { 
+            background: #f8fafc; 
+            border: 1px solid var(--border); 
+            border-left: 4px solid var(--accent); 
+            border-radius: 8px; 
+            padding: 12px 16px; 
+            margin-bottom: 22px; 
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 13px;
+        }
+        .meta-card div { color: var(--text); }
+        .meta-card strong { color: var(--primary); }
+
+        .pregunta-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .pregunta-card label { display: block; font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--primary); }
+        .pregunta-card .desc { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+        
+        .stars-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .stars { display: flex; gap: 6px; }
+        .star { font-size: 28px; color: #cbd5e1; cursor: pointer; transition: transform 0.15s ease, color 0.15s ease; user-select: none; }
+        .star:hover { transform: scale(1.2); }
+        .star.active { color: var(--star-gold); }
+        .rating-label { font-size: 12px; font-weight: 700; color: var(--muted); min-width: 90px; text-align: right; }
+
+        textarea { width: 100%; height: 75px; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 13.5px; outline: none; resize: none; }
+        textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(24, 196, 143, 0.15); }
+        
+        .btn-enviar { width: 100%; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-top: 15px; box-shadow: 0 4px 10px rgba(24, 196, 143, 0.25); }
+        .btn-enviar:hover { background: var(--accent-hover); }
+        
+        .gracias { text-align: center; padding: 40px 15px; display: none; }
+        .gracias-icon { font-size: 55px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="formContainer">
+        <div class="header">
+            <h1>CFT Capacitación</h1>
+            <p>Encuesta de Satisfacción de la Actividad</p>
+        </div>
+
+        <div class="meta-card">
+            <div><strong>ID Actividad:</strong> <span id="lblIdCap" style="color:var(--accent); font-weight:700;">-</span></div>
+            <div><strong>Fecha:</strong> <span id="lblFecha">--/--/----</span></div>
+            <div style="grid-column: 1 / -1;"><strong>Actividad / Curso:</strong> <span id="lblCurso">Cargando...</span></div>
+            <div style="grid-column: 1 / -1;"><strong>Instructor/es:</strong> <span id="lblInstructor">-</span></div>
+        </div>
+
+        <form id="encuestaForm" onsubmit="guardarEncuesta(event)">
+            
+            <!-- Pregunta 1 -->
+            <div class="pregunta-card">
+                <label>1. Objetivos y Contenidos</label>
+                <div class="desc">¿Los objetivos fueron claros y se abordaron los temas previstos?</div>
+                <div class="stars-container">
+                    <div class="stars" data-field="puntaje_objetivos">
+                        <span class="star" onclick="setScore('puntaje_objetivos', 1)">★</span>
+                        <span class="star" onclick="setScore('puntaje_objetivos', 2)">★</span>
+                        <span class="star" onclick="setScore('puntaje_objetivos', 3)">★</span>
+                        <span class="star" onclick="setScore('puntaje_objetivos', 4)">★</span>
+                        <span class="star" onclick="setScore('puntaje_objetivos', 5)">★</span>
+                    </div>
+                    <span id="lbl_puntaje_objetivos" class="rating-label">Sin calificar</span>
+                </div>
+            </div>
+
+            <!-- Pregunta 2 -->
+            <div class="pregunta-card">
+                <label>2. Aplicabilidad a la tarea</label>
+                <div class="desc">¿Los contenidos son útiles y aplicables a tu puesto de trabajo?</div>
+                <div class="stars-container">
+                    <div class="stars" data-field="puntaje_aplicabilidad">
+                        <span class="star" onclick="setScore('puntaje_aplicabilidad', 1)">★</span>
+                        <span class="star" onclick="setScore('puntaje_aplicabilidad', 2)">★</span>
+                        <span class="star" onclick="setScore('puntaje_aplicabilidad', 3)">★</span>
+                        <span class="star" onclick="setScore('puntaje_aplicabilidad', 4)">★</span>
+                        <span class="star" onclick="setScore('puntaje_aplicabilidad', 5)">★</span>
+                    </div>
+                    <span id="lbl_puntaje_aplicabilidad" class="rating-label">Sin calificar</span>
+                </div>
+            </div>
+
+            <!-- Pregunta 3 -->
+            <div class="pregunta-card">
+                <label>3. Desempeño del Instructor / Capacitador</label>
+                <div class="desc">Claridad en las explicaciones, dominio del tema y predisposición a responder dudas.</div>
+                <div class="stars-container">
+                    <div class="stars" data-field="puntaje_instructor">
+                        <span class="star" onclick="setScore('puntaje_instructor', 1)">★</span>
+                        <span class="star" onclick="setScore('puntaje_instructor', 2)">★</span>
+                        <span class="star" onclick="setScore('puntaje_instructor', 3)">★</span>
+                        <span class="star" onclick="setScore('puntaje_instructor', 4)">★</span>
+                        <span class="star" onclick="setScore('puntaje_instructor', 5)">★</span>
+                    </div>
+                    <span id="lbl_puntaje_instructor" class="rating-label">Sin calificar</span>
+                </div>
+            </div>
+
+            <!-- Pregunta 4 -->
+            <div class="pregunta-card">
+                <label>4. Metodología y Material Didáctico</label>
+                <div class="desc">Calidad de las presentaciones, ejercicios prácticos y recursos utilizados.</div>
+                <div class="stars-container">
+                    <div class="stars" data-field="puntaje_material">
+                        <span class="star" onclick="setScore('puntaje_material', 1)">★</span>
+                        <span class="star" onclick="setScore('puntaje_material', 2)">★</span>
+                        <span class="star" onclick="setScore('puntaje_material', 3)">★</span>
+                        <span class="star" onclick="setScore('puntaje_material', 4)">★</span>
+                        <span class="star" onclick="setScore('puntaje_material', 5)">★</span>
+                    </div>
+                    <span id="lbl_puntaje_material" class="rating-label">Sin calificar</span>
+                </div>
+            </div>
+
+            <!-- Pregunta 5 -->
+            <div class="pregunta-card">
+                <label>5. Organización y Entorno</label>
+                <div class="desc">Puntualidad, comodidad del espacio, equipamiento y entorno de capacitación.</div>
+                <div class="stars-container">
+                    <div class="stars" data-field="puntaje_entorno">
+                        <span class="star" onclick="setScore('puntaje_entorno', 1)">★</span>
+                        <span class="star" onclick="setScore('puntaje_entorno', 2)">★</span>
+                        <span class="star" onclick="setScore('puntaje_entorno', 3)">★</span>
+                        <span class="star" onclick="setScore('puntaje_entorno', 4)">★</span>
+                        <span class="star" onclick="setScore('puntaje_entorno', 5)">★</span>
+                    </div>
+                    <span id="lbl_puntaje_entorno" class="rating-label">Sin calificar</span>
+                </div>
+            </div>
+
+            <!-- Pregunta 6 -->
+            <div class="pregunta-card" style="border-color: #cbd5e1; background:#f8fafc;">
+                <label>6. Nivel de Satisfacción General</label>
+                <div class="desc">Tu valoración general de la actividad de capacitación.</div>
+                <div class="stars-container">
+                    <div class="stars" data-field="puntaje_general">
+                        <span class="star" onclick="setScore('puntaje_general', 1)">★</span>
+                        <span class="star" onclick="setScore('puntaje_general', 2)">★</span>
+                        <span class="star" onclick="setScore('puntaje_general', 3)">★</span>
+                        <span class="star" onclick="setScore('puntaje_general', 4)">★</span>
+                        <span class="star" onclick="setScore('puntaje_general', 5)">★</span>
+                    </div>
+                    <span id="lbl_puntaje_general" class="rating-label">Sin calificar</span>
+                </div>
+            </div>
+
+            <!-- Aspectos Destacados -->
+            <div class="pregunta-card">
+                <label>¿Qué aspectos destacarías o qué fue lo más valioso?</label>
+                <textarea id="txtDestacados" placeholder="Opcional: comentá lo que más te sirvió o gustó..."></textarea>
+            </div>
+
+            <!-- Sugerencias -->
+            <div class="pregunta-card">
+                <label>Sugerencias de mejora para futuras actividades:</label>
+                <textarea id="txtSugerencias" placeholder="Opcional: propuestas para seguir mejorando..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-enviar" id="btnSubmit">Enviar Encuesta de Satisfacción</button>
+        </form>
+    </div>
+
+    <!-- Mensaje de Éxito -->
+    <div id="graciasContainer" class="gracias">
+        <div class="gracias-icon">🎉</div>
+        <h2 style="margin:0 0 10px 0; color:var(--primary);">¡Muchas Gracias por tu Evaluación!</h2>
+        <p style="color:var(--muted); font-size:14.5px; line-height:1.5;">Tu respuesta fue registrada con éxito en el sistema SIGA. Tus aportes nos ayudan a seguir fortaleciendo las capacitaciones.</p>
+    </div>
+</div>
+
+<script src="jss/dbLocal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="jss/supaBaseClient.js?v=9.0"></script>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const idCap = urlParams.get('id_cap') || '';
+    const cursoParam = urlParams.get('curso') || '';
+    const fechaParam = urlParams.get('fecha') || '';
+    const instructorParam = urlParams.get('instructor') || '';
+
+    const labelsText = {
+        1: "1 / Muy Malo",
+        2: "2 / Regular",
+        3: "3 / Bueno",
+        4: "4 / Muy Bueno",
+        5: "5 / Excelente"
+    };
+
+    const scores = {
+        puntaje_objetivos: 0,
+        puntaje_aplicabilidad: 0,
+        puntaje_instructor: 0,
+        puntaje_material: 0,
+        puntaje_entorno: 0,
+        puntaje_general: 0
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        document.getElementById('lblIdCap').textContent = idCap || 'Sin ID';
+        if (cursoParam) document.getElementById('lblCurso').textContent = cursoParam;
+        if (fechaParam) document.getElementById('lblFecha').textContent = fechaParam;
+        if (instructorParam) document.getElementById('lblInstructor').textContent = instructorParam;
+        
+        await cargarMetadata();
+    });
+
+    async function cargarMetadata() {
+        if (!idCap) return;
+
+        let cap = null;
+        if (window.dbLocal && window.dbLocal.raw) {
+            const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+            cap = caps.find(c => String(c.id_cap).trim() === idCap.trim());
+        }
+
+        if (!cap) {
+            try {
+                const rawCaps = JSON.parse(localStorage.getItem('SIGA_DB_capacitaciones') || '[]');
+                cap = rawCaps.find(c => String(c.id_cap).trim() === idCap.trim());
+            } catch(e) {}
+        }
+
+        if (!cap && (window.supabaseCloudClient || window.supabaseClient || window.supabase)) {
+            try {
+                const db = window.supabaseCloudClient || window.supabaseClient || window.supabase;
+                const { data } = await db.from('capacitaciones').select('*').eq('id_cap', idCap).maybeSingle();
+                if (data) cap = data;
+            } catch(e) {}
+        }
+
+        if (cap) {
+            if (!cursoParam) document.getElementById('lblCurso').textContent = cap.nombre_curso || cap.programa || idCap;
+            if (!fechaParam) document.getElementById('lblFecha').textContent = cap.fecha || "--/--/----";
+            const instructores = [cap.instructor_1, cap.instructor_2, cap.instructor, cap.capacitador].filter(Boolean).join(', ');
+            if (!instructorParam && instructores) {
+                document.getElementById('lblInstructor').textContent = instructores;
+            }
+        } else if (!cursoParam) {
+            document.getElementById('lblCurso').textContent = idCap;
+        }
+    }
+
+    function setScore(field, score) {
+        scores[field] = score;
+        const container = document.querySelector(`.stars[data-field="${field}"]`);
+        if (container) {
+            const stars = container.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < score) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+        const lbl = document.getElementById(`lbl_${field}`);
+        if (lbl) {
+            lbl.textContent = labelsText[score] || `${score} estrellas`;
+            lbl.style.color = "var(--primary)";
+        }
+    }
+
+    async function guardarEncuesta(e) {
+        e.preventDefault();
+        
+        // Validar que al menos las 3 principales y la general tengan puntaje
+        if (scores.puntaje_objetivos === 0 || scores.puntaje_instructor === 0 || scores.puntaje_general === 0) {
+            alert("Por favor calificá al menos los Objetivos, el Instructor y la Evaluación General con estrellas.");
+            return;
+        }
+
+        const btn = document.getElementById('btnSubmit');
+        btn.disabled = true;
+        btn.textContent = "Guardando evaluación...";
+
+        const payload = {
+            id_cap: idCap,
+            nombre_curso: document.getElementById('lblCurso')?.textContent || cursoParam || idCap,
+            fecha_curso: document.getElementById('lblFecha')?.textContent || fechaParam || '',
+            instructor: document.getElementById('lblInstructor')?.textContent || instructorParam || '',
+            puntaje_objetivos: scores.puntaje_objetivos,
+            puntaje_aplicabilidad: scores.puntaje_aplicabilidad || scores.puntaje_general,
+            puntaje_instructor: scores.puntaje_instructor,
+            puntaje_material: scores.puntaje_material || scores.puntaje_general,
+            puntaje_entorno: scores.puntaje_entorno || scores.puntaje_general,
+            puntaje_general: scores.puntaje_general,
+            puntaje_docente: scores.puntaje_instructor, // Compatibilidad
+            puntaje_contenido: scores.puntaje_objetivos,
+            destacados: document.getElementById('txtDestacados')?.value.trim() || '',
+            sugerencias: document.getElementById('txtSugerencias')?.value.trim() || '',
+            comentarios: (document.getElementById('txtDestacados')?.value.trim() + ' ' + document.getElementById('txtSugerencias')?.value.trim()).trim(),
+            fecha_registro: new Date().toISOString()
+        };
+
+        // 1. Guardar en Base de Datos Local (evaluaciones y evaluaciones_satisfaccion)
+        if (window.dbLocal && window.dbLocal.raw) {
+            const evalList = window.dbLocal.raw.leerTabla('evaluaciones_satisfaccion') || [];
+            evalList.push({ ...payload, id: Date.now() });
+            window.dbLocal.raw.escribirTabla('evaluaciones_satisfaccion', evalList);
+            window.dbLocal.raw.escribirTabla('evaluaciones', evalList);
+
+            // Actualizar estado en capacitaciones locales
+            const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+            const idx = caps.findIndex(c => String(c.id_cap).trim() === idCap.trim());
+            if (idx !== -1) {
+                caps[idx].estado_sat = 'Respondida';
+                caps[idx].estado_encuesta = 'Respondida';
+                window.dbLocal.raw.escribirTabla('capacitaciones', caps);
+            }
+        }
+
+        // 2. Sincronizar en la Nube con Supabase
+        try {
+            let cloudDB = window.supabaseCloudClient;
+            if (!cloudDB && typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY) {
+                cloudDB = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+            }
+            if (cloudDB) {
+                await cloudDB.from('evaluaciones_satisfaccion').insert([payload]);
+                await cloudDB.from('capacitaciones').update({ estado_sat: 'Respondida', estado_encuesta: 'Respondida' }).eq('id_cap', idCap);
+            }
+        } catch (err) {
+            console.warn("Aviso al sincronizar en la nube:", err);
+        }
+
+        document.getElementById('formContainer').style.display = 'none';
+        document.getElementById('graciasContainer').style.display = 'block';
+    }
+</script>
+</body>
+</html>

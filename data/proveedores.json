@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "codigo_proveedor": "PRV-001",
+    "razon_social": "IRAM - Instituto Argentino de Normalización y Certificación",
+    "ente": "IRAM",
+    "rubro": "Normas Técnicas, END y Soldadura",
+    "contacto": "Ing. Gustavo Martínez",
+    "telefono": "+54 11 4346-0600",
+    "email": "certificaciones@iram.org.ar",
+    "estado": "Activo"
+  },
+  {
+    "id": 2,
+    "codigo_proveedor": "PRV-002",
+    "razon_social": "Bureau Veritas Argentina S.A.",
+    "ente": "Bureau Veritas",
+    "rubro": "Inspección, END e Izaje",
+    "contacto": "Lic. Mariana Gómez",
+    "telefono": "+54 11 4338-0000",
+    "email": "info.ar@bureauveritas.com",
+    "estado": "Activo"
+  },
+  {
+    "id": 3,
+    "codigo_proveedor": "PRV-003",
+    "razon_social": "TÜV Rheinland Argentina S.A.",
+    "ente": "TÜV Rheinland",
+    "rubro": "Certificación y Calificación Técnica",
+    "contacto": "Ing. Roberto Soler",
+    "telefono": "+54 11 4555-8800",
+    "email": "certificaciones@ar.tuv.com",
+    "estado": "Activo"
+  },
+  {
+    "id": 4,
+    "codigo_proveedor": "PRV-004",
+    "razon_social": "CNEA - Comisión Nacional de Energía Atómica / AAENDE",
+    "ente": "CNEA / AAENDE",
+    "rubro": "Ensayos No Destructivos ISO 9712",
+    "contacto": "Dr. Fernando Morales",
+    "telefono": "+54 11 6772-7000",
+    "email": "calificacion@cnea.gob.ar",
+    "estado": "Activo"
+  },
+  {
+    "id": 5,
+    "codigo_proveedor": "PRV-005",
+    "razon_social": "UTN FRBA - Facultad Regional Buenos Aires",
+    "ente": "UTN FRBA",
+    "rubro": "Capacitación y Homologación Técnica",
+    "contacto": "Ing. Pablo Rossi",
+    "telefono": "+54 11 4867-7500",
+    "email": "extension@frba.utn.edu.ar",
+    "estado": "Activo"
+  },
+  {
+    "id": 6,
+    "codigo_proveedor": "PRV-006",
+    "razon_social": "Elektro-Thermit Argentina S.R.L.",
+    "ente": "Elektro-Thermit / IRAM",
+    "rubro": "Soldadura Ferroviaria y Aluminotérmica",
+    "contacto": "Ing. Javier Bianchi",
+    "telefono": "+54 11 4756-1200",
+    "email": "tecnica@thermit.com.ar",
+    "estado": "Activo"
+  },
+  {
+    "id": 7,
+    "codigo_proveedor": "PRV-007",
+    "razon_social": "IAPG - Instituto Argentino del Petróleo y del Gas",
+    "ente": "IAPG / IRAM 3923",
+    "rubro": "Certificación de Grúas y Equipos de Izaje",
+    "contacto": "Ing. Marcelo Domínguez",
+    "telefono": "+54 11 5277-4274",
+    "email": "certificaciones@iapg.org.ar",
+    "estado": "Activo"
+  },
+  {
+    "id": 8,
+    "codigo_proveedor": "PRV-008",
+    "razon_social": "SGS Argentina S.A.",
+    "ente": "SGS",
+    "rubro": "Inspección y Ensayos Industriales",
+    "contacto": "Ing. Carolina Varela",
+    "telefono": "+54 11 4124-2000",
+    "email": "ar.industrial@sgs.com",
+    "estado": "Activo"
+  },
+  {
+    "id": 9,
+    "codigo_proveedor": "PRV-009",
+    "razon_social": "DNV GL Argentina",
+    "ente": "DNV",
+    "rubro": "Certificación Industrial y Calidad",
+    "contacto": "Lic. Andrés Bellini",
+    "telefono": "+54 11 4310-9100",
+    "email": "argentina@dnv.com",
+    "estado": "Activo"
+  },
+  {
+    "id": 10,
+    "codigo_proveedor": "PRV-010",
+    "razon_social": "Lincoln Electric Argentina S.A.",
+    "ente": "Lincoln Electric / IRAM",
+    "rubro": "Calificación Soldadura SMAW/MIG",
+    "contacto": "Ing. Daniel Pereyra",
+    "telefono": "+54 11 4762-8000",
+    "email": "calidad@lincolnelectric.com.ar",
+    "estado": "Activo"
+  }
+]
