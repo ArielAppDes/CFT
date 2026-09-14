@@ -2,6 +2,11 @@
 // SIGA_APP - CONEXIÓN CENTRAL A BASE DE DATOS (LOCAL Y NUBE)
 // ===================================================
 
+// Capturar referencia segura a la librería original del SDK oficial de Supabase
+if (typeof window.supabase !== "undefined" && typeof window.supabase.createClient === "function") {
+    window._supabaseLib = window.supabase;
+}
+
 // 1. Configuración de Credenciales de Supabase (con soporte para configuración en UI)
 (function() {
     const urlGuardada = localStorage.getItem('SIGA_SUPABASE_URL');
@@ -16,14 +21,59 @@ window.supabaseCloudClient = null;
 window.supabaseConectado = false;
 
 function inicializarSupabaseCloud() {
-    if (typeof supabase !== "undefined" && window.SUPABASE_URL && window.SUPABASE_KEY) {
+    const lib = window._supabaseLib || (typeof supabase !== "undefined" && typeof supabase.createClient === "function" ? supabase : null);
+    if (lib && window.SUPABASE_URL && window.SUPABASE_KEY) {
         try {
-            window.supabaseCloudClient = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+            window.supabaseCloudClient = lib.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
             console.log("[SIGA Supabase] Cliente Cloud inicializado correctamente:", window.SUPABASE_URL);
         } catch (e) {
             console.warn("[SIGA Supabase] No se pudo crear cliente de Supabase:", e);
             window.supabaseCloudClient = null;
         }
+    } else if (!lib && window.SUPABASE_URL && window.SUPABASE_KEY) {
+        // Fallback REST directo si la librería JS global no estuviese disponible
+        window.supabaseCloudClient = {
+            from(tabla) {
+                const baseURL = window.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/' + tabla;
+                const headers = {
+                    'apikey': window.SUPABASE_KEY,
+                    'Authorization': 'Bearer ' + window.SUPABASE_KEY,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                };
+                return {
+                    select(columnas = '*') {
+                        return {
+                            limit: async (lim) => {
+                                try {
+                                    const r = await fetch(`${baseURL}?select=${encodeURIComponent(columnas)}&limit=${lim}`, { headers });
+                                    if (!r.ok) return { data: null, error: { message: `HTTP ${r.status}` } };
+                                    const data = await r.json();
+                                    return { data, error: null };
+                                } catch (err) {
+                                    return { data: null, error: err };
+                                }
+                            }
+                        };
+                    },
+                    upsert: async (datos, opts = {}) => {
+                        try {
+                            const params = opts.onConflict ? `?on_conflict=${opts.onConflict}&resolution=merge-duplicates` : '';
+                            const r = await fetch(baseURL + params, {
+                                method: 'POST',
+                                headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
+                                body: JSON.stringify(datos)
+                            });
+                            if (!r.ok) return { data: null, error: { message: `HTTP ${r.status}` } };
+                            return { data: true, error: null };
+                        } catch (err) {
+                            return { data: null, error: err };
+                        }
+                    }
+                };
+            }
+        };
+        console.log("[SIGA Supabase] Cliente REST ligero inicializado correctamente.");
     }
 }
 inicializarSupabaseCloud();
