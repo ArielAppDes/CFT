@@ -28,7 +28,54 @@ if (btnGenerarBase) {
 }
 
 function obtenerClienteDB() {
-    return window.dbLocal || window.supabaseClient || window.supabase;
+    return window.supabaseClient || window.supabase || window.dbLocal;
+}
+
+//======================================================
+// SINCRONIZACIÓN AUTOMÁTICA DE TABLA CON SUPABASE CLOUD
+//======================================================
+async function autoSincronizarTablaSupabase(nombreTabla, registros) {
+    if (!window.supabaseCloudClient || !Array.isArray(registros) || registros.length === 0) {
+        return { sincronizado: false, total: 0 };
+    }
+    const pkMap = {
+        'profiles': 'usuario',
+        'usuarios': 'usuario',
+        'programas': 'codigo_programa',
+        'cursos': 'codigo_curso',
+        'instructores': 'codigo_instructor',
+        'dotacion': 'legajo',
+        'proveedores': 'codigo_proveedor',
+        'capacitaciones': 'id_cap',
+        'asistentes': 'id',
+        'asistencias': 'id',
+        'evaluaciones_satisfaccion': 'id',
+        'evaluaciones': 'id',
+        'transferencias': 'id',
+        'encuestas_transferencia': 'id',
+        'certificaciones_externas': 'id'
+    };
+    const tablaReal = nombreTabla === 'usuarios' ? 'profiles' : (nombreTabla === 'asistencias' ? 'asistentes' : (nombreTabla === 'evaluaciones' ? 'evaluaciones_satisfaccion' : nombreTabla));
+    const pk = pkMap[tablaReal] || 'id';
+
+    try {
+        const LOTE = 50;
+        let subidos = 0;
+        for (let i = 0; i < registros.length; i += LOTE) {
+            const lote = registros.slice(i, i + LOTE);
+            const opts = pk ? { onConflict: pk } : {};
+            const { error } = await window.supabaseCloudClient.from(tablaReal).upsert(lote, opts);
+            if (error) {
+                console.warn(`[Auto-Sync Supabase Cloud] Advertencia en ${tablaReal}:`, error.message);
+            } else {
+                subidos += lote.length;
+            }
+        }
+        return { sincronizado: true, total: subidos };
+    } catch (err) {
+        console.warn(`[Auto-Sync Supabase Cloud] Error en ${tablaReal}:`, err);
+        return { sincronizado: false, total: 0, error: err };
+    }
 }
 
 //======================================================
@@ -522,6 +569,7 @@ async function generarBase() {
                             if (nomT === 'dotacion') {
                                 registrarFechaDotacion(filasProcesadas.length);
                             }
+                            await autoSincronizarTablaSupabase(nomT, filasProcesadas);
                             totalImportados += filasProcesadas.length;
                         } else {
                             if (filasProcesadas.length > 0) {
@@ -536,6 +584,7 @@ async function generarBase() {
                                 else if (nomT === 'profiles') pk = 'usuario';
 
                                 await db.from(nomT).upsert(filasProcesadas, { onConflict: pk });
+                                await autoSincronizarTablaSupabase(nomT, filasProcesadas);
                                 totalImportados += filasProcesadas.length;
                             }
                         }
@@ -546,8 +595,9 @@ async function generarBase() {
                         window.dispatchEvent(new CustomEvent('siga_data_updated', { detail: { accion: 'importacion_backup_csv' } }));
                     } catch (e) {}
                     const acc = modoImportacion === 'reemplazar' ? 'reemplazado / sobreescrito' : 'fusionado';
-                    estadoBase.value = `¡Backup CSV multi-tabla restaurado! (${totalImportados} registros en ${tablasProcesadas} tablas)`;
-                    alert(`¡Éxito! Se ha ${acc} el contenido de ${tablasProcesadas} tablas con ${totalImportados} registros totales.`);
+                    const msgCloudCSV = window.supabaseCloudClient ? " y sincronizado con Supabase Cloud" : "";
+                    estadoBase.value = `¡Backup CSV multi-tabla restaurado! (${totalImportados} registros en ${tablasProcesadas} tablas)${msgCloudCSV}`;
+                    alert(`¡Éxito! Se ha ${acc} el contenido de ${tablasProcesadas} tablas con ${totalImportados} registros totales${msgCloudCSV}.`);
                     return;
                 }
 
@@ -587,6 +637,7 @@ async function generarBase() {
                             if (nombreT === 'dotacion') {
                                 registrarFechaDotacion(lista.length);
                             }
+                            await autoSincronizarTablaSupabase(nombreT, lista);
                             totalImportados += lista.length;
                         } else {
                             if (lista.length > 0) {
@@ -601,6 +652,7 @@ async function generarBase() {
                                 else if (nombreT === 'profiles') pk = 'usuario';
 
                                 await db.from(nombreT).upsert(lista, { onConflict: pk });
+                                await autoSincronizarTablaSupabase(nombreT, lista);
                                 totalImportados += lista.length;
                             }
                         }
@@ -611,8 +663,9 @@ async function generarBase() {
                         window.dispatchEvent(new CustomEvent('siga_data_updated', { detail: { accion: 'importacion_backup_json' } }));
                     } catch (e) {}
                     const acc = modoImportacion === 'reemplazar' ? 'reemplazado' : 'fusionado';
-                    estadoBase.value = `¡Backup completo ${acc}! (${totalImportados} registros en ${tablasRestauradas} tablas)`;
-                    alert(`¡Éxito! Se ha ${acc} el backup con ${totalImportados} registros en ${tablasRestauradas} tablas.`);
+                    const msgCloudJSON = window.supabaseCloudClient ? " y sincronizado con Supabase Cloud" : "";
+                    estadoBase.value = `¡Backup completo ${acc}! (${totalImportados} registros en ${tablasRestauradas} tablas)${msgCloudJSON}`;
+                    alert(`¡Éxito! Se ha ${acc} el backup con ${totalImportados} registros en ${tablasRestauradas} tablas${msgCloudJSON}.`);
                     return;
                 }
 
@@ -670,6 +723,7 @@ async function generarBase() {
                                 if (targetKey === 'dotacion') {
                                     registrarFechaDotacion(rows.length);
                                 }
+                                await autoSincronizarTablaSupabase(targetKey, rows);
                                 totalImportados += rows.length;
                             } else {
                                 if (rows.length > 0) {
@@ -688,6 +742,7 @@ async function generarBase() {
                                     else if (targetKey === 'profiles') pk = 'usuario';
 
                                     await db.from(targetKey).upsert(rows, { onConflict: pk });
+                                    await autoSincronizarTablaSupabase(targetKey, rows);
                                     totalImportados += rows.length;
                                 }
                             }
@@ -699,8 +754,9 @@ async function generarBase() {
                         window.dispatchEvent(new CustomEvent('siga_data_updated', { detail: { accion: 'importacion_backup_excel' } }));
                     } catch (e) {}
                     const acc = modoImportacion === 'reemplazar' ? 'reemplazado / sobreescrito' : 'fusionado';
-                    estadoBase.value = `¡Backup multi-hoja procesado! (${totalImportados} registros en ${tablasProcesadas} tablas)`;
-                    alert(`¡Éxito! Se ha ${acc} el contenido de ${tablasProcesadas} tablas con ${totalImportados} registros totales.`);
+                    const msgCloudExcel = window.supabaseCloudClient ? " y sincronizado con Supabase Cloud" : "";
+                    estadoBase.value = `¡Backup multi-hoja procesado! (${totalImportados} registros en ${tablasProcesadas} tablas)${msgCloudExcel}`;
+                    alert(`¡Éxito! Se ha ${acc} el contenido de ${tablasProcesadas} tablas con ${totalImportados} registros totales${msgCloudExcel}.`);
                     return;
                 }
 
@@ -737,13 +793,15 @@ async function generarBase() {
                 if (tablaAGuardar === 'dotacion') {
                     registrarFechaDotacion(registros.length);
                 }
+                const syncRes = await autoSincronizarTablaSupabase(tablaAGuardar, registros);
+                const msgCloud = syncRes.sincronizado ? ` y persistido en Supabase Cloud (${syncRes.total} regs)` : "";
                 try {
                     localStorage.setItem('SIGA_SISTEMA_INICIALIZADO', 'true');
                     localStorage.setItem('SIGA_USUARIO_DATOS_IMPORTADOS', 'true');
                     window.dispatchEvent(new CustomEvent('siga_data_updated', { detail: { tabla: tablaAGuardar } }));
                 } catch (e) {}
-                estadoBase.value = `¡Base '${tablaAGuardar}' reemplazada con éxito (${registros.length} registros)!`;
-                alert(`¡Éxito! La base de '${tablaAGuardar}' fue reemplazada completamente. Quedó con ${registros.length} registros.`);
+                estadoBase.value = `¡Base '${tablaAGuardar}' reemplazada con éxito (${registros.length} registros)${msgCloud}!`;
+                alert(`¡Éxito! La base de '${tablaAGuardar}' fue reemplazada completamente. Quedó con ${registros.length} registros${msgCloud}.`);
                 return;
             }
 
@@ -771,6 +829,9 @@ async function generarBase() {
             const { error } = await db.from(tablaAGuardar).upsert(registros, { onConflict: columnaPK });
             if (error) throw error;
 
+            const syncRes = await autoSincronizarTablaSupabase(tablaAGuardar, registros);
+            const msgCloud = syncRes.sincronizado ? ` y persistido en Supabase Cloud (${syncRes.total} regs)` : "";
+
             if (tablaAGuardar === 'dotacion') {
                 registrarFechaDotacion(registros.length);
             }
@@ -780,8 +841,8 @@ async function generarBase() {
                 window.dispatchEvent(new CustomEvent('siga_data_updated', { detail: { tabla: tablaAGuardar } }));
             } catch (e) {}
 
-            estadoBase.value = `¡Éxito! ${registros.length} registros fusionados en '${tablaAGuardar}'.`;
-            alert(`¡Éxito! Se fusionaron/actualizaron ${registros.length} registros en la base de '${tablaAGuardar}'.`);
+            estadoBase.value = `¡Éxito! ${registros.length} registros fusionados en '${tablaAGuardar}'${msgCloud}.`;
+            alert(`¡Éxito! Se fusionaron/actualizaron ${registros.length} registros en la base de '${tablaAGuardar}'${msgCloud}.`);
 
         } catch (error) {
             console.error("Error al procesar archivo:", error);

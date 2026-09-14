@@ -20,13 +20,13 @@
             <form id="formLogin" onsubmit="event.preventDefault(); procesarLogin();">
                 <div style="text-align: left; margin-bottom: 14px;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Usuario</label>
-                    <input type="text" placeholder="Ej: Admin" id="usuario" value="Admin" autocomplete="username" required autofocus style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
+                    <input type="text" placeholder="Ingrese su usuario" id="usuario" autocomplete="username" required autofocus style="width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
                 </div>
 
                 <div style="text-align: left; margin-bottom: 18px;">
                     <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Contraseña</label>
                     <div style="position: relative; display: flex; align-items: center;">
-                        <input type="password" placeholder="Ingrese su clave" id="clave" value="CFT2026" autocomplete="current-password" required style="width: 100%; box-sizing: border-box; padding: 10px 42px 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
+                        <input type="password" placeholder="Ingrese su contraseña" id="clave" autocomplete="current-password" required style="width: 100%; box-sizing: border-box; padding: 10px 42px 10px 12px; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 1rem;">
                         <button type="button" onclick="alternarVisibilidadClave()" id="iconoVerClave" style="position: absolute; right: 10px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 4px; color: #64748b;" title="Mostrar / Ocultar contraseña">👁️</button>
                     </div>
                 </div>
@@ -38,18 +38,8 @@
                 </button>
             </form>
 
-            <!-- Accesos rápidos / Demo -->
-            <div style="margin-top: 20px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 0.8rem; text-align: left;">
-                <span style="font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">💡 Cuentas preconfiguradas (hacé clic para autocompletar):</span>
-                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-                    <button type="button" onclick="rellenarCredenciales('Admin', 'CFT2026')" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer; font-weight: 600;">👑 Admin (Acceso Total)</button>
-                    <button type="button" onclick="rellenarCredenciales('Operador', 'CFT2026')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">✍️ Operador</button>
-                    <button type="button" onclick="rellenarCredenciales('Auditor', 'CFT2026')" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;">📊 Reportes</button>
-                </div>
-            </div>
-
-            <div style="margin-top: 20px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 0.8rem; color: #94a3b8;">
-                <p>Acceso seguro local • Academia Emova</p>
+            <div style="margin-top: 25px; padding-top: 14px; border-top: 1px solid #e2e8f0; font-size: 0.8rem; color: #94a3b8;">
+                <p>Acceso seguro • Academia Emova</p>
             </div>
         </div>
     </div>
