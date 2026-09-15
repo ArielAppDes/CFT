@@ -35,6 +35,9 @@ function obtenerClienteDB() {
 // SINCRONIZACIÓN AUTOMÁTICA DE TABLA CON SUPABASE CLOUD
 //======================================================
 async function autoSincronizarTablaSupabase(nombreTabla, registros) {
+    if (!window.supabaseCloudClient && typeof inicializarSupabaseCloud === 'function') {
+        inicializarSupabaseCloud();
+    }
     if (!window.supabaseCloudClient || !Array.isArray(registros) || registros.length === 0) {
         return { sincronizado: false, total: 0 };
     }
@@ -49,20 +52,26 @@ async function autoSincronizarTablaSupabase(nombreTabla, registros) {
         'capacitaciones': 'id_cap',
         'asistentes': 'id',
         'asistencias': 'id',
-        'evaluaciones_satisfaccion': 'id',
         'evaluaciones': 'id',
+        'evaluaciones_satisfaccion': 'id',
         'transferencias': 'id',
         'encuestas_transferencia': 'id',
         'certificaciones_externas': 'id'
     };
-    const tablaReal = nombreTabla === 'usuarios' ? 'profiles' : (nombreTabla === 'asistencias' ? 'asistentes' : (nombreTabla === 'evaluaciones' ? 'evaluaciones_satisfaccion' : nombreTabla));
-    const pk = pkMap[tablaReal] || 'id';
+    const tablaReal = typeof window.mapearNombreTablaSupabase === 'function' 
+        ? window.mapearNombreTablaSupabase(nombreTabla)
+        : (nombreTabla === 'usuarios' ? 'profiles' : (nombreTabla === 'asistencias' ? 'asistentes' : (nombreTabla === 'evaluaciones_satisfaccion' ? 'evaluaciones' : nombreTabla)));
+    const pk = pkMap[tablaReal] || pkMap[nombreTabla] || 'id';
 
     try {
+        const registrosSanitizados = typeof window.sanitizarFilaParaSupabase === 'function' 
+            ? registros.map(r => window.sanitizarFilaParaSupabase(tablaReal, r))
+            : registros;
+
         const LOTE = 50;
         let subidos = 0;
-        for (let i = 0; i < registros.length; i += LOTE) {
-            const lote = registros.slice(i, i + LOTE);
+        for (let i = 0; i < registrosSanitizados.length; i += LOTE) {
+            const lote = registrosSanitizados.slice(i, i + LOTE);
             const opts = pk ? { onConflict: pk } : {};
             const { error } = await window.supabaseCloudClient.from(tablaReal).upsert(lote, opts);
             if (error) {

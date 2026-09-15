@@ -170,14 +170,17 @@ window.cambiarCatalogo = cambiarCatalogo;
 async function cargarProgramas() {
     await asegurarCargasAuxiliaresProgramas();
     let progs = [];
-    if (window.dbLocal && window.dbLocal.raw) {
-        progs = window.dbLocal.raw.leerTabla('programas') || [];
-    } else {
-        const db = obtenerDB();
-        if (db) {
+    const db = obtenerDB();
+    if (db) {
+        try {
             const { data } = await db.from('programas').select('*').order('codigo_programa', { ascending: true });
-            if (data) progs = data;
+            if (data && data.length > 0) progs = data;
+        } catch (e) {
+            console.warn('[Programas] Error consulta:', e);
         }
+    }
+    if (progs.length === 0 && window.dbLocal && window.dbLocal.raw) {
+        progs = window.dbLocal.raw.leerTabla('programas') || [];
     }
 
     // Normalizar y reparar registros sin código o con valor "undefined"
@@ -210,14 +213,17 @@ async function cargarProgramas() {
 
 async function cargarCursos() {
     let cursos = [];
-    if (window.dbLocal && window.dbLocal.raw) {
-        cursos = window.dbLocal.raw.leerTabla('cursos') || [];
-    } else {
-        const db = obtenerDB();
-        if (db) {
+    const db = obtenerDB();
+    if (db) {
+        try {
             const { data } = await db.from('cursos').select('*').order('codigo_curso', { ascending: true });
-            if (data) cursos = data;
+            if (data && data.length > 0) cursos = data;
+        } catch (e) {
+            console.warn('[Cursos] Error consulta:', e);
         }
+    }
+    if (cursos.length === 0 && window.dbLocal && window.dbLocal.raw) {
+        cursos = window.dbLocal.raw.leerTabla('cursos') || [];
     }
 
     // Normalizar y reparar registros
@@ -256,14 +262,17 @@ async function cargarCursos() {
 
 async function cargarInstructores() {
     let insts = [];
-    if (window.dbLocal && window.dbLocal.raw) {
-        insts = window.dbLocal.raw.leerTabla('instructores') || [];
-    } else {
-        const db = obtenerDB();
-        if (db) {
+    const db = obtenerDB();
+    if (db) {
+        try {
             const { data } = await db.from('instructores').select('*').order('codigo_instructor', { ascending: true });
-            if (data) insts = data;
+            if (data && data.length > 0) insts = data;
+        } catch (e) {
+            console.warn('[Instructores] Error consulta:', e);
         }
+    }
+    if (insts.length === 0 && window.dbLocal && window.dbLocal.raw) {
+        insts = window.dbLocal.raw.leerTabla('instructores') || [];
     }
 
     // Normalizar y reparar registros
@@ -296,26 +305,17 @@ async function cargarInstructores() {
 
 async function cargarProveedores() {
     let provs = [];
-    if (window.dbLocal && typeof window.dbLocal.ready === 'function') {
+    const db = obtenerDB();
+    if (db) {
         try {
-            await window.dbLocal.ready();
+            const { data } = await db.from('proveedores').select('*').order('codigo_proveedor', { ascending: true });
+            if (data && data.length > 0) provs = data;
         } catch (e) {
-            console.warn('[Proveedores] Esperando dbLocal:', e);
+            console.warn('[Proveedores] Error consulta:', e);
         }
     }
-
-    if (window.dbLocal && window.dbLocal.raw) {
+    if (provs.length === 0 && window.dbLocal && window.dbLocal.raw) {
         provs = window.dbLocal.raw.leerTabla('proveedores') || [];
-    } else {
-        const db = obtenerDB();
-        if (db) {
-            try {
-                const { data } = await db.from('proveedores').select('*').order('codigo_proveedor', { ascending: true });
-                if (data) provs = data;
-            } catch (e) {
-                console.warn('[Proveedores] Error consulta Supabase:', e);
-            }
-        }
     }
 
     // Si la lista está vacía, recuperar siempre desde SIGA_DATOS_INICIALES

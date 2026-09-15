@@ -1,3 +1,4 @@
-[{"codigo_programa":"PRO-2026-002","nombre":"prueba programa 2","descripcion":"","estado":"Activo"}, 
- {"codigo_programa":"PRO-2026-001","nombre":"CAPACITACIÓN","descripcion":"","estado":"Activo"}, 
- {"codigo_programa":"PRO-2026-003","nombre":"PROGRAMA CNR - RG.","descripcion":"","estado":"Activo"}]
+[{"codigo_programa":"PRO-2026-001","nombre":"CAPACITACIÓN","descripcion":"","estado":"Activo"}, 
+ {"codigo_programa":"PRO-2026-002","nombre":"prueba programa 2","descripcion":"","estado":"Activo"}, 
+ {"codigo_programa":"PRO-2026-003","nombre":"PROGRAMA CNR - RG.","descripcion":"","estado":"Activo"},
+ {"codigo_programa":"PRO-2026-004","nombre":"programa supabase","descripcion":"","estado":"Activo"}]

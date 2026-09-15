@@ -33,30 +33,33 @@
     // 1. Datos iniciales por defecto (catálogos básicos)
     const DATOS_INICIALES = {
         programas: [
-            { id: 1, codigo_programa: 'PRO-001', nombre: 'Seguridad y Prevención', estado: 'Activo' },
-            { id: 2, codigo_programa: 'PRO-002', nombre: 'Operaciones y Mantenimiento', estado: 'Activo' },
-            { id: 3, codigo_programa: 'PRO-003', nombre: 'Calidad y Servicio al Cliente', estado: 'Activo' },
-            { id: 4, codigo_programa: 'PRO-004', nombre: 'Liderazgo y Gestión', estado: 'Activo' },
-            { id: 5, codigo_programa: 'PRO-005', nombre: 'Tecnología y Sistemas', estado: 'Activo' }
+            { id: 1, codigo_programa: 'PRO-2026-001', nombre: 'CAPACITACIÓN', descripcion: '', estado: 'Activo' },
+            { id: 2, codigo_programa: 'PRO-2026-002', nombre: 'prueba programa 2', descripcion: '', estado: 'Activo' },
+            { id: 3, codigo_programa: 'PRO-2026-003', nombre: 'PROGRAMA CNR - RG.', descripcion: '', estado: 'Activo' },
+            { id: 4, codigo_programa: 'PRO-2026-004', nombre: 'programa supabase', descripcion: '', estado: 'Activo' }
         ],
         cursos: [
-            { id: 1, codigo_curso: 'CUR-001', nombre: 'Mantenimiento Mecánico Básico', modalidad: 'Presencial', hs_teoria: 10, hs_practica: 10, hs_totales: 20, estado: 'Activo' },
-            { id: 2, codigo_curso: 'CUR-002', nombre: 'Seguridad Operacional y Normativas', modalidad: 'Presencial', hs_teoria: 8, hs_practica: 4, hs_totales: 12, estado: 'Activo' },
-            { id: 3, codigo_curso: 'CUR-003', nombre: 'Manejo de Redes de Alta Tensión', modalidad: 'Presencial', hs_teoria: 15, hs_practica: 15, hs_totales: 30, estado: 'Activo' },
-            { id: 4, codigo_curso: 'CUR-004', nombre: 'Liderazgo y Gestión de Equipos', modalidad: 'Virtual Sincrónico', hs_teoria: 12, hs_practica: 4, hs_totales: 16, estado: 'Activo' },
-            { id: 5, codigo_curso: 'CUR-005', nombre: 'Telecomunicaciones Ferroviarias', modalidad: 'Híbrido', hs_teoria: 10, hs_practica: 10, hs_totales: 20, estado: 'Activo' },
-            { id: 6, codigo_curso: 'CUR-006', nombre: 'Primeros Auxilios y RCP en Planta', modalidad: 'Presencial', hs_teoria: 4, hs_practica: 4, hs_totales: 8, estado: 'Activo' },
-            { id: 7, codigo_curso: 'CUR-007', nombre: 'Electroneumática e Hidráulica Industrial', modalidad: 'Presencial', hs_teoria: 10, hs_practica: 10, hs_totales: 20, estado: 'Activo' },
-            { id: 8, codigo_curso: 'CUR-008', nombre: 'Protocolos de Evacuación y Emergencias', modalidad: 'Presencial', hs_teoria: 4, hs_practica: 4, hs_totales: 8, estado: 'Activo' },
-            { id: 9, codigo_curso: 'CUR-009', nombre: 'Gestión de Calidad en la Atención al Usuario', modalidad: 'Virtual Sincrónico', hs_teoria: 8, hs_practica: 2, hs_totales: 10, estado: 'Activo' },
-            { id: 10, codigo_curso: 'CUR-010', nombre: 'Sistemas de Señalización Automática', modalidad: 'Presencial', hs_teoria: 15, hs_practica: 15, hs_totales: 30, estado: 'Activo' }
+            { id: 1, codigo_curso: 'CUR-2026-001', nombre: 'Mecánica inicial', hs_teoria: 20, hs_practica: 20, hs_totales: 40, modalidad: 'Presencial', estado: 'Activo' },
+            { id: 2, codigo_curso: 'CUR-2026-002', nombre: 'Neumática Inicial', hs_teoria: 20, hs_practica: 20, hs_totales: 40, modalidad: 'Presencial', estado: 'Activo' },
+            { id: 3, codigo_curso: 'CUR-2026-003', nombre: 'Electricidad Inicial', hs_teoria: 20, hs_practica: 20, hs_totales: 40, modalidad: 'Presencial', estado: 'Activo' },
+            { id: 4, codigo_curso: 'CUR-2026-004', nombre: 'prueba curso 4', hs_teoria: 6, hs_practica: 6, hs_totales: 12, modalidad: 'Presencial', estado: 'Activo' },
+            { id: 5, codigo_curso: 'CUR-2026-005', nombre: 'prueba baja', hs_teoria: 2, hs_practica: 2, hs_totales: 4, modalidad: 'Presencial', estado: 'Baja' },
+            { id: 6, codigo_curso: 'CUR-2026-006', nombre: 'prueba virtual', hs_teoria: 6, hs_practica: 0, hs_totales: 6, modalidad: 'Virtual Asincrónico', estado: 'Activo' },
+            { id: 7, codigo_curso: 'CUR-2026-007', nombre: 'prueba virtual 2', hs_teoria: 6, hs_practica: 0, hs_totales: 6, modalidad: 'Virtual Sincrónico', estado: 'Activo' }
         ],
         instructores: [
-            { id: 1, codigo_instructor: 'INS-001', nombre: 'Carlos', apellido: 'Rodríguez', especialidad: 'Mecánica', tipo: 'Interno', estado: 'Activo' },
-            { id: 2, codigo_instructor: 'INS-002', nombre: 'Mariana', apellido: 'López', especialidad: 'Seguridad e Higiene', tipo: 'Interno', estado: 'Activo' },
-            { id: 3, codigo_instructor: 'INS-003', nombre: 'Gustavo', apellido: 'Fernández', especialidad: 'Electricidad y Tracción', tipo: 'Externo', estado: 'Activo' },
-            { id: 4, codigo_instructor: 'INS-004', nombre: 'Patricia', apellido: 'Gómez', especialidad: 'Atención al Pasajero', tipo: 'Interno', estado: 'Activo' },
-            { id: 5, codigo_instructor: 'INS-005', nombre: 'Sebastián', apellido: 'Díaz', especialidad: 'Telecomunicaciones', tipo: 'Interno', estado: 'Activo' }
+            { id: 1, codigo_instructor: 'INS-2026-001', nombre: 'Juan', apellido: 'Pérez', dni: '30000001', email: 'juan.pérez@empresa.com', especialidad: 'Liderazgo', tipo: 'Interno', estado: 'Activo' },
+            { id: 2, codigo_instructor: 'INS-2026-002', nombre: 'Maria', apellido: 'Gómez', dni: '30000002', email: 'maria.gómez@empresa.com', especialidad: 'Seguridad Industrial', tipo: 'Interno', estado: 'Activo' },
+            { id: 3, codigo_instructor: 'INS-2026-003', nombre: 'ARIEL', apellido: 'PIZZUTTO', dni: '', email: 'APIZZUTTO@EMOVA.COM.AR', especialidad: '', tipo: 'Interno', estado: 'Activo' },
+            { id: 4, codigo_instructor: 'INS-2026-004', nombre: 'ANTONIO', apellido: 'PADULA', dni: '', email: 'apadula@emova.com.ar', especialidad: 'ESPECIALISTA SEÑALES ALSTOM', tipo: 'Interno', estado: 'Activo' },
+            { id: 5, codigo_instructor: 'INS-2026-005', nombre: 'Luis', apellido: 'Rodríguez', dni: '30000005', email: 'luis.rodríguez@empresa.com', especialidad: 'Logística integral ', tipo: 'Externo', estado: 'Inactivo' },
+            { id: 6, codigo_instructor: 'INS-2026-006', nombre: 'Laura', apellido: 'Fernández', dni: '30000006', email: 'laura.fernández@empresa.com', especialidad: 'Recursos Humanos', tipo: 'Interno', estado: 'Baja' },
+            { id: 7, codigo_instructor: 'INS-2026-007', nombre: 'Diego', apellido: 'Sánchez', dni: '30000007', email: 'diego.sánchez@empresa.com', especialidad: 'Sistemas y Datos', tipo: 'Interno', estado: 'Inactivo' },
+            { id: 8, codigo_instructor: 'INS-2026-008', nombre: 'Sofia', apellido: 'Díaz', dni: '30000008', email: 'sofia.díaz@empresa.com', especialidad: 'Electricidad', tipo: 'Interno', estado: 'Activo' },
+            { id: 9, codigo_instructor: 'INS-2026-009', nombre: 'Javier', apellido: 'Romero', dni: '30000009', email: 'javier.romero@empresa.com', especialidad: 'Normas ISO', tipo: 'Interno', estado: 'Activo' },
+            { id: 10, codigo_instructor: 'INS-2026-010', nombre: 'Elena', apellido: 'Torres', dni: '30000010', email: 'elena.torres@empresa.com', especialidad: 'Coaching Ejecutivo', tipo: 'Interno', estado: 'Activo' },
+            { id: 11, codigo_instructor: 'INS-2026-011', nombre: 'Prueba instructor 11', apellido: '11 de agosto', dni: '11589654', email: '-', especialidad: 'pruba ', tipo: 'Interno', estado: 'Activo' },
+            { id: 12, codigo_instructor: 'INS-2026-012', nombre: 'Nombre prueba 12', apellido: 'Apellido prueba 12', dni: '12546254', email: 'prueba@12.com.ar', especialidad: 'seguridad informática', tipo: 'Externo', estado: 'Activo' }
         ],
         profiles: [
             { id: 1, usuario: 'Admin', clave: 'CFT2026', nombre: 'Ariel Pizzutto', email: 'ariel.pizzutto@alumnos.udemm.edu.ar', rol: 'Administrador', estado: 'Activo', creado_el: '2026-08-19' },
