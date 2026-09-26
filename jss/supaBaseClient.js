@@ -50,7 +50,7 @@ window.sanitizarFilaParaSupabase = function(nombreTabla, fila) {
 // 1. Configuración de Credenciales de Supabase (con soporte para configuración en UI)
 (function() {
     const PROYECTO_ACTUAL_URL = "https://hhksfdwzeesmydgllubh.supabase.co";
-    const PROYECTO_ACTUAL_KEY = "sb_publishable_9IbGC-KAl8JtoX6jSjRHnQ_HantPIRf";
+    const PROYECTO_ACTUAL_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhoa3NmZHd6ZWVzbXlkZ2xsdWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNDcyNjEsImV4cCI6MjEwNDgyMzI2MX0.i5pVoJ-7T5HfQuqQRNdTn1PSnXiqci4Mf-zsd5WmE8c";
 
     let urlGuardada = localStorage.getItem('SIGA_SUPABASE_URL');
     let keyGuardada = localStorage.getItem('SIGA_SUPABASE_KEY');
