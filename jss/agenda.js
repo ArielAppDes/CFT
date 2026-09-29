@@ -73,6 +73,13 @@ let catalogoCursos = [];
 
 async function cargarCatalogoCursos() {
     try {
+        if (window.apiClient && window.apiClient.cursos) {
+            const data = await window.apiClient.cursos.listar();
+            if (Array.isArray(data) && data.length > 0) {
+                catalogoCursos = data;
+                return;
+            }
+        }
         if (window.dbLocal && window.dbLocal.raw && typeof window.dbLocal.raw.leerTabla === 'function') {
             const curDb = window.dbLocal.raw.leerTabla('cursos');
             if (Array.isArray(curDb) && curDb.length > 0) {
@@ -87,10 +94,6 @@ async function cargarCatalogoCursos() {
                 catalogoCursos = data;
                 return;
             }
-        }
-        const resp = await fetch('data/cursos.json');
-        if (resp.ok) {
-            catalogoCursos = await resp.json();
         }
     } catch (err) {
         console.warn("Aviso al cargar catálogo de cursos para reportes:", err);
@@ -125,6 +128,25 @@ async function cargarAgendaCompleta() {
         window.normalizarEstadosSeriesCapacitaciones();
     }
     await cargarCatalogoCursos();
+
+    // 1. Carga prioritaria con apiClient
+    if (window.apiClient && window.apiClient.capacitaciones) {
+        try {
+            const data = await window.apiClient.capacitaciones.listar();
+            if (Array.isArray(data) && data.length > 0) {
+                todasLasCapacitaciones = data.map(c => ({
+                    ...c,
+                    fecha: aFechaISO(c.fecha || c.fecha_curso),
+                    fecha_tra: c.fecha_tra ? aFechaISO(c.fecha_tra) : ""
+                }));
+                renderizarVistaAgenda();
+                return;
+            }
+        } catch (e) {
+            console.warn('[agenda] Error consultando capacitaciones en backend:', e);
+        }
+    }
+
     const db = obtenerDB();
     if (db) {
         try {
@@ -133,7 +155,6 @@ async function cargarAgendaCompleta() {
                 .select("*");
 
             if (!error && data) {
-                // Normalizar fechas de cada capacitación
                 todasLasCapacitaciones = data.map(c => ({
                     ...c,
                     fecha: aFechaISO(c.fecha || c.fecha_curso),

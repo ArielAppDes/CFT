@@ -123,6 +123,7 @@ function cargarDatosDesdeDB() {
         let dot = [];
         let provs = [];
 
+        // 1. Carga inmediata de cache local para renderizado instantáneo
         if (window.dbLocal && window.dbLocal.raw) {
             datos = window.dbLocal.raw.leerTabla('certificaciones_externas') || [];
             dot = window.dbLocal.raw.leerTabla('dotacion') || [];
@@ -136,31 +137,49 @@ function cargarDatosDesdeDB() {
             provs = rawProvs ? JSON.parse(rawProvs) : [];
         }
 
-        // Fallback de contingencia: si la tabla está vacía en este entorno local, usar semillas
-        if ((!datos || datos.length === 0) && window.SIGA_DATOS_INICIALES && Array.isArray(window.SIGA_DATOS_INICIALES.certificaciones_externas)) {
-            datos = [...window.SIGA_DATOS_INICIALES.certificaciones_externas];
-            if (window.dbLocal && window.dbLocal.raw && typeof window.dbLocal.raw.guardarTablaAsync === 'function') {
-                window.dbLocal.raw.guardarTablaAsync('certificaciones_externas', datos);
-            }
-        }
-
-        if ((!provs || provs.length === 0) && window.SIGA_DATOS_INICIALES && Array.isArray(window.SIGA_DATOS_INICIALES.proveedores)) {
-            provs = [...window.SIGA_DATOS_INICIALES.proveedores];
-        }
-
         CertificacionesState.certificados = Array.isArray(datos) ? datos : [];
         CertificacionesState.dotacion = Array.isArray(dot) ? dot : [];
         CertificacionesState.proveedores = Array.isArray(provs) ? provs : [];
+
+        // 2. Consulta en segundo plano al backend (/api/certificaciones, /api/dotacion, /api/proveedores)
+        if (window.apiClient && window.apiClient.certificaciones) {
+            Promise.all([
+                window.apiClient.certificaciones.listar(),
+                window.apiClient.dotacion.listar(),
+                window.apiClient.proveedores.listar()
+            ]).then(([certsApi, dotApi, provsApi]) => {
+                let huboCambios = false;
+                if (Array.isArray(certsApi) && certsApi.length > 0) {
+                    CertificacionesState.certificados = certsApi;
+                    huboCambios = true;
+                }
+                if (Array.isArray(dotApi) && dotApi.length > 0) {
+                    CertificacionesState.dotacion = dotApi;
+                    huboCambios = true;
+                }
+                if (Array.isArray(provsApi) && provsApi.length > 0) {
+                    CertificacionesState.proveedores = provsApi;
+                    huboCambios = true;
+                }
+                if (huboCambios && typeof renderizarVista === 'function') {
+                    renderizarVista();
+                }
+            }).catch(err => console.warn('[certificaciones] Aviso al sincronizar con backend:', err));
+        }
     } catch (e) {
         console.error("Error al leer certificaciones:", e);
-        if (CertificacionesState.certificados.length === 0 && window.SIGA_DATOS_INICIALES && Array.isArray(window.SIGA_DATOS_INICIALES.certificaciones_externas)) {
-            CertificacionesState.certificados = [...window.SIGA_DATOS_INICIALES.certificaciones_externas];
-        }
     }
 }
 
 async function guardarCertificadosEnDB() {
     try {
+        if (window.apiClient && window.apiClient.certificaciones && CertificacionesState.certificados.length > 0) {
+            // Guardar o sincronizar certificados en el backend
+            const ultimo = CertificacionesState.certificados[CertificacionesState.certificados.length - 1];
+            if (ultimo) {
+                window.apiClient.certificaciones.guardar(ultimo).catch(e => console.warn('[certificaciones] Error guardando en API:', e));
+            }
+        }
         if (window.dbLocal && window.dbLocal.raw) {
             if (typeof window.dbLocal.raw.guardarTablaAsync === 'function') {
                 await window.dbLocal.raw.guardarTablaAsync('certificaciones_externas', CertificacionesState.certificados);

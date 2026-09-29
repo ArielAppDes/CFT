@@ -1,6 +1,17 @@
 import { defineConfig, Plugin } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs';
+import { createServerApp } from './server/app';
+
+function expressApiPlugin(): Plugin {
+  return {
+    name: 'express-api-plugin',
+    configureServer(server) {
+      const app = createServerApp();
+      server.middlewares.use(app);
+    }
+  };
+}
 
 function copyStaticFoldersPlugin(): Plugin {
   return {
@@ -19,10 +30,11 @@ function copyStaticFoldersPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [copyStaticFoldersPlugin()],
+  plugins: [expressApiPlugin(), copyStaticFoldersPlugin()],
   server: {
     port: 3000,
-    host: true,
+    host: '0.0.0.0',
+    allowedHosts: true,
   },
   build: {
     rollupOptions: {

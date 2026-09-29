@@ -67,24 +67,35 @@ async function cargarResumenSemana() {
     const fechaInicioStr = lunes.toISOString().split("T")[0];
     const fechaFinStr = domingo.toISOString().split("T")[0];
 
-    const db = obtenerDB();
-    
-    if (!db) {
-        contenedor.textContent = "No hay conexión con la base de datos.";
-        return;
-    }
-
     try {
-        const { data, error } = await db
-            .from("capacitaciones")
-            .select("*")
-            .gte("fecha", fechaInicioStr)
-            .lte("fecha", fechaFinStr);
+        let data = [];
 
-        if (error) {
-            console.error("Error al consultar resumen semanal:", error);
-            contenedor.textContent = "Error al obtener las actividades de la semana.";
-            return;
+        // 1. Consulta prioritaria al Backend API
+        if (window.apiClient && window.apiClient.capacitaciones) {
+            try {
+                const todas = await window.apiClient.capacitaciones.listar();
+                if (Array.isArray(todas)) {
+                    data = todas.filter(c => {
+                        const f = (c.fecha || c.fecha_curso || '').split('T')[0];
+                        return f >= fechaInicioStr && f <= fechaFinStr;
+                    });
+                }
+            } catch (e) {
+                console.warn('[dashboard] Error al consultar backend:', e);
+            }
+        }
+
+        // 2. Consulta de respaldo a la base de datos directa
+        if (data.length === 0) {
+            const db = obtenerDB();
+            if (db) {
+                const res = await db
+                    .from("capacitaciones")
+                    .select("*")
+                    .gte("fecha", fechaInicioStr)
+                    .lte("fecha", fechaFinStr);
+                if (res && res.data) data = res.data;
+            }
         }
 
         if (!data || data.length === 0) {

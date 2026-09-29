@@ -32,13 +32,32 @@ function obtenerClienteDB() {
 }
 
 //======================================================
-// SINCRONIZACIÓN AUTOMÁTICA DE TABLA CON SUPABASE CLOUD
+// SINCRONIZACIÓN AUTOMÁTICA DE TABLA CON SUPABASE (BACKEND & CLOUD)
 //======================================================
 async function autoSincronizarTablaSupabase(nombreTabla, registros) {
+    if (!Array.isArray(registros) || registros.length === 0) {
+        return { sincronizado: false, total: 0 };
+    }
+
+    // 1. Sincronización prioritaria con Backend API
+    if (window.apiClient) {
+        try {
+            if (nombreTabla === 'dotacion' && window.apiClient.dotacion) {
+                const res = await window.apiClient.dotacion.importarMasivo(registros);
+                if (res.ok) {
+                    console.log(`[Backend Sync] Dotación importada masivamente (${registros.length} registros).`);
+                    return { sincronizado: true, total: registros.length };
+                }
+            }
+        } catch (e) {
+            console.warn('[Backend Sync] Fallback a cliente directo:', e);
+        }
+    }
+
     if (!window.supabaseCloudClient && typeof inicializarSupabaseCloud === 'function') {
         inicializarSupabaseCloud();
     }
-    if (!window.supabaseCloudClient || !Array.isArray(registros) || registros.length === 0) {
+    if (!window.supabaseCloudClient) {
         return { sincronizado: false, total: 0 };
     }
     const pkMap = {

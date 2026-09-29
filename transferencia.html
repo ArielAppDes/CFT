@@ -189,6 +189,7 @@
     </div>
 </div>
 
+<script src="jss/apiClient.js"></script>
 <script src="jss/dbLocal.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="jss/supaBaseClient.js"></script>
@@ -358,7 +359,16 @@
             fecha_registro: new Date().toISOString()
         };
 
-        // 1. Guardar en Base de Datos Local
+        // 1. Guardado prioritario con Backend API (/api/evaluaciones/transferencia)
+        if (window.apiClient && window.apiClient.evaluaciones) {
+            try {
+                await window.apiClient.evaluaciones.transferencia.registrar(payload);
+            } catch (e) {
+                console.warn('[transferencia] Error registrando con backend API:', e);
+            }
+        }
+
+        // 2. Respaldo en Base de Datos Local
         if (window.dbLocal && window.dbLocal.raw) {
             const transferencias = window.dbLocal.raw.leerTabla('transferencias') || [];
             transferencias.push({ ...payload, id_tra: Date.now() });
@@ -371,20 +381,6 @@
                 caps[idx].estado_tra = 'Recibida';
                 window.dbLocal.raw.escribirTabla('capacitaciones', caps);
             }
-        }
-
-        // 2. Sincronizar en Supabase
-        try {
-            let cloudDB = window.supabaseCloudClient;
-            if (!cloudDB && typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY) {
-                cloudDB = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-            }
-            if (cloudDB) {
-                await cloudDB.from('transferencias').insert([payload]);
-                await cloudDB.from('capacitaciones').update({ estado_tra: 'Recibida' }).eq('id_cap', idCapParam);
-            }
-        } catch(err) {
-            console.warn("Aviso al sincronizar transferencia en la nube:", err);
         }
 
         document.getElementById('formContainer').style.display = 'none';

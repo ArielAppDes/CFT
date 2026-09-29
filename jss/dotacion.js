@@ -113,45 +113,63 @@ function inicializarEventosDotacion() {
     });
 }
 
-function ejecutarBusquedaLegajo() {
+async function ejecutarBusquedaLegajo() {
     const inputLegajo = document.getElementById('legajo');
     if (!inputLegajo) return;
 
     let valorRaw = inputLegajo.value.trim();
     if (!valorRaw) return;
 
-    const baseLocal = obtenerBaseDotacionLocal();
-
-    if (!Array.isArray(baseLocal) || baseLocal.length === 0) {
-        alert("Atención: No se encontró la base de dotación cargada en el sistema.\n\nPor favor, ingresá a 'Administración' -> 'Bases' e importá el archivo de Dotación.");
-        return;
-    }
-
     // Convertir a número puro y a formato padded de 5 dígitos (ej: 1160 -> 01160, 102 -> 00102)
     const legajoNumero = parseInt(valorRaw, 10);
     const legajoPadded = String(legajoNumero).padStart(5, '0');
     
-    // Formatear el input a 5 dígitos
-    inputLegajo.value = isNaN(legajoNumero) ? valorRaw : legajoPadded;
-
-    // Buscar coincidencia por legajo con ceros, sin ceros, número o campos
-    const empleado = baseLocal.find(emp => {
-        const leg = String(emp.legajo || emp.Legajo || emp.LEGAJO || emp.id || emp.dni || emp.ficha || emp.matricula || '').trim();
-        const legLimpio = leg.replace(/\D/g, '');
-        return leg === legajoPadded || 
-               leg === valorRaw ||
-               legLimpio === valorRaw || 
-               legLimpio === String(legajoNumero) || 
-               (legLimpio.length > 0 && !isNaN(legajoNumero) && parseInt(legLimpio, 10) === legajoNumero);
-    });
-
-    if (empleado) {
-        completarCamposDotacion(empleado);
-        inputLegajo.blur(); // Cierra el teclado en móviles/tablets
-    } else {
-        alert(`No se encontró ningún empleado con el legajo ${legajoPadded} (${valorRaw}) en los ${baseLocal.length} registros de la base actual.`);
-        limpiarCamposDotacion(false);
+    // Formatear el input a 5 dígitos si es numérico
+    if (!isNaN(legajoNumero)) {
+        inputLegajo.value = legajoPadded;
     }
+
+    // 1. BÚSQUEDA PRIORITARIA EN EL BACKEND (/api/dotacion/:legajo)
+    if (window.apiClient && window.apiClient.dotacion) {
+        try {
+            // Intentar con legajo padded (01001) y si falla con valor raw (1001)
+            let empApi = await window.apiClient.dotacion.obtener(legajoPadded);
+            if (!empApi && legajoPadded !== valorRaw) {
+                empApi = await window.apiClient.dotacion.obtener(valorRaw);
+            }
+            if (empApi) {
+                completarCamposDotacion(empApi);
+                inputLegajo.blur();
+                return;
+            }
+        } catch (e) {
+            console.warn('[dotacion] Error consultando backend, recurriendo a cache:', e);
+        }
+    }
+
+    // 2. BÚSQUEDA EN MEMORIA LOCAL / CACHE DE RESPALDO
+    const baseLocal = obtenerBaseDotacionLocal();
+
+    if (Array.isArray(baseLocal) && baseLocal.length > 0) {
+        const empleado = baseLocal.find(emp => {
+            const leg = String(emp.legajo || emp.Legajo || emp.LEGAJO || emp.id || emp.dni || emp.ficha || emp.matricula || '').trim();
+            const legLimpio = leg.replace(/\D/g, '');
+            return leg === legajoPadded || 
+                   leg === valorRaw ||
+                   legLimpio === valorRaw || 
+                   legLimpio === String(legajoNumero) || 
+                   (legLimpio.length > 0 && !isNaN(legajoNumero) && parseInt(legLimpio, 10) === legajoNumero);
+        });
+
+        if (empleado) {
+            completarCamposDotacion(empleado);
+            inputLegajo.blur();
+            return;
+        }
+    }
+
+    console.warn(`No se encontró ningún empleado con el legajo ${legajoPadded} (${valorRaw}).`);
+    limpiarCamposDotacion(false);
 }
 
 function completarCamposDotacion(e) {

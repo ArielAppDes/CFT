@@ -24,44 +24,62 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // Carga asíncrona de selectores desde las tablas de Supabase (con limpieza de espacios)
 async function cargarSelectoresDesdeJS(capActual = null) {
-    const db = window.supabaseClient || window.supabase || (window.dbLocal ? window.dbLocal : null);
-    if (!db) {
-        setTimeout(() => cargarSelectoresDesdeJS(capActual), 400);
-        return;
-    }
-
     try {
-        // 1. Cargar Programas desde la tabla 'programas'
-        const { data: progs, error: errProgs } = await db.from("programas").select("nombre, estado");
-        if (!errProgs && progs) {
-            const programasFiltrados = progs
+        // 1. Cargar Programas
+        let programasFiltrados = [];
+        if (window.apiClient && window.apiClient.programas) {
+            const progs = await window.apiClient.programas.listar();
+            programasFiltrados = progs
                 .filter(p => !p.estado || p.estado.trim() === "Activo")
                 .map(p => p.nombre.trim());
-            poblarSelect("programa", programasFiltrados, capActual?.programa);
-        } else if (errProgs) {
-            console.error("Error al cargar programas desde Supabase:", errProgs);
         }
 
-        // 2. Cargar Cursos desde la tabla 'cursos'
-        const { data: cursos, error: errCursos } = await db.from("cursos").select("nombre, estado");
-        if (!errCursos && cursos) {
-            const cursosFiltrados = cursos
+        // 2. Cargar Cursos
+        let cursosFiltrados = [];
+        if (window.apiClient && window.apiClient.cursos) {
+            const cursos = await window.apiClient.cursos.listar();
+            cursosFiltrados = cursos
                 .filter(c => !c.estado || c.estado.trim() === "Activo")
                 .map(c => c.nombre.trim());
-            poblarSelect("curso", cursosFiltrados, capActual?.nombre_curso);
         }
 
-        // 3. Cargar Instructores desde la tabla 'instructores'
-        const { data: insts, error: errInsts } = await db.from("instructores").select("nombre, apellido, estado");
-        if (!errInsts && insts) {
-            const instFiltrados = insts
+        // 3. Cargar Instructores
+        let instFiltrados = [];
+        if (window.apiClient && window.apiClient.instructores) {
+            const insts = await window.apiClient.instructores.listar();
+            instFiltrados = insts
                 .filter(i => !i.estado || i.estado.trim() === "Activo")
                 .map(i => `${i.nombre.trim()} ${i.apellido.trim()}`);
+        }
+
+        // Si la API devolvió datos, poblamos
+        if (programasFiltrados.length > 0) poblarSelect("programa", programasFiltrados, capActual?.programa);
+        if (cursosFiltrados.length > 0) poblarSelect("curso", cursosFiltrados, capActual?.nombre_curso);
+        if (instFiltrados.length > 0) {
             poblarSelect("instructor1", instFiltrados, capActual?.instructor_1);
             poblarSelect("instructor2", instFiltrados, capActual?.instructor_2);
         }
+
+        // Respaldo de base local si los selectores están vacíos
+        const db = window.supabaseClient || window.supabase || (window.dbLocal ? window.dbLocal : null);
+        if (db && (programasFiltrados.length === 0 || cursosFiltrados.length === 0)) {
+            const { data: progs } = await db.from("programas").select("nombre, estado");
+            if (progs && programasFiltrados.length === 0) {
+                poblarSelect("programa", progs.map(p => p.nombre.trim()), capActual?.programa);
+            }
+            const { data: cur } = await db.from("cursos").select("nombre, estado");
+            if (cur && cursosFiltrados.length === 0) {
+                poblarSelect("curso", cur.map(c => c.nombre.trim()), capActual?.nombre_curso);
+            }
+            const { data: ins } = await db.from("instructores").select("nombre, apellido, estado");
+            if (ins && instFiltrados.length === 0) {
+                const lista = ins.map(i => `${i.nombre.trim()} ${i.apellido.trim()}`);
+                poblarSelect("instructor1", lista, capActual?.instructor_1);
+                poblarSelect("instructor2", lista, capActual?.instructor_2);
+            }
+        }
     } catch (err) {
-        console.error("Error inesperado al cargar desplegables:", err);
+        console.error("Error al cargar desplegables:", err);
     }
 }
 
@@ -307,12 +325,26 @@ document.getElementById("btnModalContinuar")?.addEventListener("click", async ()
 // Guardado efectivo tras confirmación
 async function ejecutarGuardadoActividad() {
     const datos = obtenerObjetoFormulario();
-    const db = window.supabaseClient || window.supabase;
 
+    // 1. Guardado prioritario a través del backend (/api/capacitaciones)
+    if (window.apiClient && window.apiClient.capacitaciones) {
+        try {
+            const res = await window.apiClient.capacitaciones.guardar(datos);
+            if (res.ok) {
+                limpiarFormulario();
+                window.location.href = "actividades.html";
+                return;
+            }
+        } catch (e) {
+            console.warn('[capacitaciones] Error guardando con apiClient, recurriendo a supabaseClient:', e);
+        }
+    }
+
+    const db = window.supabaseClient || window.supabase;
     if (db) {
         const { error } = await db.from("capacitaciones").upsert([datos]);
         if (error) {
-            alert("Error al guardar en base de datos: " + error.message);
+            console.error("Error al guardar en base de datos: " + error.message);
             return;
         }
 
@@ -321,7 +353,6 @@ async function ejecutarGuardadoActividad() {
         }
     }
 
-    alert(`Capacitación ${datos.id_cap} guardada con éxito con estado '${datos.estado}'.`);
     limpiarFormulario();
     window.location.href = "actividades.html";
 }
@@ -331,16 +362,23 @@ async function ejecutarPaseAsistentes() {
     const datos = obtenerObjetoFormulario();
     localStorage.setItem("capacitacion_activa", JSON.stringify(datos));
 
-    const db = window.supabaseClient || window.supabase;
-    if (db) {
+    if (window.apiClient && window.apiClient.capacitaciones) {
         try {
-            await db.from("capacitaciones").upsert([datos]);
-
-            if (typeof window.normalizarEstadosSeriesCapacitaciones === 'function') {
-                window.normalizarEstadosSeriesCapacitaciones();
+            await window.apiClient.capacitaciones.guardar(datos);
+        } catch (e) {
+            console.warn('[capacitaciones] Error guardando cabecera previa:', e);
+        }
+    } else {
+        const db = window.supabaseClient || window.supabase;
+        if (db) {
+            try {
+                await db.from("capacitaciones").upsert([datos]);
+                if (typeof window.normalizarEstadosSeriesCapacitaciones === 'function') {
+                    window.normalizarEstadosSeriesCapacitaciones();
+                }
+            } catch (err) {
+                console.warn("Aviso al actualizar capacitación previa a asistencia:", err);
             }
-        } catch (err) {
-            console.warn("Aviso al actualizar capacitación previa a asistencia:", err);
         }
     }
 

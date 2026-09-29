@@ -229,44 +229,36 @@ async function abrirModalPorEstado(estadoFiltro, titulo) {
 
     try {
         let lista = [];
-        if (window.dbLocal && window.dbLocal.raw) {
-            const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
-            const evals = window.dbLocal.raw.leerTabla('evaluaciones_satisfaccion') || window.dbLocal.raw.leerTabla('evaluaciones') || [];
-            
-            if (estadoFiltro === "QR") {
-                lista = caps;
-            } else {
-                lista = caps.filter(c => c.estado === estadoFiltro);
-            }
 
-            // Cruzar estado_sat si ya fue respondida en la tabla de evaluaciones
-            lista = lista.map(c => {
-                const yaRespondio = evals.some(e => String(e.id_cap).trim() === String(c.id_cap).trim());
-                if (yaRespondio && c.estado_sat !== 'Respondida') {
-                    c.estado_sat = 'Respondida';
-                }
-                return c;
-            });
-
-            // Si en local no hay registros, consultar directamente Supabase Nube
-            if (lista.length === 0 && (window.supabaseCloudClient || obtenerDB())) {
-                const db = window.supabaseCloudClient || obtenerDB();
-                let query = db.from("capacitaciones").select("*");
-                if (estadoFiltro !== "QR") {
-                    query = query.eq("estado", estadoFiltro);
-                }
-                const { data } = await query.order("id_cap", { ascending: false });
-                if (data && data.length > 0) lista = data;
+        // 1. Consulta prioritaria al backend (/api/capacitaciones)
+        if (window.apiClient && window.apiClient.capacitaciones) {
+            try {
+                const params = estadoFiltro === "QR" ? {} : { estado: estadoFiltro };
+                lista = await window.apiClient.capacitaciones.listar(params);
+            } catch (e) {
+                console.warn('[actividades] Error consultando backend:', e);
             }
-        } else {
-            const db = obtenerDB();
-            if (db) {
-                let query = db.from("capacitaciones").select("*");
-                if (estadoFiltro !== "QR") {
-                    query = query.eq("estado", estadoFiltro);
+        }
+
+        // 2. Respaldo en dbLocal / Supabase Client si la lista está vacía
+        if (!lista || lista.length === 0) {
+            if (window.dbLocal && window.dbLocal.raw) {
+                const caps = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+                const evals = window.dbLocal.raw.leerTabla('evaluaciones_satisfaccion') || window.dbLocal.raw.leerTabla('evaluaciones') || [];
+                
+                if (estadoFiltro === "QR") {
+                    lista = caps;
+                } else {
+                    lista = caps.filter(c => c.estado === estadoFiltro);
                 }
-                const { data } = await query.order("id_cap", { ascending: false });
-                if (data) lista = data;
+
+                lista = lista.map(c => {
+                    const yaRespondio = evals.some(e => String(e.id_cap).trim() === String(c.id_cap).trim());
+                    if (yaRespondio && c.estado_sat !== 'Respondida') {
+                        c.estado_sat = 'Respondida';
+                    }
+                    return c;
+                });
             }
         }
 

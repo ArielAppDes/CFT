@@ -62,6 +62,23 @@ async function procesarLogin() {
     if (divError) divError.style.display = "none";
 
     try {
+        // 1. Autenticación prioritaria y segura a través del Backend (/api/auth/login)
+        if (window.apiClient && typeof window.apiClient.login === "function") {
+            const resp = await window.apiClient.login(usuarioIngresado, claveIngresada);
+            if (resp.exito) {
+                const user = resp.user;
+                if (user.rol === "Reportes") {
+                    window.location.href = "reportes.html";
+                } else {
+                    window.location.href = "dashboard.html";
+                }
+                return;
+            } else {
+                mostrarError(resp.mensaje || "Usuario o contraseña incorrectos.");
+                return;
+            }
+        }
+
         let usuarioValido = null;
 
         // 1. Verificación prioritaria del usuario maestro 'Admin' con clave 'CFT2026' (insensible a mayúsculas en clave/usuario para máxima facilidad)

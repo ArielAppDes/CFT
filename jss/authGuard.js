@@ -38,17 +38,28 @@
     // - Reportes: Solo dashboard.html, reportes.html, agenda.html, certificaciones.html, normativas.html
     if (rol === 'Operador') {
         if (pathActual === 'administracion.html') {
-            alert('Acceso restringido: Su usuario tiene rol Operador y no posee permisos de Administración.');
+            console.warn('Acceso restringido: Su usuario tiene rol Operador y no posee permisos de Administración.');
             window.location.href = 'dashboard.html';
             return;
         }
     } else if (rol === 'Reportes') {
         const paginasBloqueadasParaReportes = ['administracion.html', 'capacitaciones.html', 'asistentes.html', 'actividades.html', 'encuesta.html', 'transferencia.html'];
         if (paginasBloqueadasParaReportes.includes(pathActual)) {
-            alert('Acceso restringido: Su usuario tiene rol de Solo Reportes y no puede modificar registros de capacitación.');
+            console.warn('Acceso restringido: Su usuario tiene rol de Solo Reportes y no puede modificar registros de capacitación.');
             window.location.href = 'reportes.html';
             return;
         }
+    }
+
+    // 4. VERIFICACIÓN ASÍNCRONA CON EL BACKEND (/api/auth/me)
+    if (window.apiClient && typeof window.apiClient.verificarSesion === 'function') {
+        window.apiClient.verificarSesion().then(res => {
+            if (res && res.autenticado === false) {
+                console.warn('[authGuard] Sesión backend inválida o expirada. Redirigiendo a login...');
+                window.apiClient.limpiarSesion();
+                window.location.href = 'index.html';
+            }
+        }).catch(() => {});
     }
 
     // 4. ADAPTACIÓN VISUAL DEL MENÚ Y CABECERA SEGÚN EL ROL
@@ -112,10 +123,13 @@ function aplicarUIsegunRol(sesion) {
 
 // Función global para cerrar sesión
 window.cerrarSesion = function () {
-    if (confirm('¿Desea cerrar la sesión de ' + (JSON.parse(localStorage.getItem('siga_usuario_activo') || '{}').nombre || 'usuario') + '?')) {
-        localStorage.removeItem('siga_usuario_activo');
-        localStorage.removeItem('usuario');
-        localStorage.removeItem('rol');
-        window.location.href = 'index.html';
+    if (window.apiClient && typeof window.apiClient.logout === 'function') {
+        window.apiClient.logout();
+        return;
     }
+    localStorage.removeItem('siga_usuario_activo');
+    localStorage.removeItem('usuario');
+    localStorage.removeItem('rol');
+    localStorage.removeItem('siga_token');
+    window.location.href = 'index.html';
 };

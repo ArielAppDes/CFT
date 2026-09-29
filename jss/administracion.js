@@ -170,13 +170,26 @@ window.cambiarCatalogo = cambiarCatalogo;
 async function cargarProgramas() {
     await asegurarCargasAuxiliaresProgramas();
     let progs = [];
-    const db = obtenerDB();
-    if (db) {
+
+    // 1. Consulta prioritaria al Backend API
+    if (window.apiClient && window.apiClient.programas) {
         try {
-            const { data } = await db.from('programas').select('*').order('codigo_programa', { ascending: true });
-            if (data && data.length > 0) progs = data;
+            const apiData = await window.apiClient.programas.listar();
+            if (Array.isArray(apiData) && apiData.length > 0) progs = apiData;
         } catch (e) {
-            console.warn('[Programas] Error consulta:', e);
+            console.warn('[Programas] Error consultando backend:', e);
+        }
+    }
+
+    if (progs.length === 0) {
+        const db = obtenerDB();
+        if (db) {
+            try {
+                const { data } = await db.from('programas').select('*').order('codigo_programa', { ascending: true });
+                if (data && data.length > 0) progs = data;
+            } catch (e) {
+                console.warn('[Programas] Error consulta:', e);
+            }
         }
     }
     if (progs.length === 0 && window.dbLocal && window.dbLocal.raw) {
@@ -213,13 +226,26 @@ async function cargarProgramas() {
 
 async function cargarCursos() {
     let cursos = [];
-    const db = obtenerDB();
-    if (db) {
+
+    // 1. Backend API
+    if (window.apiClient && window.apiClient.cursos) {
         try {
-            const { data } = await db.from('cursos').select('*').order('codigo_curso', { ascending: true });
-            if (data && data.length > 0) cursos = data;
+            const apiData = await window.apiClient.cursos.listar();
+            if (Array.isArray(apiData) && apiData.length > 0) cursos = apiData;
         } catch (e) {
-            console.warn('[Cursos] Error consulta:', e);
+            console.warn('[Cursos] Error consultando backend:', e);
+        }
+    }
+
+    if (cursos.length === 0) {
+        const db = obtenerDB();
+        if (db) {
+            try {
+                const { data } = await db.from('cursos').select('*').order('codigo_curso', { ascending: true });
+                if (data && data.length > 0) cursos = data;
+            } catch (e) {
+                console.warn('[Cursos] Error consulta:', e);
+            }
         }
     }
     if (cursos.length === 0 && window.dbLocal && window.dbLocal.raw) {
@@ -262,13 +288,26 @@ async function cargarCursos() {
 
 async function cargarInstructores() {
     let insts = [];
-    const db = obtenerDB();
-    if (db) {
+
+    // 1. Backend API
+    if (window.apiClient && window.apiClient.instructores) {
         try {
-            const { data } = await db.from('instructores').select('*').order('codigo_instructor', { ascending: true });
-            if (data && data.length > 0) insts = data;
+            const apiData = await window.apiClient.instructores.listar();
+            if (Array.isArray(apiData) && apiData.length > 0) insts = apiData;
         } catch (e) {
-            console.warn('[Instructores] Error consulta:', e);
+            console.warn('[Instructores] Error consultando backend:', e);
+        }
+    }
+
+    if (insts.length === 0) {
+        const db = obtenerDB();
+        if (db) {
+            try {
+                const { data } = await db.from('instructores').select('*').order('codigo_instructor', { ascending: true });
+                if (data && data.length > 0) insts = data;
+            } catch (e) {
+                console.warn('[Instructores] Error consulta:', e);
+            }
         }
     }
     if (insts.length === 0 && window.dbLocal && window.dbLocal.raw) {
@@ -305,13 +344,26 @@ async function cargarInstructores() {
 
 async function cargarProveedores() {
     let provs = [];
-    const db = obtenerDB();
-    if (db) {
+
+    // 1. Backend API
+    if (window.apiClient && window.apiClient.proveedores) {
         try {
-            const { data } = await db.from('proveedores').select('*').order('codigo_proveedor', { ascending: true });
-            if (data && data.length > 0) provs = data;
+            const apiData = await window.apiClient.proveedores.listar();
+            if (Array.isArray(apiData) && apiData.length > 0) provs = apiData;
         } catch (e) {
-            console.warn('[Proveedores] Error consulta:', e);
+            console.warn('[Proveedores] Error consultando backend:', e);
+        }
+    }
+
+    if (provs.length === 0) {
+        const db = obtenerDB();
+        if (db) {
+            try {
+                const { data } = await db.from('proveedores').select('*').order('codigo_proveedor', { ascending: true });
+                if (data && data.length > 0) provs = data;
+            } catch (e) {
+                console.warn('[Proveedores] Error consulta:', e);
+            }
         }
     }
     if (provs.length === 0 && window.dbLocal && window.dbLocal.raw) {
@@ -370,8 +422,23 @@ async function cargarProveedores() {
 }
 
 async function cargarUsuarios() {
-    const db = obtenerDB();
     let usuarios = [];
+
+    // 1. Consulta prioritaria al Backend API
+    if (window.apiClient && window.apiClient.usuarios) {
+        try {
+            const apiUsers = await window.apiClient.usuarios.listar();
+            if (Array.isArray(apiUsers) && apiUsers.length > 0) {
+                datosCatalogoActual = apiUsers;
+                renderizarTabla(datosCatalogoActual);
+                return;
+            }
+        } catch (e) {
+            console.warn('[usuarios] Error consultando backend:', e);
+        }
+    }
+
+    const db = obtenerDB();
     if (db) {
         const { data } = await db.from('profiles').select('*');
         if (data && data.length > 0) {
@@ -852,6 +919,18 @@ async function guardarRegistro() {
             estado: estadoVal
         };
 
+        if (window.apiClient && window.apiClient.usuarios) {
+            try {
+                if (modoEdicion) {
+                    await window.apiClient.usuarios.actualizar(usuarioVal, payload);
+                } else {
+                    await window.apiClient.usuarios.crear(payload);
+                }
+            } catch (e) {
+                console.warn('[usuarios] Error al guardar en API:', e);
+            }
+        }
+
         await procesarGuardado('profiles', 'usuario', payload, cargarUsuarios);
     }
 }
@@ -948,6 +1027,14 @@ async function eliminarRegistro() {
             return alert('No podés eliminar el usuario con el que tenés la sesión iniciada actualmente.');
         }
 
+        if (window.apiClient && window.apiClient.usuarios) {
+            try {
+                await window.apiClient.usuarios.eliminar(userTarget);
+            } catch (e) {
+                console.warn('[usuarios] Error al eliminar en API:', e);
+            }
+        }
+
         if (window.dbLocal && window.dbLocal.raw) {
             let items = window.dbLocal.raw.leerTabla('profiles') || [];
             items = items.filter(u => String(u.usuario || '').toLowerCase() !== String(userTarget).toLowerCase());
@@ -959,7 +1046,6 @@ async function eliminarRegistro() {
             if (db) await db.from('profiles').delete().eq('usuario', userTarget);
         } catch (e) {}
 
-        alert('Usuario eliminado correctamente.');
         idSeleccionado = null;
         itemSeleccionadoOriginal = null;
         ocultarFormulario();
@@ -973,6 +1059,18 @@ async function eliminarRegistro() {
     if (catalogoActual === 'proveedores') columnaPK = 'codigo_proveedor';
 
     const codPK = itemAEliminar[columnaPK] || itemAEliminar.codigo || idSeleccionado;
+
+    // Sincronizar borrado con Backend API
+    if (window.apiClient && codPK) {
+        try {
+            if (catalogoActual === 'cursos') await window.apiClient.cursos.eliminar(codPK);
+            else if (catalogoActual === 'programas') await window.apiClient.programas.eliminar(codPK);
+            else if (catalogoActual === 'instructores') await window.apiClient.instructores.eliminar(codPK);
+            else if (catalogoActual === 'proveedores') await window.apiClient.proveedores.eliminar(codPK);
+        } catch (e) {
+            console.warn(`[${catalogoActual}] Error al eliminar en API:`, e);
+        }
+    }
 
     // 1. Borrar en dbLocal con coincidencia múltiple robusta
     if (window.dbLocal && window.dbLocal.raw) {

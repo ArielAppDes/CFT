@@ -118,6 +118,23 @@ function poblarCabeceraVisible(cap, idFallback) {
 }
 
 async function cargarAsistentes(idCap) {
+    if (!idCap) return;
+
+    // 1. Consulta prioritaria al backend (/api/asistentes?id_cap=...)
+    if (window.apiClient && window.apiClient.asistentes) {
+        try {
+            const data = await window.apiClient.asistentes.listar(idCap);
+            if (Array.isArray(data) && data.length > 0) {
+                listaAsistentes = data;
+                renderizarGrilla();
+                return;
+            }
+        } catch (e) {
+            console.warn('[asistentes] Error consultando backend:', e);
+        }
+    }
+
+    // 2. Consulta de respaldo
     const db = obtenerDB();
     if (!db) return;
 
@@ -159,7 +176,7 @@ function obtenerNominaDotacion() {
 }
 
 // 2. AGREGAR PARTICIPANTE CON BÚSQUEDA FLEXIBLE DE LEGAJO (00005, 5, etc.)
-function agregarParticipante() {
+async function agregarParticipante() {
     const inputs = document.querySelectorAll('input');
     const inputLegajo = document.getElementById('inputLegajo') || document.getElementById('legajo') || inputs[6];
     const inputCalificaciones = document.getElementById('inputCalificacion') || document.getElementById('calificacion') || inputs[7];
@@ -169,7 +186,7 @@ function agregarParticipante() {
     const legajoVal = inputLegajo?.value ? String(inputLegajo.value).trim() : '';
 
     if (!legajoVal) {
-        alert("Por favor, ingrese un número de legajo.");
+        console.warn("Por favor, ingrese un número de legajo.");
         return;
     }
 
@@ -178,7 +195,7 @@ function agregarParticipante() {
     const legajoPadded = legajoVal.padStart(5, '0').toLowerCase();
     const legajoNum = parseInt(legajoVal, 10);
 
-    const emp = nomina.find(e => {
+    let emp = nomina.find(e => {
         if (!e.legajo && e.legajo !== 0) return false;
         const lStr = String(e.legajo).trim().toLowerCase();
         if (lStr === legajoBuscado || lStr === legajoPadded) return true;
@@ -186,15 +203,27 @@ function agregarParticipante() {
         return !isNaN(legajoNum) && !isNaN(lNum) && legajoNum === lNum;
     });
 
+    // Si no está en nómina local, consultar directamente a la API de dotación
+    if (!emp && window.apiClient && window.apiClient.dotacion) {
+        try {
+            emp = await window.apiClient.dotacion.obtener(legajoPadded);
+            if (!emp && legajoPadded !== legajoVal) {
+                emp = await window.apiClient.dotacion.obtener(legajoVal);
+            }
+        } catch (e) {
+            console.warn('[asistentes] Error consultando empleado en backend:', e);
+        }
+    }
+
     if (!emp) {
-        alert(`El legajo "${legajoVal}" no se encuentra registrado en la base de dotación de personal.`);
+        console.warn(`El legajo "${legajoVal}" no se encuentra registrado en la base de dotación.`);
         return;
     }
 
     const legajoFinal = String(emp.legajo || legajoVal).padStart(5, '0');
 
     if (listaAsistentes.some(a => String(a.legajo).trim() === legajoFinal || String(a.legajo).trim() === String(emp.legajo).trim())) {
-        alert(`El empleado con legajo ${legajoFinal} ya está agregado en la grilla.`);
+        console.warn(`El empleado con legajo ${legajoFinal} ya está en la grilla.`);
         return;
     }
 
@@ -281,12 +310,9 @@ async function cerrarRegistro() {
     const idCap = obtenerIdCapActual();
 
     if (!idCap) {
-        alert("No hay un ID_CAP válido asignado.");
+        console.warn("No hay un ID_CAP válido asignado.");
         return;
     }
-
-    const confirmacion = confirm(`¿Desea cerrar el registro de la capacitación?\n\nID: ${idCap}\nTotal de asistentes: ${listaAsistentes.length}`);
-    if (!confirmacion) return;
 
     // Evaluación para definir el estado de la serie
     const capActivaRaw = localStorage.getItem("capacitacion_activa");
@@ -303,6 +329,16 @@ async function cerrarRegistro() {
     const totalClases = parseInt(capData.total_clases || "1", 10);
     // Cada clase en la que se registra y cierra asistencia finaliza de forma independiente
     const estadoFinal = "Finalizado";
+
+    // 1. Guardado prioritario con Backend API
+    if (window.apiClient && window.apiClient.asistentes && window.apiClient.capacitaciones) {
+        try {
+            await window.apiClient.asistentes.guardarNomina(idCap, listaAsistentes);
+            await window.apiClient.capacitaciones.actualizar(idCap, { estado: estadoFinal });
+        } catch (e) {
+            console.warn('[asistentes] Error guardando con apiClient:', e);
+        }
+    }
 
     const db = obtenerDB();
     if (db) {
@@ -332,8 +368,6 @@ async function cerrarRegistro() {
 
         } catch (err) {
             console.error("Error guardando asistentes en base local:", err);
-            alert("Error al guardar asistentes: " + (err.message || "Error al procesar los datos"));
-            return;
         }
     }
 

@@ -208,6 +208,7 @@
     </div>
 </div>
 
+<script src="jss/apiClient.js"></script>
 <script src="jss/dbLocal.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="jss/supaBaseClient.js?v=9.0"></script>
@@ -332,7 +333,16 @@
             fecha_registro: new Date().toISOString()
         };
 
-        // 1. Guardar en Base de Datos Local (evaluaciones y evaluaciones_satisfaccion)
+        // 1. Guardado prioritario con Backend API (/api/evaluaciones/satisfaccion)
+        if (window.apiClient && window.apiClient.evaluaciones) {
+            try {
+                await window.apiClient.evaluaciones.satisfaccion.registrar(payload);
+            } catch (e) {
+                console.warn('[encuesta] Error registrando con backend API:', e);
+            }
+        }
+
+        // 2. Respaldo en Base de Datos Local
         if (window.dbLocal && window.dbLocal.raw) {
             const evalList = window.dbLocal.raw.leerTabla('evaluaciones_satisfaccion') || [];
             evalList.push({ ...payload, id: Date.now() });
@@ -347,20 +357,6 @@
                 caps[idx].estado_encuesta = 'Respondida';
                 window.dbLocal.raw.escribirTabla('capacitaciones', caps);
             }
-        }
-
-        // 2. Sincronizar en la Nube con Supabase
-        try {
-            let cloudDB = window.supabaseCloudClient;
-            if (!cloudDB && typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY) {
-                cloudDB = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-            }
-            if (cloudDB) {
-                await cloudDB.from('evaluaciones_satisfaccion').insert([payload]);
-                await cloudDB.from('capacitaciones').update({ estado_sat: 'Respondida', estado_encuesta: 'Respondida' }).eq('id_cap', idCap);
-            }
-        } catch (err) {
-            console.warn("Aviso al sincronizar en la nube:", err);
         }
 
         document.getElementById('formContainer').style.display = 'none';

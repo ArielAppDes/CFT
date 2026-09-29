@@ -84,8 +84,29 @@ window.addEventListener('storage', (e) => {
 // ===================================================
 
 // Helper ultra-robusto para cargar cualquier tabla del sistema SIGA
-// PRIORIDAD ABSOLUTA: dbLocal en memoria e IndexedDB, donde residen los datos importados por el usuario.
+// PRIORIDAD 1: Backend API (/api/*) con conexión a Supabase PostgreSQL
 async function cargarColeccionRobusta(nombreTabla) {
+    // 0. Consulta prioritaria al Backend API
+    if (window.apiClient) {
+        try {
+            let apiData = null;
+            if (nombreTabla === 'dotacion') apiData = await window.apiClient.dotacion.listar();
+            else if (nombreTabla === 'cursos') apiData = await window.apiClient.cursos.listar();
+            else if (nombreTabla === 'programas') apiData = await window.apiClient.programas.listar();
+            else if (nombreTabla === 'capacitaciones') apiData = await window.apiClient.capacitaciones.listar();
+            else if (nombreTabla === 'asistentes') apiData = await window.apiClient.asistentes.listar();
+            else if (nombreTabla === 'certificaciones_externas') apiData = await window.apiClient.certificaciones.listar();
+            else if (nombreTabla === 'proveedores') apiData = await window.apiClient.proveedores.listar();
+
+            if (Array.isArray(apiData) && apiData.length > 0) {
+                console.log(`[Reportes] ${nombreTabla} cargada desde Backend API (${apiData.length} registros).`);
+                return apiData;
+            }
+        } catch (e) {
+            console.warn(`[Reportes] Backend API no disponible para ${nombreTabla}, usando cache local:`, e);
+        }
+    }
+
     const tablasAlternativas = [nombreTabla];
     if (nombreTabla === 'asistentes') tablasAlternativas.push('asistencias');
     if (nombreTabla === 'capacitaciones') tablasAlternativas.push('actividades');
