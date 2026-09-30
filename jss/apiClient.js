@@ -116,7 +116,13 @@
                 return { autenticado: true, user: resp.data.user };
             }
 
-            return { autenticado: false, error: resp.error };
+            // Solo desloguear si el backend confirmó que el token es inválido o expiró (401 o 403)
+            if (resp.status === 401 || resp.status === 403) {
+                return { autenticado: false, error: resp.error };
+            }
+
+            // Si el backend arrojó 500 o falló la conexión por red, preservar la sesión activa
+            return { autenticado: true, offline: true, error: resp.error };
         },
 
         async logout() {
