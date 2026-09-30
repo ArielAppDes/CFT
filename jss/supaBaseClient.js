@@ -264,36 +264,77 @@ function crearClienteHibrido() {
             return {
                 select(columnas = '*') {
                     const self = {
-                        _filtros: { tipo: null, arg1: null, arg2: null },
+                        _operaciones: [],
                         eq(col, val) {
-                            this._filtros = { tipo: 'eq', arg1: col, arg2: val };
+                            this._operaciones.push({ tipo: 'eq', arg1: col, arg2: val });
+                            return this;
+                        },
+                        neq(col, val) {
+                            this._operaciones.push({ tipo: 'neq', arg1: col, arg2: val });
+                            return this;
+                        },
+                        gte(col, val) {
+                            this._operaciones.push({ tipo: 'gte', arg1: col, arg2: val });
+                            return this;
+                        },
+                        lte(col, val) {
+                            this._operaciones.push({ tipo: 'lte', arg1: col, arg2: val });
+                            return this;
+                        },
+                        gt(col, val) {
+                            this._operaciones.push({ tipo: 'gt', arg1: col, arg2: val });
+                            return this;
+                        },
+                        lt(col, val) {
+                            this._operaciones.push({ tipo: 'lt', arg1: col, arg2: val });
+                            return this;
+                        },
+                        like(col, val) {
+                            this._operaciones.push({ tipo: 'like', arg1: col, arg2: val });
+                            return this;
+                        },
+                        ilike(col, val) {
+                            this._operaciones.push({ tipo: 'ilike', arg1: col, arg2: val });
+                            return this;
+                        },
+                        in(col, vals) {
+                            this._operaciones.push({ tipo: 'in', arg1: col, arg2: vals });
                             return this;
                         },
                         order(col, opts) {
-                            this._filtros = { tipo: 'order', arg1: col, arg2: opts };
+                            this._operaciones.push({ tipo: 'order', arg1: col, arg2: opts });
                             return this;
                         },
                         limit(num) {
-                            this._filtros = { tipo: 'limit', arg1: num, arg2: null };
+                            this._operaciones.push({ tipo: 'limit', arg1: num, arg2: null });
                             return this;
                         },
                         async _ejecutar() {
-                            const { tipo, arg1, arg2 } = this._filtros;
                             // 1. Si Supabase Cloud está disponible, intentar consulta en nube
                             if (cloudTable) {
                                 try {
                                     let q = cloudTable.select(columnas);
-                                    if (tipo === 'eq') q = q.eq(arg1, arg2);
-                                    else if (tipo === 'order') {
-                                        if (typeof arg2 === 'object') q = q.order(arg1, arg2);
-                                        else q = q.order(arg1, { ascending: arg2 !== false });
+                                    for (const op of this._operaciones) {
+                                        if (op.tipo === 'eq') q = q.eq(op.arg1, op.arg2);
+                                        else if (op.tipo === 'neq') q = q.neq(op.arg1, op.arg2);
+                                        else if (op.tipo === 'gte') q = q.gte(op.arg1, op.arg2);
+                                        else if (op.tipo === 'lte') q = q.lte(op.arg1, op.arg2);
+                                        else if (op.tipo === 'gt') q = q.gt(op.arg1, op.arg2);
+                                        else if (op.tipo === 'lt') q = q.lt(op.arg1, op.arg2);
+                                        else if (op.tipo === 'like') q = q.like(op.arg1, op.arg2);
+                                        else if (op.tipo === 'ilike') q = q.ilike(op.arg1, op.arg2);
+                                        else if (op.tipo === 'in') q = q.in(op.arg1, op.arg2);
+                                        else if (op.tipo === 'order') {
+                                            if (typeof op.arg2 === 'object') q = q.order(op.arg1, op.arg2);
+                                            else q = q.order(op.arg1, { ascending: op.arg2 !== false });
+                                        }
+                                        else if (op.tipo === 'limit') q = q.limit(op.arg1);
                                     }
-                                    else if (tipo === 'limit') q = q.limit(arg1);
 
                                     const { data, error } = await q;
                                     if (!error && Array.isArray(data)) {
                                         // Cachear / actualizar en dbLocal silenciosamente si no es consulta puntual filtrada
-                                        if (window.dbLocal && window.dbLocal.raw && columnas === '*' && tipo !== 'eq') {
+                                        if (window.dbLocal && window.dbLocal.raw && columnas === '*' && this._operaciones.length === 0) {
                                             window.dbLocal.raw.escribirTabla(nombreTabla, data);
                                             window.dbLocal.raw.guardarTablaAsync(nombreTabla, data).catch(() => {});
                                         }
@@ -309,9 +350,11 @@ function crearClienteHibrido() {
                             // 2. Fallback transparente a dbLocal
                             if (localTable) {
                                 let lq = localTable.select(columnas);
-                                if (tipo === 'eq') lq = lq.eq(arg1, arg2);
-                                else if (tipo === 'order') lq = lq.order(arg1, arg2);
-                                else if (tipo === 'limit') lq = lq.limit(arg1);
+                                for (const op of this._operaciones) {
+                                    if (typeof lq[op.tipo] === 'function') {
+                                        lq = lq[op.tipo](op.arg1, op.arg2);
+                                    }
+                                }
                                 return await lq;
                             }
                             return { data: [], error: null };

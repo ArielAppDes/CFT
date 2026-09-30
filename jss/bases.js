@@ -1587,8 +1587,51 @@ async function vaciarBaseDeDatos() {
 window.vaciarBaseDeDatos = vaciarBaseDeDatos;
 
 //======================================================
-// GESTIÓN Y SINCRONIZACIÓN DE SUPABASE CLOUD (POSTGRESQL)
+// GESTIÓN Y DIAGNÓSTICO DEL BACKEND & SUPABASE CLOUD (POSTGRESQL)
 //======================================================
+window.probarSaludBackend = async function() {
+    const resDiv = document.getElementById('resultadoDiagnostico');
+    const badge = document.getElementById('badgeEstadoSupabase');
+    if (resDiv) {
+        resDiv.style.display = 'block';
+        resDiv.innerHTML = '⏳ Comprobando conexión entre Backend y Supabase PostgreSQL...';
+    }
+    const t0 = performance.now();
+    try {
+        const res = await fetch('/api/health');
+        const data = await res.json();
+        const t1 = performance.now();
+        const ms = Math.round(t1 - t0);
+
+        if (res.ok && data.status === 'ok') {
+            if (badge) {
+                badge.style.background = '#10b981';
+                badge.innerHTML = '🟢 Servidor Conectado a Supabase';
+            }
+            if (resDiv) {
+                resDiv.style.background = 'rgba(16, 185, 129, 0.15)';
+                resDiv.style.borderColor = '#10b981';
+                resDiv.style.color = '#a7f3d0';
+                resDiv.innerHTML = `<strong>✅ Diagnóstico Exitoso (${ms}ms):</strong><br>El servidor backend está conectado en tiempo real a Supabase (PostgreSQL). Perfiles activos en base: <strong>${data.profilesCount}</strong>.`;
+            }
+        } else {
+            if (resDiv) {
+                resDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+                resDiv.style.borderColor = '#ef4444';
+                resDiv.style.color = '#fca5a5';
+                resDiv.innerHTML = `<strong>⚠️ Advertencia:</strong> ${data.error || 'Respuesta no esperada del backend'}`;
+            }
+        }
+    } catch (err) {
+        if (resDiv) {
+            resDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+            resDiv.style.borderColor = '#ef4444';
+            resDiv.style.color = '#fca5a5';
+            resDiv.innerHTML = `<strong>❌ Error de Conexión:</strong> ${err.message}`;
+        }
+    }
+};
+
 function inicializarPanelSupabaseUI() {
     const inputUrl = document.getElementById('inputSupabaseUrl');
     const inputKey = document.getElementById('inputSupabaseKey');
@@ -1601,7 +1644,14 @@ function inicializarPanelSupabaseUI() {
     const txtProgreso = document.getElementById('textoProgresoSupabase');
     const barProgreso = document.getElementById('barraProgresoSupabase');
 
-    if (!inputUrl || !inputKey) return;
+    if (!inputUrl || !inputKey) {
+        // En la nueva arquitectura, las credenciales están seguras en el backend
+        if (badge) {
+            badge.style.background = '#10b981';
+            badge.innerHTML = '🟢 Servidor Conectado a la Nube';
+        }
+        return;
+    }
 
     // Cargar credenciales actuales
     inputUrl.value = window.SUPABASE_URL || '';

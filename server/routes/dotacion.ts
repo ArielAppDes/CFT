@@ -39,7 +39,7 @@ dotacionRouter.get('/', async (req: Request, res: Response) => {
 dotacionRouter.get('/:legajo', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const legajo = req.params.legajo.trim();
+    const legajo = String(req.params.legajo || '').trim();
 
     const { data, error } = await supabase
       .from('dotacion')
@@ -105,7 +105,7 @@ dotacionRouter.post('/', async (req: Request, res: Response) => {
 dotacionRouter.put('/:legajo', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const legajo = req.params.legajo.trim();
+    const legajo = String(req.params.legajo || '').trim();
     const body = req.body;
 
     const actualizacion: Record<string, any> = {};
@@ -141,7 +141,7 @@ dotacionRouter.put('/:legajo', async (req: Request, res: Response) => {
 dotacionRouter.delete('/:legajo', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const legajo = req.params.legajo.trim();
+    const legajo = String(req.params.legajo || '').trim();
 
     const { error } = await supabase
       .from('dotacion')

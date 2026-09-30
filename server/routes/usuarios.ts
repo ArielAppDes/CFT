@@ -81,7 +81,7 @@ usuariosRouter.post('/', requireAdmin, async (req: Request, res: Response) => {
 usuariosRouter.put('/:usuario', requireAdmin, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const usuarioParam = req.params.usuario.trim();
+    const usuarioParam = String(req.params.usuario || '').trim();
     const { clave, nombre, email, rol, estado } = req.body;
 
     const actualizacion: Record<string, any> = {};
@@ -122,7 +122,7 @@ usuariosRouter.put('/:usuario', requireAdmin, async (req: Request, res: Response
 usuariosRouter.delete('/:usuario', requireAdmin, async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const usuarioParam = req.params.usuario.trim();
+    const usuarioParam = String(req.params.usuario || '').trim();
     const currentUser = (req as any).user as UserSession;
 
     // Impedir eliminarse a uno mismo

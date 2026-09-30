@@ -70,11 +70,14 @@ async function cargarResumenSemana() {
     try {
         let data = [];
 
+        let consultadoBackend = false;
+
         // 1. Consulta prioritaria al Backend API
         if (window.apiClient && window.apiClient.capacitaciones) {
             try {
                 const todas = await window.apiClient.capacitaciones.listar();
                 if (Array.isArray(todas)) {
+                    consultadoBackend = true;
                     data = todas.filter(c => {
                         const f = (c.fecha || c.fecha_curso || '').split('T')[0];
                         return f >= fechaInicioStr && f <= fechaFinStr;
@@ -85,16 +88,28 @@ async function cargarResumenSemana() {
             }
         }
 
-        // 2. Consulta de respaldo a la base de datos directa
-        if (data.length === 0) {
+        // 2. Consulta de respaldo a la base de datos directa si el backend no estuvo disponible
+        if (!consultadoBackend) {
             const db = obtenerDB();
-            if (db) {
-                const res = await db
-                    .from("capacitaciones")
-                    .select("*")
-                    .gte("fecha", fechaInicioStr)
-                    .lte("fecha", fechaFinStr);
-                if (res && res.data) data = res.data;
+            if (db && typeof db.from === 'function') {
+                try {
+                    let q = db.from("capacitaciones").select("*");
+                    if (typeof q.gte === 'function') {
+                        q = q.gte("fecha", fechaInicioStr);
+                    }
+                    if (typeof q.lte === 'function') {
+                        q = q.lte("fecha", fechaFinStr);
+                    }
+                    const res = await q;
+                    if (res && res.data && Array.isArray(res.data)) {
+                        data = res.data.filter(c => {
+                            const f = (c.fecha || c.fecha_curso || '').split('T')[0];
+                            return f >= fechaInicioStr && f <= fechaFinStr;
+                        });
+                    }
+                } catch (errDb) {
+                    console.warn('[dashboard] Error en consulta de respaldo directa:', errDb);
+                }
             }
         }
 

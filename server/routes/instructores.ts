@@ -66,7 +66,7 @@ instructoresRouter.post('/', async (req: Request, res: Response) => {
 instructoresRouter.put('/:codigo', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const codigo = req.params.codigo.trim();
+    const codigo = String(req.params.codigo || '').trim();
     const body = req.body;
 
     const actualizacion: Record<string, any> = {};
@@ -96,7 +96,7 @@ instructoresRouter.put('/:codigo', async (req: Request, res: Response) => {
 instructoresRouter.delete('/:codigo', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const codigo = req.params.codigo.trim();
+    const codigo = String(req.params.codigo || '').trim();
 
     const { error } = await supabase.from('instructores').delete().eq('codigo_instructor', codigo);
     if (error) return res.status(500).json({ error: error.message });

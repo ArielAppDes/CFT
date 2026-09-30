@@ -51,7 +51,7 @@ capacitacionesRouter.get('/', async (req: Request, res: Response) => {
 capacitacionesRouter.get('/:id_cap', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const idCap = req.params.id_cap.trim();
+    const idCap = String(req.params.id_cap || '').trim();
 
     const { data: cap, error } = await supabase
       .from('capacitaciones')
@@ -185,7 +185,7 @@ capacitacionesRouter.post('/', async (req: Request, res: Response) => {
 capacitacionesRouter.put('/:id_cap', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const idCap = req.params.id_cap.trim();
+    const idCap = String(req.params.id_cap || '').trim();
     const body = req.body;
 
     const actualizacion: Record<string, any> = {};
@@ -248,7 +248,7 @@ capacitacionesRouter.put('/:id_cap', async (req: Request, res: Response) => {
 capacitacionesRouter.delete('/:id_cap', async (req: Request, res: Response) => {
   try {
     const supabase = getSupabase();
-    const idCap = req.params.id_cap.trim();
+    const idCap = String(req.params.id_cap || '').trim();
 
     // Eliminar asistentes y capacitación
     await supabase.from('asistentes').delete().eq('id_cap', idCap);
