@@ -919,18 +919,6 @@ async function guardarRegistro() {
             estado: estadoVal
         };
 
-        if (window.apiClient && window.apiClient.usuarios) {
-            try {
-                if (modoEdicion) {
-                    await window.apiClient.usuarios.actualizar(usuarioVal, payload);
-                } else {
-                    await window.apiClient.usuarios.crear(payload);
-                }
-            } catch (e) {
-                console.warn('[usuarios] Error al guardar en API:', e);
-            }
-        }
-
         await procesarGuardado('profiles', 'usuario', payload, cargarUsuarios);
     }
 }
@@ -938,13 +926,49 @@ window.guardarRegistro = guardarRegistro;
 
 async function procesarGuardado(tabla, columnaPK, payload, funcionRecargar) {
     const valorPK = payload[columnaPK];
+    const modoEdicionActual = Boolean(modoEdicion);
+    const codOriginal = (modoEdicionActual && itemSeleccionadoOriginal)
+        ? (itemSeleccionadoOriginal[columnaPK] || itemSeleccionadoOriginal.codigo || itemSeleccionadoOriginal.id || itemSeleccionadoOriginal.usuario || valorPK)
+        : valorPK;
 
-    // 1. Guardar en Base de Datos Local
+    // 1. Sincronizar prioritariamente con el Backend API (persistencia en PostgreSQL Supabase)
+    const nombreServicioApi = tabla === 'profiles' ? 'usuarios' : tabla;
+    if (window.apiClient && window.apiClient[nombreServicioApi]) {
+        try {
+            if (modoEdicionActual && codOriginal) {
+                await window.apiClient[nombreServicioApi].actualizar(codOriginal, payload);
+            } else if (typeof window.apiClient[nombreServicioApi].crear === 'function') {
+                await window.apiClient[nombreServicioApi].crear(payload);
+            } else if (typeof window.apiClient[nombreServicioApi].guardar === 'function') {
+                await window.apiClient[nombreServicioApi].guardar(payload);
+            }
+        } catch (apiErr) {
+            console.warn(`[API ${nombreServicioApi}] Aviso al guardar en Backend:`, apiErr);
+        }
+    }
+
+    // 2. Sincronizar directamente con Supabase (cliente universal de contingencia con payload sanitizado)
+    try {
+        const db = obtenerDB();
+        if (db) {
+            const tablaReal = typeof window.mapearNombreTablaSupabase === 'function' ? window.mapearNombreTablaSupabase(tabla) : tabla;
+            const filaSanitizada = typeof window.sanitizarFilaParaSupabase === 'function' ? window.sanitizarFilaParaSupabase(tablaReal, payload) : payload;
+            if (modoEdicionActual && codOriginal) {
+                await db.from(tablaReal).update(filaSanitizada).eq(columnaPK, codOriginal);
+            } else {
+                await db.from(tablaReal).upsert([filaSanitizada], { onConflict: columnaPK });
+            }
+        }
+    } catch (err) {
+        console.warn(`[Supabase Direct ${tabla}] Aviso al sincronizar en la nube:`, err);
+    }
+
+    // 3. Guardar en Base de Datos Local
     if (window.dbLocal && window.dbLocal.raw) {
         let items = window.dbLocal.raw.leerTabla(tabla) || [];
         
         let index = -1;
-        if (modoEdicion && itemSeleccionadoOriginal) {
+        if (modoEdicionActual && itemSeleccionadoOriginal) {
             const origPK = itemSeleccionadoOriginal[columnaPK] || itemSeleccionadoOriginal.codigo || itemSeleccionadoOriginal.id || itemSeleccionadoOriginal.usuario;
             index = items.findIndex(x => {
                 const xPK = x[columnaPK] || x.codigo || x.id || x.usuario;
@@ -978,20 +1002,7 @@ async function procesarGuardado(tabla, columnaPK, payload, funcionRecargar) {
         }
     }
 
-    // 2. Sincronizar en Supabase si está disponible
-    try {
-        let cloudDB = window.supabaseCloudClient;
-        if (!cloudDB && typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY) {
-            cloudDB = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
-        }
-        if (cloudDB) {
-            await cloudDB.from(tabla).upsert([payload], { onConflict: columnaPK });
-        }
-    } catch (err) {
-        console.warn("Aviso al sincronizar en la nube:", err);
-    }
-
-    const accionMsg = modoEdicion ? 'modificado' : 'guardado';
+    const accionMsg = modoEdicionActual ? 'modificado' : 'guardado';
     alert(`Registro ${accionMsg} exitosamente.`);
     modoEdicion = false;
     idSeleccionado = null;

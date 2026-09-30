@@ -78,12 +78,22 @@ instructoresRouter.put('/:codigo', async (req: Request, res: Response) => {
     if (body.tipo !== undefined) actualizacion.tipo = body.tipo;
     if (body.estado !== undefined) actualizacion.estado = body.estado;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('instructores')
       .update(actualizacion)
       .eq('codigo_instructor', codigo)
       .select()
       .maybeSingle();
+
+    if (!data && !error) {
+      const resUpsert = await supabase
+        .from('instructores')
+        .upsert({ ...actualizacion, codigo_instructor: codigo }, { onConflict: 'codigo_instructor' })
+        .select()
+        .single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
 
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });

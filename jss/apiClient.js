@@ -180,6 +180,9 @@
             async guardar(curso) {
                 return await apiClient.request('/cursos', { method: 'POST', body: curso });
             },
+            async crear(curso) {
+                return await this.guardar(curso);
+            },
             async actualizar(codigo, datos) {
                 return await apiClient.request(`/cursos/${encodeURIComponent(codigo)}`, { method: 'PUT', body: datos });
             },
@@ -197,6 +200,9 @@
             async guardar(programa) {
                 return await apiClient.request('/programas', { method: 'POST', body: programa });
             },
+            async crear(programa) {
+                return await this.guardar(programa);
+            },
             async actualizar(codigo, datos) {
                 return await apiClient.request(`/programas/${encodeURIComponent(codigo)}`, { method: 'PUT', body: datos });
             },
@@ -213,6 +219,9 @@
             },
             async guardar(instructor) {
                 return await apiClient.request('/instructores', { method: 'POST', body: instructor });
+            },
+            async crear(instructor) {
+                return await this.guardar(instructor);
             },
             async actualizar(codigo, datos) {
                 return await apiClient.request(`/instructores/${encodeURIComponent(codigo)}`, { method: 'PUT', body: datos });
@@ -316,6 +325,9 @@
             },
             async guardar(prov) {
                 return await apiClient.request('/proveedores', { method: 'POST', body: prov });
+            },
+            async crear(prov) {
+                return await this.guardar(prov);
             },
             async actualizar(codigo, datos) {
                 return await apiClient.request(`/proveedores/${encodeURIComponent(codigo)}`, { method: 'PUT', body: datos });

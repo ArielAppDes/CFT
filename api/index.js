@@ -415,7 +415,12 @@ cursosRouter.put("/:codigo", async (req, res) => {
     if (body.hs_totales !== void 0) actualizacion.hs_totales = Number(body.hs_totales);
     if (body.modalidad !== void 0) actualizacion.modalidad = body.modalidad;
     if (body.estado !== void 0) actualizacion.estado = body.estado;
-    const { data, error } = await supabase.from("cursos").update(actualizacion).eq("codigo_curso", codigo).select().maybeSingle();
+    let { data, error } = await supabase.from("cursos").update(actualizacion).eq("codigo_curso", codigo).select().maybeSingle();
+    if (!data && !error) {
+      const resUpsert = await supabase.from("cursos").upsert({ ...actualizacion, codigo_curso: codigo }, { onConflict: "codigo_curso" }).select().single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
   } catch (err) {
@@ -484,7 +489,12 @@ programasRouter.put("/:codigo", async (req, res) => {
     if (body.nombre !== void 0) actualizacion.nombre = String(body.nombre).trim();
     if (body.descripcion !== void 0) actualizacion.descripcion = body.descripcion;
     if (body.estado !== void 0) actualizacion.estado = body.estado;
-    const { data, error } = await supabase.from("programas").update(actualizacion).eq("codigo_programa", codigo).select().maybeSingle();
+    let { data, error } = await supabase.from("programas").update(actualizacion).eq("codigo_programa", codigo).select().maybeSingle();
+    if (!data && !error) {
+      const resUpsert = await supabase.from("programas").upsert({ ...actualizacion, codigo_programa: codigo }, { onConflict: "codigo_programa" }).select().single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
   } catch (err) {
@@ -561,7 +571,12 @@ instructoresRouter.put("/:codigo", async (req, res) => {
     if (body.especialidad !== void 0) actualizacion.especialidad = body.especialidad;
     if (body.tipo !== void 0) actualizacion.tipo = body.tipo;
     if (body.estado !== void 0) actualizacion.estado = body.estado;
-    const { data, error } = await supabase.from("instructores").update(actualizacion).eq("codigo_instructor", codigo).select().maybeSingle();
+    let { data, error } = await supabase.from("instructores").update(actualizacion).eq("codigo_instructor", codigo).select().maybeSingle();
+    if (!data && !error) {
+      const resUpsert = await supabase.from("instructores").upsert({ ...actualizacion, codigo_instructor: codigo }, { onConflict: "codigo_instructor" }).select().single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
   } catch (err) {
@@ -1123,7 +1138,12 @@ proveedoresRouter.put("/:codigo", async (req, res) => {
     if (body.email !== void 0) actualizacion.email = body.email;
     if (body.estado !== void 0) actualizacion.estado = body.estado;
     if (body.carpetas_seguimiento !== void 0) actualizacion.carpetas_seguimiento = body.carpetas_seguimiento;
-    const { data, error } = await supabase.from("proveedores").update(actualizacion).eq("codigo_proveedor", codigo).select().maybeSingle();
+    let { data, error } = await supabase.from("proveedores").update(actualizacion).eq("codigo_proveedor", codigo).select().maybeSingle();
+    if (!data && !error) {
+      const resUpsert = await supabase.from("proveedores").upsert({ ...actualizacion, codigo_proveedor: codigo }, { onConflict: "codigo_proveedor" }).select().single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
   } catch (err) {

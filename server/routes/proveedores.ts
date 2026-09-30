@@ -80,12 +80,22 @@ proveedoresRouter.put('/:codigo', async (req: Request, res: Response) => {
     if (body.estado !== undefined) actualizacion.estado = body.estado;
     if (body.carpetas_seguimiento !== undefined) actualizacion.carpetas_seguimiento = body.carpetas_seguimiento;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('proveedores')
       .update(actualizacion)
       .eq('codigo_proveedor', codigo)
       .select()
       .maybeSingle();
+
+    if (!data && !error) {
+      const resUpsert = await supabase
+        .from('proveedores')
+        .upsert({ ...actualizacion, codigo_proveedor: codigo }, { onConflict: 'codigo_proveedor' })
+        .select()
+        .single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
 
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });

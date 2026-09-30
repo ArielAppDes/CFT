@@ -113,12 +113,22 @@ cursosRouter.put('/:codigo', async (req: Request, res: Response) => {
     if (body.modalidad !== undefined) actualizacion.modalidad = body.modalidad;
     if (body.estado !== undefined) actualizacion.estado = body.estado;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('cursos')
       .update(actualizacion)
       .eq('codigo_curso', codigo)
       .select()
       .maybeSingle();
+
+    if (!data && !error) {
+      const resUpsert = await supabase
+        .from('cursos')
+        .upsert({ ...actualizacion, codigo_curso: codigo }, { onConflict: 'codigo_curso' })
+        .select()
+        .single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
 
     if (error) return res.status(500).json({ error: error.message });
 

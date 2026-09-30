@@ -70,12 +70,22 @@ programasRouter.put('/:codigo', async (req: Request, res: Response) => {
     if (body.descripcion !== undefined) actualizacion.descripcion = body.descripcion;
     if (body.estado !== undefined) actualizacion.estado = body.estado;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('programas')
       .update(actualizacion)
       .eq('codigo_programa', codigo)
       .select()
       .maybeSingle();
+
+    if (!data && !error) {
+      const resUpsert = await supabase
+        .from('programas')
+        .upsert({ ...actualizacion, codigo_programa: codigo }, { onConflict: 'codigo_programa' })
+        .select()
+        .single();
+      data = resUpsert.data;
+      error = resUpsert.error;
+    }
 
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
