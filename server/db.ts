@@ -1,7 +1,7 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://hhksfdwzeesmydgllubh.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhoa3NmZHd6ZWVzbXlkZ2xsdWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNDcyNjEsImV4cCI6MjEwNDgyMzI2MX0.i5pVoJ-7T5HfQuqQRNdTn1PSnXiqci4Mf-zsd5WmE8c';
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://hhksfdwzeesmydgllubh.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhoa3NmZHd6ZWVzbXlkZ2xsdWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNDcyNjEsImV4cCI6MjEwNDgyMzI2MX0.i5pVoJ-7T5HfQuqQRNdTn1PSnXiqci4Mf-zsd5WmE8c';
 
 let supabaseInstance: SupabaseClient | null = null;
 
