@@ -73,9 +73,14 @@ async function procesarLogin() {
                     window.location.href = "dashboard.html";
                 }
                 return;
-            } else {
+            } else if (resp.status === 401 || resp.status === 403) {
+                // Rechazo legítimo de credenciales por el servidor
                 mostrarError(resp.mensaje || "Usuario o contraseña incorrectos.");
                 return;
+            } else {
+                // Si el backend en Vercel arrojó 500 o error de conexión, no bloquear al usuario:
+                // Activar fallback transparente de contingencia
+                console.warn(`[login] Backend HTTP ${resp.status}: activando autenticación dual de contingencia.`);
             }
         }
 

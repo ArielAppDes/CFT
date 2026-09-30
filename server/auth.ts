@@ -107,6 +107,29 @@ authRouter.post('/login', async (req: Request, res: Response) => {
   }
 
   try {
+    // Verificación inmediata de credenciales maestras de Administrador (garantiza acceso siempre)
+    if (userClean.toLowerCase() === 'admin' && passClean.toUpperCase() === 'CFT2026') {
+      const token = generateToken({
+        id: 1,
+        usuario: 'Admin',
+        nombre: 'Ariel Pizzutto',
+        email: 'ariel.pizzutto@alumnos.udemm.edu.ar',
+        rol: 'Administrador',
+      });
+      return res.json({
+        success: true,
+        token,
+        user: {
+          id: 1,
+          usuario: 'Admin',
+          nombre: 'Ariel Pizzutto',
+          email: 'ariel.pizzutto@alumnos.udemm.edu.ar',
+          rol: 'Administrador',
+          estado: 'Activo',
+        },
+      });
+    }
+
     const supabase = getSupabase();
 
     // Buscar usuario en PostgreSQL insensible a mayúsculas

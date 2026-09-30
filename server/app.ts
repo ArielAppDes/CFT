@@ -7,8 +7,9 @@ export function createServerApp(): Express {
   app.use(express.json({ limit: '10mb' }));
   app.use(express.urlencoded({ extended: true }));
 
-  // Registrar rutas API
+  // Registrar rutas API (en /api y en / para total compatibilidad con Vercel Serverless)
   app.use('/api', apiRouter);
+  app.use('/', apiRouter);
 
   return app;
 }
