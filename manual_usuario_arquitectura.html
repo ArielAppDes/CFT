@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario y Arquitectura Técnica - SIGA CFT</title>
+    <!-- Librería html2pdf para descarga directa en PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --azul-oscuro: #0f172a;
+            --azul-primario: #0284c7;
+            --azul-secundario: #0369a1;
+            --azul-fondo: #f0f9ff;
+            --gris-texto: #334155;
+            --gris-borde: #cbd5e1;
+            --gris-fondo: #f8fafc;
+            --verde: #059669;
+            --rojo: #dc2626;
+            --amarillo: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--gris-texto);
+            background-color: #f1f5f9;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* Barra de herramientas superior flotante (no se imprime) */
+        .toolbar-flotante {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #ffffff;
+            border-bottom: 2px solid var(--azul-primario);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .toolbar-titulo {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--azul-oscuro);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toolbar-acciones {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-accion {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-pdf {
+            background: var(--azul-primario);
+            color: #ffffff;
+        }
+
+        .btn-pdf:hover {
+            background: var(--azul-secundario);
+            transform: translateY(-1px);
+        }
+
+        .btn-print {
+            background: #ffffff;
+            color: var(--azul-oscuro);
+            border: 1px solid var(--gris-borde);
+        }
+
+        .btn-print:hover {
+            background: #f8fafc;
+        }
+
+        /* Contenedor del documento tamaño A4 */
+        .documento-hoja {
+            max-width: 900px;
+            margin: 25px auto;
+            background: #ffffff;
+            padding: 50px 60px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        /* Portada */
+        .portada {
+            text-align: center;
+            padding: 60px 20px 80px 20px;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 40px;
+        }
+
+        .portada-logo {
+            display: inline-block;
+            background: var(--azul-oscuro);
+            color: #ffffff;
+            padding: 16px 28px;
+            border-radius: 12px;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+        }
+
+        .portada h1 {
+            font-size: 2.2rem;
+            color: var(--azul-oscuro);
+            margin-bottom: 12px;
+            font-weight: 800;
+        }
+
+        .portada .subtitulo {
+            font-size: 1.15rem;
+            color: var(--azul-secundario);
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .portada .meta-box {
+            display: inline-block;
+            background: var(--azul-fondo);
+            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            padding: 14px 28px;
+            font-size: 0.9rem;
+            color: #0369a1;
+            text-align: left;
+        }
+
+        /* Encabezados y títulos de secciones */
+        h2 {
+            font-size: 1.45rem;
+            color: var(--azul-oscuro);
+            border-bottom: 2px solid var(--azul-primario);
+            padding-bottom: 8px;
+            margin-top: 40px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            color: var(--azul-secundario);
+            margin-top: 24px;
+            margin-bottom: 10px;
+        }
+
+        h4 {
+            font-size: 1rem;
+            color: var(--azul-oscuro);
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        p {
+            margin-bottom: 14px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        /* Tablas institucionales */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+            font-size: 0.88rem;
+        }
+
+        th, td {
+            border: 1px solid var(--gris-borde);
+            padding: 9px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--azul-oscuro);
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) td {
+            background-color: #fbfcfe;
+        }
+
+        /* Cajas de alerta y destacados */
+        .callout {
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin: 18px 0;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .callout-info {
+            background-color: #f0f9ff;
+            border-left: 4px solid var(--azul-primario);
+            color: #0369a1;
+        }
+
+        .callout-success {
+            background-color: #ecfdf5;
+            border-left: 4px solid var(--verde);
+            color: #047857;
+        }
+
+        .callout-warning {
+            background-color: #fffbeb;
+            border-left: 4px solid var(--amarillo);
+            color: #b45309;
+        }
+
+        /* Diagrama de Arquitectura */
+        .diagrama-caja {
+            background: #f8fafc;
+            border: 1px solid var(--gris-borde);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #0f172a;
+            white-space: pre-wrap;
+        }
+
+        .badge-rol {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .badge-admin { background: #fee2e2; color: #991b1b; }
+        .badge-plan { background: #e0f2fe; color: #0369a1; }
+        .badge-ins { background: #fef3c7; color: #92400e; }
+        .badge-op { background: #dcfce7; color: #166534; }
+
+        /* Salto de página para impresión y PDF */
+        .salto-pagina {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        @media print {
+            .toolbar-flotante {
+                display: none !important;
+            }
+            body {
+                background: #ffffff;
+            }
+            .documento-hoja {
+                max-width: 100%;
+                margin: 0;
+                padding: 20px;
+                box-shadow: none;
+            }
+            .salto-pagina {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- BARRA SUPERIOR DE ACCIONES -->
+    <div class="toolbar-flotante no-print">
+        <div class="toolbar-titulo">
+            <span>📑</span> Manual Integral SIGA-CFT (Usuario y Arquitectura Técnica)
+        </div>
+        <div class="toolbar-acciones">
+            <button type="button" class="btn-accion btn-print" onclick="window.print()">
+                🖨️ Imprimir / Guardar en PDF
+            </button>
+            <button type="button" class="btn-accion btn-pdf" id="btnDescargarPdf">
+                📥 Descargar Archivo PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- DOCUMENTO PRINCIPAL -->
+    <div class="documento-hoja" id="contenidoManual">
+
+        <!-- PORTADA -->
+        <div class="portada">
+            <div class="portada-logo">CFT</div>
+            <h1>SISTEMA INTEGRADO DE GESTIÓN Y APRENDIZAJE</h1>
+            <div class="subtitulo">MANUAL DE USUARIO Y ARQUITECTURA TÉCNICA INSTITUCIONAL</div>
+            <div class="meta-box">
+                <div><strong>Institución:</strong> Centro de Formación Técnica (CFT)</div>
+                <div><strong>Plataforma:</strong> SIGA-AP v2026.10</div>
+                <div><strong>Infraestructura:</strong> Vercel Serverless + Supabase Cloud (PostgreSQL & Storage)</div>
+                <div><strong>Fecha de Emisión:</strong> Octubre 2026</div>
+                <div><strong>Destinatarios:</strong> Equipo de Gestión, Planificación Académica, Instructores y Auditoría</div>
+            </div>
+        </div>
+
+        <!-- 1. INTRODUCCIÓN Y PROPÓSITO -->
+        <h2>1. Introducción y Propósito del Sistema</h2>
+        <p>
+            El <strong>SIGA (Sistema Integrado de Gestión y Aprendizaje)</strong> es la plataforma integral desarrollada para el 
+            Centro de Formación Técnica (CFT) con el objetivo de centralizar, estandarizar y digitalizar todas las etapas de la formación,
+            capacitación continua y certificación técnica del personal.
+        </p>
+        <p>
+            El sistema reemplaza planillas descentralizadas y archivos físicos mediante un entorno unificado en la nube que articula 
+            la planificación académica, la toma de asistencia en taller y aula, la evaluación de satisfacción y transferencia laboral, 
+            y la custodia digital de credenciales habilitantes y programas curriculares.
+        </p>
+
+        <div class="callout callout-info">
+            <span style="font-size: 1.3rem;">🎯</span>
+            <div>
+                <strong>Objetivo Central:</strong> Garantizar la trazabilidad del 100% de las horas cátedra dictadas, el historial 
+                de capacitaciones por legajo de dotación y la vigencia reglamentaria de las certificaciones técnicas con soporte legal digital.
+            </div>
+        </div>
+
+        <!-- 2. ARQUITECTURA TÉCNICA INTEGRAL -->
+        <h2>2. Arquitectura Tecnológica Integral (Front, Back y DB)</h2>
+        <p>
+            El sistema está diseñado bajo una arquitectura multicapa desacoplada, orientada a servicios y tolerante a fallos, 
+            permitiendo alta disponibilidad en la web y contingencia offline ante cortes de conectividad.
+        </p>
+
+        <div class="diagrama-caja">
+┌────────────────────────────────────────────────────────────────────────┐
+│                   ARQUITECTURA INSTITUCIONAL SIGA                      │
+└────────────────────────────────────────────────────────────────────────┘
+
+ [ CLIENTE (Navegador Web) ]
+   ├── Interfaz de Usuario: HTML5 Semántico + Tailwind CSS + CSS3 Modular
+   ├── Lógica de Presentación: JavaScript Vanilla Modular (ES6+)
+   ├── Guardián de Autenticación: authGuard.js (Tokens JWT + Roles)
+   ├── Cliente API Unificado: apiClient.js (HTTP Fetch hacia Backend)
+   └── Respaldo Offline / Caché: dbLocal.js (IndexedDB + LocalStorage)
+                               │
+                               ▼ HTTPS (REST API / JSON)
+ [ BACKEND EN LA NUBE (Vercel Serverless Function) ]
+   ├── Enrutador Principal: Express.js (api/index.js)
+   ├── Autenticación Segura: auth.ts (Bcrypt + JWT)
+   ├── Módulos de Negocio: capacitaciones, cursos, programas, instructores,
+   │                       dotacion, proveedores, certificaciones, encuestas
+   └── Sanitización de Esquemas y Control de Acceso RBAC
+                               │
+                               ▼ Protocolo Seguro PostgreSQL / S3 API
+ [ CAPA DE PERSISTENCIA Y CLOUD (Supabase Cloud) ]
+   ├── PostgreSQL Relacional:
+   │     ├── programas, cursos, instructores, proveedores
+   │     ├── capacitaciones, asistentes, dotacion
+   │     ├── certificaciones_externas, evaluaciones, transferencias
+   │     └── profiles (Usuarios y credenciales con hash Bcrypt)
+   └── Supabase Storage (Almacenamiento de Objetos / Buckets):
+         ├── Bucket "credenciales" ── Carpetas "externas/" e "internas/"
+         └── Bucket "programas"    ── Archivos PDF de Planes de Estudio
+        </div>
+
+        <h3>2.1. Estructura de las Tres Capas</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Capa</th>
+                    <th style="width: 35%;">Tecnologías Utilizadas</th>
+                    <th style="width: 40%;">Responsabilidad en el Sistema</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Frontend (Cliente)</strong></td>
+                    <td>HTML5, CSS3, Tailwind CSS, JavaScript modular, html2pdf.js</td>
+                    <td>Presentación visual, validación de formularios, generación de reportes vectoriales imprimibles, cálculo dinámico de cronogramas.</td>
+                </tr>
+                <tr>
+                    <td><strong>Backend (Servidor)</strong></td>
+                    <td>Node.js, Express.js, TypeScript, esbuild, JWT, Bcrypt</td>
+                    <td>API REST unificada (`/api/*`), verificación de tokens de sesión, hashing de contraseñas, sanitización de datos antes de impactar en BD.</td>
+                </tr>
+                <tr>
+                    <td><strong>Base de Datos (DB)</strong></td>
+                    <td>Supabase PostgreSQL Cloud</td>
+                    <td>Persistencia transaccional de catálogos maestros, dotación, capacitaciones, trazabilidad histórica y auditoría.</td>
+                </tr>
+                <tr>
+                    <td><strong>Almacenamiento (Storage)</strong></td>
+                    <td>Supabase Storage (S3 API)</td>
+                    <td>Almacenamiento persistente de archivos físicos en PDF (credenciales, diplomas y programas curriculares de cursos).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- SALTO DE PÁGINA -->
+        <div class="salto-pagina"></div>
+
+        <!-- 3. GESTIÓN DE SEGURIDAD Y ROLES -->
+        <h2>3. Seguridad, Autenticación y Matriz de Roles</h2>
+        <p>
+            El acceso a la plataforma está protegido mediante sesiones basadas en <strong>JSON Web Tokens (JWT)</strong>. Cada solicitud 
+            al backend incluye el token en el encabezado <code>Authorization: Bearer [token]</code>. En el navegador, <code>authGuard.js</code> 
+            inspecciona la presencia y validez del usuario activo.
+        </p>
+
+        <h3>3.1. Matriz de Permisos por Rol</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rol</th>
+                    <th>Acceso Permitido</th>
+                    <th>Capacidades Específicas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><span class="badge-rol badge-admin">Administrador</span></td>
+                    <td>Acceso total a todos los módulos</td>
+                    <td>Creación de usuarios, modificación de catálogos maestros, eliminación de registros, auditoría y backup.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-rol badge-plan">Planificador</span></td>
+                    <td>Capacitaciones, Agenda, Asistencias, Certificaciones, Reportes</td>
+                    <td>Programación de comisiones, generación de reportes PDF, registro y renovación de certificaciones.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-rol badge-ins">Instructor</span></td>
+                    <td>Agenda, Mis Cursos, Asistencia, Encuestas</td>
+                    <td>Carga de presentes/ausentes de su comisión, visualización del temario del curso asignado.</td>
+                </tr>
+                <tr>
+                    <td><span class="badge-rol badge-op">Operador</span></td>
+                    <td>Asistentes, Encuestas de Satisfacción, Dotación</td>
+                    <td>Carga de evaluaciones de participantes y actualización de dotación interna.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 4. GUÍA PASO A PASO POR MÓDULOS -->
+        <h2>4. Manual de Usuario Módulo por Módulo</h2>
+
+        <h3>4.1. Ingreso al Sistema (Login)</h3>
+        <ol>
+            <li>Acceda a la URL institucional (ej. <code>https://cft-nu.vercel.app</code>).</li>
+            <li>Ingrese su <strong>Nombre de Usuario</strong> y <strong>Contraseña</strong>.</li>
+            <li>
+                Al presionar <strong>Ingresar al Sistema</strong>, el backend valida las credenciales en la tabla <code>profiles</code> 
+                mediante comparación criptográfica con Bcrypt. Si es correcto, genera un token JWT y redirige al <strong>Dashboard</strong>.
+            </li>
+        </ol>
+
+        <h3>4.2. Dashboard Principal</h3>
+        <p>
+            El panel inicial proporciona una vista panorámica de la gestión operativa:
+        </p>
+        <ul>
+            <li><strong>Indicadores Clave (KPIs):</strong> Total de capacitaciones del mes, horas cátedra acumuladas, porcentaje de presentismo global y certificaciones próximas a expirar.</li>
+            <li><strong>Próximas Actividades:</strong> Cronograma de cursos programados para las próximas 48 horas con acceso directo al aula o taller.</li>
+            <li><strong>Navegación Lateral (Sidebar):</strong> Barra con accesos rápidos adaptada según los permisos del rol logueado.</li>
+        </ul>
+
+        <h3>4.3. Planificación y Programación de Capacitaciones</h3>
+        <p>
+            Módulo central para dar de alta comisiones formativas. Cada actividad vincula un curso del catálogo maestro con fechas, 
+            docentes y participantes:
+        </p>
+        <ol>
+            <li>Haga clic en <strong>Nueva Capacitación</strong>.</li>
+            <li>Seleccione el <strong>Programa</strong> y el <strong>Curso</strong> correspondiente.</li>
+            <li>Defina la modalidad (Presencial, Virtual Sincrónico o Virtual Asincrónico).</li>
+            <li>Indique el <strong>Lugar o Taller</strong> (ej. <em>Taller Polvorín - Sala 1° Piso</em>).</li>
+            <li>Seleccione el <strong>Instructor Titular</strong> y el <strong>Instructor Adjunto</strong>.</li>
+            <li>Establezca la fecha de inicio, horarios y cantidad de clases proyectadas.</li>
+            <li>Presione <strong>Guardar Capacitación</strong>: el sistema generará el código identificador único (ej. <code>CAP-2026-077-01</code>).</li>
+        </ol>
+
+        <!-- SALTO DE PÁGINA -->
+        <div class="salto-pagina"></div>
+
+        <h3>4.4. Agenda Académica y Reporte de Agenda en PDF</h3>
+        <p>
+            Permite la visualización semanal y mensual de las capacitaciones y la emisión del reporte oficial institucional 
+            destinado a publicaciones y comunicaciones internas.
+        </p>
+
+        <div class="callout callout-success">
+            <span style="font-size: 1.3rem;">📢</span>
+            <div>
+                <strong>Nueva Funcionalidad de Descripción para Publicaciones:</strong>
+                En el modal de <em>"Generar Reporte de Agenda en PDF"</em>, cada actividad seleccionada presenta un cuadro interactivo 
+                para ingresar <strong>lo esperado del curso para comunicaciones internas</strong>. Al pulsar <strong>💾 Guardar en Curso</strong>, 
+                dicho texto se almacena de forma definitiva en el catálogo de Supabase para todas las futuras publicaciones y reportes.
+            </div>
+        </div>
+
+        <p><strong>Pasos para emitir el reporte:</strong></p>
+        <ol>
+            <li>En la pantalla de Agenda, presione el botón superior <strong>📑 Reporte en PDF</strong>.</li>
+            <li>Configure el rango de fechas (ej. <em>Semana Actual</em> o fechas personalizadas).</li>
+            <li>Seleccione la orientación deseada de la hoja (<strong>📄 Horizontal/Apaisado</strong> o <strong>📄 Vertical</strong>).</li>
+            <li>
+                <strong>Verificación de Actividades:</strong> Revise las tarjetas listadas. Puede desmarcar u omitir aquellas actividades 
+                que no desee reportar sin eliminarlas del calendario.
+            </li>
+            <li>
+                En cada curso, complete o ajuste la <strong>Descripción</strong> y presione <strong>💾 Guardar en Curso</strong>.
+            </li>
+            <li>Presione <strong>👁️ Vista Previa</strong> para chequear el documento final o <strong>📥 Descargar Reporte PDF</strong>.</li>
+        </ol>
+
+        <h3>4.5. Control de Asistencia y Planilla Oficial</h3>
+        <ol>
+            <li>Seleccione la capacitación activa en la lista.</li>
+            <li>El sistema cargará la nómina de inscriptos con su <strong>Legajo, Apellido y Nombre, Puesto y Jefatura</strong>.</li>
+            <li>Marque los presentes, ausentes o justificados clase por clase.</li>
+            <li>
+                Haga clic en <strong>🖨️ Planilla de Asistencia</strong> para emitir la hoja membretada con casillas de firma 
+                para control de legajos y auditoría.
+            </li>
+        </ol>
+
+        <h3>4.6. Gestión de Certificaciones Técnicas y Supabase Storage</h3>
+        <p>
+            Módulo crítico para el seguimiento de licencias, habilitaciones y calificaciones técnicas (ej. <em>Operador de Grúa, 
+            Soldadura Especializada, Señalero, Tensión Media</em>).
+        </p>
+
+        <h4>Semaforización Automática de Vencimientos:</h4>
+        <ul>
+            <li><strong style="color:var(--verde);">🟢 Vigente:</strong> Más de 60 días antes del vencimiento reglamentario.</li>
+            <li><strong style="color:var(--amarillo);">🟡 Por Vencer:</strong> Menos de 60 días restantes (alerta de renovación).</li>
+            <li><strong style="color:var(--rojo);">🔴 Vencido:</strong> Fecha de vencimiento superada (inhabilitación operativa).</li>
+        </ul>
+
+        <h4>Carga y Custodia de Archivos PDF en Supabase Storage:</h4>
+        <ol>
+            <li>Al registrar una certificación o ejecutar una renovación, arrastre o seleccione el archivo PDF de la credencial.</li>
+            <li>
+                El sistema sube automáticamente el archivo binario al <strong>Bucket "credenciales"</strong> en Supabase 
+                (dentro de la carpeta <code>externas/</code> o <code>internas/</code>).
+            </li>
+            <li>
+                Supabase Storage devuelve la URL pública persistente y segura, la cual queda asociada de forma permanente 
+                al registro de la base de datos (columna <code>archivo_pdf_url</code>).
+            </li>
+            <li>
+                Al presionar <strong>👁️ Ver PDF</strong> en cualquier fila, se abrirá el visor integrado con opción de 
+                <strong>📥 Descargar / Abrir en pestaña nueva</strong>.
+            </li>
+        </ol>
+
+        <!-- SALTO DE PÁGINA -->
+        <div class="salto-pagina"></div>
+
+        <h3>4.7. Evaluación de Satisfacción y Medición de Transferencia</h3>
+        <ul>
+            <li><strong>Encuesta de Satisfacción (Inmediata):</strong> Valora contenidos, metodología, desempeño docente, recursos didácticos e instalaciones en escala 1 a 5 estrellas.</li>
+            <li><strong>Medición de Transferencia (a 30/60 días):</strong> El responsable o jefatura directa completa si el agente aplicó los conocimientos adquiridos en su puesto operativo y formula observaciones de mejora.</li>
+        </ul>
+
+        <h3>4.8. Administración de Catálogos Maestros</h3>
+        <p>
+            Ubicado en <code>administracion.html</code>, este panel centraliza los maestros de datos:
+        </p>
+        <ul>
+            <li><strong>Programas:</strong> Conjuntos integrales de formación técnica (ej. <em>Programa Conducción Segura</em>).</li>
+            <li>
+                <strong>Cursos:</strong> Materias individuales con carga teórica, práctica y total. Próximamente incluirá el enlace al 
+                PDF del programa curricular alojado en el bucket <code>programas</code> de Supabase.
+            </li>
+            <li><strong>Instructores:</strong> Docentes internos y externos con especialidad, DNI, legajo y correo.</li>
+            <li><strong>Proveedores / Entes:</strong> Empresas capacitadoras e institutos certificadores externos homologados.</li>
+            <li><strong>Dotación de Personal:</strong> Padrón completo de empleados del CFT para autocompletar legajos.</li>
+            <li><strong>Usuarios del Sistema:</strong> Altas, modificaciones de contraseña y roles de acceso.</li>
+        </ul>
+
+        <!-- 5. ESTRUCTURA DEL CÓDIGO FUENTE -->
+        <h2>5. Estructura del Proyecto y Archivos del Sistema</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 30%;">Ruta / Archivo</th>
+                    <th style="width: 70%;">Función Principal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>/index.html</code></td>
+                    <td>Pantalla de inicio de sesión y validación de credenciales.</td>
+                </tr>
+                <tr>
+                    <td><code>/dashboard.html</code></td>
+                    <td>Tablero de control y métricas generales del período.</td>
+                </tr>
+                <tr>
+                    <td><code>/capacitaciones.html</code></td>
+                    <td>Gestión y programación de actividades formativas.</td>
+                </tr>
+                <tr>
+                    <td><code>/agenda.html</code></td>
+                    <td>Calendario mensual, semanal y generador de reportes en PDF.</td>
+                </tr>
+                <tr>
+                    <td><code>/certificaciones.html</code></td>
+                    <td>Registro de credenciales, renovaciones y visor de PDFs en Storage.</td>
+                </tr>
+                <tr>
+                    <td><code>/administracion.html</code></td>
+                    <td>Mantenimiento de catálogos maestros y usuarios.</td>
+                </tr>
+                <tr>
+                    <td><code>/jss/supaBaseClient.js</code></td>
+                    <td>Conexión directa a Supabase Cloud, esquemas SQL y servicio universal de Storage.</td>
+                </tr>
+                <tr>
+                    <td><code>/jss/apiClient.js</code></td>
+                    <td>Cliente HTTP para consumir los endpoints REST del backend Node.js.</td>
+                </tr>
+                <tr>
+                    <td><code>/jss/authGuard.js</code></td>
+                    <td>Control de acceso, validación de sesiones JWT y expiración.</td>
+                </tr>
+                <tr>
+                    <td><code>/server/entry.ts</code></td>
+                    <td>Punto de entrada de Express con enrutamiento de API (`/api/*`).</td>
+                </tr>
+                <tr>
+                    <td><code>/server/routes/*</code></td>
+                    <td>Rutas modulares del backend (cursos, capacitaciones, certificaciones, etc.).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 6. RESUMEN Y CONCLUSIÓN -->
+        <h2>6. Conclusión y Próximos Pasos</h2>
+        <div class="callout callout-success">
+            <span style="font-size: 1.3rem;">✅</span>
+            <div>
+                <strong>Estado Actual de la Plataforma:</strong>
+                El sistema SIGA-CFT cuenta con sincronización transaccional en Supabase Cloud, backend empaquetado para despliegue serverless en Vercel, 
+                reportes vectoriales con descripciones personalizadas de cursos, y almacenamiento de credenciales en Supabase Storage.
+            </div>
+        </div>
+        <p style="text-align: center; margin-top: 30px; font-weight: 700; color: var(--azul-oscuro);">
+            Centro de Formación Técnica (CFT) • Sistema Integrado de Gestión y Aprendizaje
+        </p>
+
+    </div>
+
+    <script>
+        // Funcionalidad de descarga en PDF mediante html2pdf
+        document.getElementById('btnDescargarPdf').addEventListener('click', function() {
+            const elemento = document.getElementById('contenidoManual');
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'Manual_Usuario_y_Arquitectura_SIGA_CFT.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const btn = document.getElementById('btnDescargarPdf');
+            const textoOriginal = btn.innerHTML;
+            btn.innerHTML = '⏳ Generando PDF...';
+            btn.disabled = true;
+
+            html2pdf().set(opt).from(elemento).save().then(() => {
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error("Error al generar PDF:", err);
+                btn.innerHTML = textoOriginal;
+                btn.disabled = false;
+                window.print();
+            });
+        });
+    </script>
+</body>
+</html>
