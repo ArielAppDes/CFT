@@ -394,6 +394,9 @@ cursosRouter.post("/", async (req, res) => {
       hs_practica: hsPractica,
       hs_totales: hsTotales,
       modalidad: body.modalidad || "Presencial",
+      contenido: body.contenido || body.descripcion || "",
+      descripcion: body.descripcion || body.contenido || "",
+      programa_pdf_url: body.programa_pdf_url || "",
       estado: body.estado || "Activo"
     };
     const { data, error } = await supabase.from("cursos").upsert(registro, { onConflict: "codigo_curso" }).select().single();
@@ -414,6 +417,9 @@ cursosRouter.put("/:codigo", async (req, res) => {
     if (body.hs_practica !== void 0) actualizacion.hs_practica = Number(body.hs_practica);
     if (body.hs_totales !== void 0) actualizacion.hs_totales = Number(body.hs_totales);
     if (body.modalidad !== void 0) actualizacion.modalidad = body.modalidad;
+    if (body.contenido !== void 0) actualizacion.contenido = String(body.contenido).trim();
+    if (body.descripcion !== void 0) actualizacion.descripcion = String(body.descripcion).trim();
+    if (body.programa_pdf_url !== void 0) actualizacion.programa_pdf_url = String(body.programa_pdf_url).trim();
     if (body.estado !== void 0) actualizacion.estado = body.estado;
     let { data, error } = await supabase.from("cursos").update(actualizacion).eq("codigo_curso", codigo).select().maybeSingle();
     if (!data && !error) {
@@ -1027,10 +1033,17 @@ certificacionesRouter.post("/", async (req, res) => {
       fecha_vencimiento: body.fecha_vencimiento || "",
       tiene_vencimiento: body.tiene_vencimiento !== false,
       archivo_pdf_nombre: body.archivo_pdf_nombre || "",
-      archivo_pdf_base64: body.archivo_pdf_base64 || "",
+      archivo_pdf_url: body.archivo_pdf_url || "",
+      archivo_pdf_base64: body.archivo_pdf_base64 || body.archivo_pdf_data || "",
       estado: body.estado || "Vigente"
     };
-    const { data, error } = await supabase.from("certificaciones_externas").insert(registro).select().single();
+    let { data, error } = await supabase.from("certificaciones_externas").insert(registro).select().single();
+    if (error && error.message && error.message.includes("archivo_pdf_url")) {
+      delete registro.archivo_pdf_url;
+      const resRetry = await supabase.from("certificaciones_externas").insert(registro).select().single();
+      data = resRetry.data;
+      error = resRetry.error;
+    }
     if (error) return res.status(500).json({ error: error.message });
     return res.status(201).json({ success: true, data });
   } catch (err) {
@@ -1057,9 +1070,17 @@ certificacionesRouter.put("/:id", async (req, res) => {
     if (body.fecha_vencimiento !== void 0) actualizacion.fecha_vencimiento = body.fecha_vencimiento;
     if (body.tiene_vencimiento !== void 0) actualizacion.tiene_vencimiento = body.tiene_vencimiento;
     if (body.archivo_pdf_nombre !== void 0) actualizacion.archivo_pdf_nombre = body.archivo_pdf_nombre;
+    if (body.archivo_pdf_url !== void 0) actualizacion.archivo_pdf_url = body.archivo_pdf_url;
     if (body.archivo_pdf_base64 !== void 0) actualizacion.archivo_pdf_base64 = body.archivo_pdf_base64;
+    if (body.archivo_pdf_data !== void 0) actualizacion.archivo_pdf_data = body.archivo_pdf_data;
     if (body.estado !== void 0) actualizacion.estado = body.estado;
-    const { data, error } = await supabase.from("certificaciones_externas").update(actualizacion).eq("id", id).select().maybeSingle();
+    let { data, error } = await supabase.from("certificaciones_externas").update(actualizacion).eq("id", id).select().maybeSingle();
+    if (error && error.message && error.message.includes("archivo_pdf_url")) {
+      delete actualizacion.archivo_pdf_url;
+      const resRetry = await supabase.from("certificaciones_externas").update(actualizacion).eq("id", id).select().maybeSingle();
+      data = resRetry.data;
+      error = resRetry.error;
+    }
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
   } catch (err) {

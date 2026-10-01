@@ -498,6 +498,7 @@ function procesarArchivoPDF(file) {
     reader.onload = (e) => {
         CertificacionesState.archivoPdfCargado = {
             nombre: file.name,
+            file: file,
             dataUrl: e.target.result
         };
         const lbl = document.getElementById("pdfFileNameDisplay");
@@ -521,6 +522,7 @@ function procesarArchivoPDFRenovar(file) {
     reader.onload = (e) => {
         _pdfRenovarCargado = {
             nombre: file.name,
+            file: file,
             dataUrl: e.target.result
         };
         const lbl = document.getElementById("pdfRenovarFileNameDisplay");
@@ -1549,12 +1551,36 @@ async function guardarCertificadoForm(e) {
 
     let certId = CertificacionesState.certEditandoId;
 
+    let archivoPdfUrl = null;
+    let archivoPdfNombre = null;
+    let archivoPdfData = null;
+
+    if (CertificacionesState.archivoPdfCargado) {
+        archivoPdfNombre = CertificacionesState.archivoPdfCargado.nombre;
+        archivoPdfData = CertificacionesState.archivoPdfCargado.dataUrl;
+
+        // Subida automática a Supabase Storage (Bucket 'credenciales', carpeta 'externas')
+        if (CertificacionesState.archivoPdfCargado.file && typeof window.subirArchivoASupabaseStorage === 'function') {
+            try {
+                const nombreLimpio = archivoPdfNombre.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const rutaDestino = `externas/${codigo}_${Date.now()}_${nombreLimpio}`;
+                const uploadRes = await window.subirArchivoASupabaseStorage('credenciales', rutaDestino, CertificacionesState.archivoPdfCargado.file);
+                if (uploadRes && uploadRes.url) {
+                    archivoPdfUrl = uploadRes.url;
+                }
+            } catch (errUp) {
+                console.warn("[Storage] Error al subir credencial:", errUp);
+            }
+        }
+    }
+
     if (certId) {
         // Modificar existente
         const idx = CertificacionesState.certificados.findIndex(c => c.id === certId);
         if (idx !== -1) {
+            const certActual = CertificacionesState.certificados[idx];
             CertificacionesState.certificados[idx] = {
-                ...CertificacionesState.certificados[idx],
+                ...certActual,
                 codigo,
                 categoria,
                 subcategoria,
@@ -1570,8 +1596,9 @@ async function guardarCertificadoForm(e) {
                 fecha_vencimiento: fechaVenc,
                 tiene_vencimiento: tieneVenc,
                 observaciones: obs,
-                archivo_pdf_nombre: CertificacionesState.archivoPdfCargado ? CertificacionesState.archivoPdfCargado.nombre : CertificacionesState.certificados[idx].archivo_pdf_nombre,
-                archivo_pdf_data: CertificacionesState.archivoPdfCargado ? CertificacionesState.archivoPdfCargado.dataUrl : CertificacionesState.certificados[idx].archivo_pdf_data
+                archivo_pdf_nombre: archivoPdfNombre || certActual.archivo_pdf_nombre,
+                archivo_pdf_url: archivoPdfUrl || certActual.archivo_pdf_url || null,
+                archivo_pdf_data: archivoPdfData || certActual.archivo_pdf_data
             };
         }
     } else {
@@ -1594,8 +1621,9 @@ async function guardarCertificadoForm(e) {
             fecha_vencimiento: fechaVenc,
             tiene_vencimiento: tieneVenc,
             observaciones: obs,
-            archivo_pdf_nombre: CertificacionesState.archivoPdfCargado ? CertificacionesState.archivoPdfCargado.nombre : `Certificado_${codigo}.pdf`,
-            archivo_pdf_data: CertificacionesState.archivoPdfCargado ? CertificacionesState.archivoPdfCargado.dataUrl : null
+            archivo_pdf_nombre: archivoPdfNombre || `Certificado_${codigo}.pdf`,
+            archivo_pdf_url: archivoPdfUrl,
+            archivo_pdf_data: archivoPdfData
         };
         CertificacionesState.certificados.push(nuevoCert);
     }
@@ -1636,7 +1664,19 @@ function abrirVisorPDF(certId) {
 
     titulo.textContent = `📄 Certificado N° ${cert.codigo || ''} - ${cert.apellido_nombre || ''}`;
 
-    if (cert.archivo_pdf_data && cert.archivo_pdf_data.startsWith("data:application/pdf")) {
+    if (cert.archivo_pdf_url) {
+        frameWrap.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; padding:8px 12px; margin-bottom:10px;">
+                <span style="font-size:0.82rem; color:#0369a1; font-weight:700;">
+                    ☁️ Documento persistente en Supabase Storage (Bucket: credenciales)
+                </span>
+                <a href="${cert.archivo_pdf_url}" target="_blank" rel="noopener noreferrer" style="background:#0284c7; color:#fff; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:5px;">
+                    📥 Abrir en Pestaña / Descargar
+                </a>
+            </div>
+            <iframe class="pdf-viewer-frame" src="${cert.archivo_pdf_url}#toolbar=1&navpanes=0"></iframe>
+        `;
+    } else if (cert.archivo_pdf_data && cert.archivo_pdf_data.startsWith("data:application/pdf")) {
         frameWrap.innerHTML = `
             <iframe class="pdf-viewer-frame" src="${cert.archivo_pdf_data}#toolbar=1&navpanes=0"></iframe>
         `;
@@ -1874,6 +1914,25 @@ async function guardarRenovacionCertificado(e) {
     certAnterior.fecha_renovacion = fechaEmision;
 
     // 2. CREAR NUEVO CERTIFICADO RENOVADO VIGENTE
+    let renovarPdfUrl = null;
+    let renovarPdfNombre = _pdfRenovarCargado ? _pdfRenovarCargado.nombre : (certAnterior.archivo_pdf_nombre || `Certificado_${nuevoCodigo}.pdf`);
+    let renovarPdfData = _pdfRenovarCargado ? _pdfRenovarCargado.dataUrl : (certAnterior.archivo_pdf_data || null);
+
+    if (_pdfRenovarCargado && _pdfRenovarCargado.file && typeof window.subirArchivoASupabaseStorage === 'function') {
+        try {
+            const nombreLimpio = renovarPdfNombre.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const rutaDestino = `externas/${nuevoCodigo}_${Date.now()}_${nombreLimpio}`;
+            const uploadRes = await window.subirArchivoASupabaseStorage('credenciales', rutaDestino, _pdfRenovarCargado.file);
+            if (uploadRes && uploadRes.url) {
+                renovarPdfUrl = uploadRes.url;
+            }
+        } catch (errUp) {
+            console.warn("[Storage] Error al subir credencial de renovación:", errUp);
+        }
+    } else if (certAnterior.archivo_pdf_url) {
+        renovarPdfUrl = certAnterior.archivo_pdf_url;
+    }
+
     const maxId = CertificacionesState.certificados.reduce((acc, curr) => Math.max(acc, curr.id || 0), 0);
     const nuevoCert = {
         id: maxId + 1,
@@ -1895,8 +1954,9 @@ async function guardarRenovacionCertificado(e) {
         certificado_anterior_id: certAnterior.id,
         certificado_anterior_codigo: certAnterior.codigo,
         es_historico: false,
-        archivo_pdf_nombre: _pdfRenovarCargado ? _pdfRenovarCargado.nombre : `Certificado_${nuevoCodigo}.pdf`,
-        archivo_pdf_data: _pdfRenovarCargado ? _pdfRenovarCargado.dataUrl : (certAnterior.archivo_pdf_data || null)
+        archivo_pdf_nombre: renovarPdfNombre,
+        archivo_pdf_url: renovarPdfUrl,
+        archivo_pdf_data: renovarPdfData
     };
 
     CertificacionesState.certificados.push(nuevoCert);

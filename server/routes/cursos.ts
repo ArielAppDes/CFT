@@ -81,6 +81,9 @@ cursosRouter.post('/', async (req: Request, res: Response) => {
       hs_practica: hsPractica,
       hs_totales: hsTotales,
       modalidad: body.modalidad || 'Presencial',
+      contenido: body.contenido || body.descripcion || '',
+      descripcion: body.descripcion || body.contenido || '',
+      programa_pdf_url: body.programa_pdf_url || '',
       estado: body.estado || 'Activo',
     };
 
@@ -111,6 +114,9 @@ cursosRouter.put('/:codigo', async (req: Request, res: Response) => {
     if (body.hs_practica !== undefined) actualizacion.hs_practica = Number(body.hs_practica);
     if (body.hs_totales !== undefined) actualizacion.hs_totales = Number(body.hs_totales);
     if (body.modalidad !== undefined) actualizacion.modalidad = body.modalidad;
+    if (body.contenido !== undefined) actualizacion.contenido = String(body.contenido).trim();
+    if (body.descripcion !== undefined) actualizacion.descripcion = String(body.descripcion).trim();
+    if (body.programa_pdf_url !== undefined) actualizacion.programa_pdf_url = String(body.programa_pdf_url).trim();
     if (body.estado !== undefined) actualizacion.estado = body.estado;
 
     let { data, error } = await supabase

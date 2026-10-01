@@ -10,7 +10,7 @@ if (typeof window.supabase !== "undefined" && typeof window.supabase.createClien
 // Esquema oficial de columnas para Supabase PostgreSQL (evita error PGRST204 por campos cliente no existentes en SQL)
 const ESQUEMA_COLUMNAS_SUPABASE = {
     programas: ['codigo_programa', 'nombre', 'descripcion', 'estado'],
-    cursos: ['codigo_curso', 'nombre', 'hs_teoria', 'hs_practica', 'hs_totales', 'modalidad', 'estado'],
+    cursos: ['codigo_curso', 'nombre', 'hs_teoria', 'hs_practica', 'hs_totales', 'modalidad', 'contenido', 'descripcion', 'programa_pdf_url', 'estado'],
     instructores: ['codigo_instructor', 'nombre', 'apellido', 'dni', 'email', 'especialidad', 'tipo', 'estado'],
     dotacion: ['legajo', 'apellido', 'nombre', 'puesto', 'categoria', 'direccion', 'gerencia', 'jefatura', 'coordinacion', 'email', 'estado'],
     proveedores: ['codigo_proveedor', 'razon_social', 'ente', 'rubro', 'contacto', 'telefono', 'email', 'estado', 'carpetas_seguimiento'],
@@ -19,7 +19,7 @@ const ESQUEMA_COLUMNAS_SUPABASE = {
     evaluaciones: ['id', 'id_cap', 'instructor', 'puntaje_objetivos', 'puntaje_aplicabilidad', 'puntaje_instructor', 'puntaje_material', 'puntaje_entorno', 'puntaje_general', 'puntaje_docente', 'puntaje_contenido', 'destacados', 'sugerencias', 'comentarios', 'fecha_registro'],
     transferencias: ['id', 'id_cap', 'jefatura', 'nombre_curso', 'fecha_curso', 'legajo', 'nombre', 'aplica_contenidos', 'motivo_dificultad', 'plan_accion', 'firma_responsable', 'fecha_registro'],
     profiles: ['id', 'usuario', 'clave', 'nombre', 'email', 'rol', 'estado', 'creado_el'],
-    certificaciones_externas: ['id', 'codigo', 'alcance', 'categoria', 'subcategoria', 'legajo', 'apellido_nombre', 'puesto', 'area_jefatura', 'proveedor_id', 'proveedor_ente', 'fecha_emision', 'fecha_vencimiento', 'tiene_vencimiento', 'archivo_pdf_nombre', 'observaciones']
+    certificaciones_externas: ['id', 'codigo', 'alcance', 'categoria', 'subcategoria', 'legajo', 'apellido_nombre', 'puesto', 'area_jefatura', 'proveedor_id', 'proveedor_ente', 'fecha_emision', 'fecha_vencimiento', 'tiene_vencimiento', 'archivo_pdf_nombre', 'archivo_pdf_url', 'archivo_pdf_data', 'observaciones']
 };
 
 window.mapearNombreTablaSupabase = function(nombreTabla) {
@@ -682,3 +682,55 @@ document.addEventListener('click', (e) => {
         }
     }
 });
+
+// ==========================================
+// SERVICIO UNIVERSAL DE ALMACENAMIENTO (SUPABASE STORAGE)
+// ==========================================
+window.subirArchivoASupabaseStorage = async function(nombreBucket, rutaDestino, archivo) {
+    if (!archivo) return null;
+
+    let client = window.supabaseCloudClient;
+    if (!client && typeof supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_KEY) {
+        client = supabase.createClient(window.SUPABASE_URL, window.SUPABASE_KEY);
+    }
+    if (!client && window.supabaseClient) {
+        client = window.supabaseClient;
+    }
+
+    if (!client || !client.storage) {
+        console.warn("[Supabase Storage] Cliente de Storage no inicializado o no disponible");
+        return null;
+    }
+
+    // Probar nombres de buckets en minúsculas y mayúsculas según configuración del usuario
+    const bucketsAProbar = [nombreBucket, nombreBucket.toLowerCase(), nombreBucket.toUpperCase()];
+    const bucketsUnicos = Array.from(new Set(bucketsAProbar));
+
+    for (const b of bucketsUnicos) {
+        try {
+            const { data, error } = await client.storage.from(b).upload(rutaDestino, archivo, {
+                cacheControl: '3600',
+                upsert: true
+            });
+
+            if (!error && data) {
+                const { data: urlData } = client.storage.from(b).getPublicUrl(rutaDestino);
+                const publicUrl = urlData?.publicUrl || null;
+                console.log(`[Supabase Storage] Archivo '${rutaDestino}' subido con éxito al bucket '${b}':`, publicUrl);
+                return {
+                    success: true,
+                    bucket: b,
+                    path: rutaDestino,
+                    url: publicUrl,
+                    nombre: archivo.name || 'archivo.pdf'
+                };
+            } else if (error) {
+                console.warn(`[Supabase Storage] Error en bucket '${b}':`, error.message);
+            }
+        } catch (err) {
+            console.warn(`[Supabase Storage] Excepción al subir a bucket '${b}':`, err);
+        }
+    }
+
+    return null;
+};

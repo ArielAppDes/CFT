@@ -465,6 +465,7 @@ function obtenerDetalleCurso(item) {
         hsTot = (Number(hsTeo) || 0) + (Number(hsPrac) || 0);
     }
     const contenido = cursoMatch?.contenido || cursoMatch?.objetivo || item.tema || item.observaciones || "";
+    const descripcion = cursoMatch?.descripcion || cursoMatch?.descripcion_publicacion || cursoMatch?.contenido || item.tema || "";
     const estadoCurso = cursoMatch?.estado || "Activo";
 
     return {
@@ -475,7 +476,9 @@ function obtenerDetalleCurso(item) {
         hs_practica: hsPrac,
         hs_totales: hsTot || "-",
         contenido,
-        estado_curso: estadoCurso
+        descripcion,
+        estado_curso: estadoCurso,
+        cursoOriginal: cursoMatch
     };
 }
 
@@ -824,7 +827,27 @@ function renderizarListaVerificacion() {
                     </div>
                 </div>
 
-                ${detCurso.contenido ? `<div class="verif-contenido-txt">📝 <strong>Contenido/Tema:</strong> ${detCurso.contenido}</div>` : ''}
+                <!-- Caja de Descripción para Publicaciones (Modelo solicitado) -->
+                <div class="verif-caja-descripcion">
+                    <div class="verif-caja-desc-header">
+                        <span class="verif-desc-label">
+                            <span style="font-size:1rem;">📢</span> <strong>Descripción</strong> <span class="verif-desc-sub">(lo esperado del curso para comunicaciones internas)</span>
+                        </span>
+                        <button type="button" 
+                            class="btn-guardar-desc-curso" 
+                            data-codcurso="${detCurso.codigo}" 
+                            data-idkey="${idKey}"
+                            title="Guarda esta descripción de forma permanente en el curso para futuras publicaciones">
+                            💾 Guardar en Curso
+                        </button>
+                    </div>
+                    <textarea class="txt-desc-curso" 
+                        id="txtDesc_${idKey}" 
+                        data-codcurso="${detCurso.codigo}" 
+                        data-idkey="${idKey}"
+                        rows="3" 
+                        placeholder="Ingrese la descripción para publicaciones y comunicaciones internas de este curso...">${detCurso.descripcion || ''}</textarea>
+                </div>
             </div>
         `;
     });
@@ -859,7 +882,110 @@ function renderizarListaVerificacion() {
             renderizarListaVerificacion();
         });
     });
+
+    // Vincular evento de guardar descripción en curso
+    contenedor.querySelectorAll(".btn-guardar-desc-curso").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const codCurso = btn.getAttribute("data-codcurso");
+            const idKey = btn.getAttribute("data-idkey");
+            const txtArea = document.getElementById(`txtDesc_${idKey}`);
+            const nuevaDesc = txtArea ? txtArea.value.trim() : "";
+            await guardarDescripcionEnCurso(codCurso, nuevaDesc, idKey, btn);
+        });
+    });
 }
+
+async function guardarDescripcionEnCurso(codigoCurso, nuevaDescripcion, idKeyOrigin, btnElement) {
+    if (!codigoCurso || codigoCurso === '-' || codigoCurso === 'S/C') {
+        alert("Esta actividad no tiene un código de curso asignado.");
+        return;
+    }
+
+    if (btnElement) {
+        btnElement.disabled = true;
+        btnElement.innerHTML = `⏳ Guardando...`;
+    }
+
+    try {
+        // 1. Actualizar en el array en memoria catalogoCursos
+        let cursoEncontrado = catalogoCursos.find(c => 
+            String(c.codigo_curso || c.codigo || "").trim().toLowerCase() === String(codigoCurso).trim().toLowerCase()
+        );
+
+        if (cursoEncontrado) {
+            cursoEncontrado.descripcion = nuevaDescripcion;
+            cursoEncontrado.contenido = nuevaDescripcion;
+        } else {
+            cursoEncontrado = {
+                codigo_curso: codigoCurso,
+                nombre: codigoCurso,
+                descripcion: nuevaDescripcion,
+                contenido: nuevaDescripcion,
+                estado: 'Activo'
+            };
+            catalogoCursos.push(cursoEncontrado);
+        }
+
+        // 2. Sincronizar en dbLocal (IndexedDB/localStorage)
+        if (window.dbLocal && window.dbLocal.raw && typeof window.dbLocal.raw.escribirTabla === 'function') {
+            window.dbLocal.raw.escribirTabla('cursos', catalogoCursos);
+        }
+
+        // 3. Sincronizar con el Backend API
+        if (window.apiClient && window.apiClient.cursos) {
+            try {
+                await window.apiClient.cursos.actualizar(codigoCurso, {
+                    descripcion: nuevaDescripcion,
+                    contenido: nuevaDescripcion
+                });
+            } catch (errApi) {
+                console.warn("[API Cursos] Aviso al actualizar descripción:", errApi);
+            }
+        }
+
+        // 4. Sincronizar con Supabase Cloud directamente
+        try {
+            const db = obtenerDB();
+            if (db) {
+                await db.from('cursos').update({
+                    descripcion: nuevaDescripcion,
+                    contenido: nuevaDescripcion
+                }).eq('codigo_curso', codigoCurso);
+            }
+        } catch (errDb) {
+            console.warn("[Supabase Cursos] Aviso al sincronizar descripción:", errDb);
+        }
+
+        // 5. Actualizar en vivo todos los textareas de otras tarjetas que correspondan al mismo curso
+        document.querySelectorAll(`.txt-desc-curso[data-codcurso="${codigoCurso}"]`).forEach(txt => {
+            if (txt.id !== `txtDesc_${idKeyOrigin}`) {
+                txt.value = nuevaDescripcion;
+            }
+        });
+
+        // 6. Feedback visual inmediato en el botón
+        if (btnElement) {
+            btnElement.classList.add("guardado-ok");
+            btnElement.innerHTML = `✅ ¡Guardado!`;
+            setTimeout(() => {
+                btnElement.classList.remove("guardado-ok");
+                btnElement.innerHTML = `💾 Guardar en Curso`;
+                btnElement.disabled = false;
+            }, 2500);
+        }
+
+        mostrarAvisoTemporal(`Descripción guardada con éxito en el curso ${codigoCurso}.`);
+    } catch (err) {
+        console.error("Error al guardar descripción en el curso:", err);
+        if (btnElement) {
+            btnElement.disabled = false;
+            btnElement.innerHTML = `💾 Guardar en Curso`;
+        }
+        alert("Ocurrió un error al guardar la descripción en el curso: " + (err.message || err));
+    }
+}
+window.guardarDescripcionEnCurso = guardarDescripcionEnCurso;
 
 function generarHtmlReporteImprimible(actividades, rangoFechas, orientacion) {
     let cantProg = 0;
@@ -887,6 +1013,11 @@ function generarHtmlReporteImprimible(actividades, rangoFechas, orientacion) {
         const horario = obtenerHorarioItem(item);
         const instructor = item.instructor_1 ? (item.instructor_2 ? `${item.instructor_1}, ${item.instructor_2}` : item.instructor_1) : (item.instructor || item.docente || "-");
         const lugar = item.lugar || item.aula || item.centro || "CFT";
+
+        // Obtener la descripción actual ingresada en la pantalla de verificación o guardada en el curso
+        const idKey = item.id_cap || `${item.fecha}_${item.nombre_curso}_${idx}`;
+        const inputDesc = document.getElementById(`txtDesc_${idKey}`);
+        const descPublicacion = inputDesc ? inputDesc.value.trim() : (detCurso.descripcion || detCurso.contenido || "");
 
         const est = String(item.estado || "").toLowerCase();
         let badgeClase = "pdf-badge-programada";
@@ -920,9 +1051,17 @@ function generarHtmlReporteImprimible(actividades, rangoFechas, orientacion) {
                         <div><strong>Carga Total:</strong> ${detCurso.hs_totales} hs</div>
                         <div style="grid-column: span 2;"><strong>Instructor/Docente:</strong> ${instructor}</div>
                     </div>
+                    ${descPublicacion ? `
+                        <div style="margin-top:6px; background:#f0f9ff; border:1px solid #bae6fd; border-left:3px solid #0284c7; border-radius:4px; padding:5px 8px; font-size:8.5px; line-height:1.4; color:#0369a1;">
+                            <strong style="font-size:8.5px; color:#0369a1;">📢 Descripción / Comunicación:</strong>
+                            <div style="color:#0f172a; margin-top:2px;">${descPublicacion}</div>
+                        </div>
+                    ` : ''}
                 </td>
                 <td style="width: 25%; font-size:8.5px; color:#334155;">
-                    ${detCurso.contenido ? `<div><strong>Contenido/Tema:</strong><br>${detCurso.contenido}</div>` : (item.tema || item.observaciones ? `<div>${item.tema || item.observaciones}</div>` : '<span style="color:#94a3b8; font-style:italic;">Sin observaciones adicionales</span>')}
+                    ${detCurso.contenido && detCurso.contenido !== descPublicacion ? `<div><strong>Contenido/Tema:</strong><br>${detCurso.contenido}</div>` : ''}
+                    ${item.tema || item.observaciones ? `<div style="margin-top:3px; color:#64748b;">${item.tema || item.observaciones}</div>` : ''}
+                    ${(!detCurso.contenido || detCurso.contenido === descPublicacion) && !item.tema && !item.observaciones ? '<span style="color:#94a3b8; font-style:italic;">Sin observaciones adicionales</span>' : ''}
                 </td>
             </tr>
         `;

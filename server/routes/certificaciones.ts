@@ -66,15 +66,23 @@ certificacionesRouter.post('/', async (req: Request, res: Response) => {
       fecha_vencimiento: body.fecha_vencimiento || '',
       tiene_vencimiento: body.tiene_vencimiento !== false,
       archivo_pdf_nombre: body.archivo_pdf_nombre || '',
-      archivo_pdf_base64: body.archivo_pdf_base64 || '',
+      archivo_pdf_url: body.archivo_pdf_url || '',
+      archivo_pdf_base64: body.archivo_pdf_base64 || body.archivo_pdf_data || '',
       estado: body.estado || 'Vigente',
     };
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('certificaciones_externas')
       .insert(registro)
       .select()
       .single();
+
+    if (error && error.message && error.message.includes('archivo_pdf_url')) {
+      delete (registro as any).archivo_pdf_url;
+      const resRetry = await supabase.from('certificaciones_externas').insert(registro).select().single();
+      data = resRetry.data;
+      error = resRetry.error;
+    }
 
     if (error) return res.status(500).json({ error: error.message });
     return res.status(201).json({ success: true, data });
@@ -105,15 +113,24 @@ certificacionesRouter.put('/:id', async (req: Request, res: Response) => {
     if (body.fecha_vencimiento !== undefined) actualizacion.fecha_vencimiento = body.fecha_vencimiento;
     if (body.tiene_vencimiento !== undefined) actualizacion.tiene_vencimiento = body.tiene_vencimiento;
     if (body.archivo_pdf_nombre !== undefined) actualizacion.archivo_pdf_nombre = body.archivo_pdf_nombre;
+    if (body.archivo_pdf_url !== undefined) actualizacion.archivo_pdf_url = body.archivo_pdf_url;
     if (body.archivo_pdf_base64 !== undefined) actualizacion.archivo_pdf_base64 = body.archivo_pdf_base64;
+    if (body.archivo_pdf_data !== undefined) actualizacion.archivo_pdf_data = body.archivo_pdf_data;
     if (body.estado !== undefined) actualizacion.estado = body.estado;
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('certificaciones_externas')
       .update(actualizacion)
       .eq('id', id)
       .select()
       .maybeSingle();
+
+    if (error && error.message && error.message.includes('archivo_pdf_url')) {
+      delete (actualizacion as any).archivo_pdf_url;
+      const resRetry = await supabase.from('certificaciones_externas').update(actualizacion).eq('id', id).select().maybeSingle();
+      data = resRetry.data;
+      error = resRetry.error;
+    }
 
     if (error) return res.status(500).json({ error: error.message });
     return res.json({ success: true, data });
