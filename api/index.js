@@ -987,17 +987,49 @@ evaluacionesRouter.post("/transferencia", async (req, res) => {
 // server/routes/certificaciones.ts
 import { Router as Router9 } from "express";
 var certificacionesRouter = Router9();
+function procesarCertificadoParaCliente(cert) {
+  if (!cert) return cert;
+  let archivo_pdf_url = cert.archivo_pdf_url || "";
+  let obs = String(cert.observaciones || "");
+  const match = obs.match(/\[PDF_URL:\s*([^\]]+)\]/);
+  if (match) {
+    if (!archivo_pdf_url) {
+      archivo_pdf_url = match[1].trim();
+    }
+    obs = obs.replace(/\[PDF_URL:\s*[^\]]+\]/, "").trim();
+  }
+  let estado = "Vigente";
+  if (cert.tiene_vencimiento && cert.fecha_vencimiento) {
+    const hoy = /* @__PURE__ */ new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fVenc = /* @__PURE__ */ new Date(cert.fecha_vencimiento + "T00:00:00");
+    const diffDias = Math.ceil((fVenc.getTime() - hoy.getTime()) / (1e3 * 60 * 60 * 24));
+    if (diffDias < 0) {
+      estado = "Vencido";
+    } else if (diffDias <= 60) {
+      estado = "Por Vencer";
+    } else {
+      estado = "Vigente";
+    }
+  }
+  return {
+    ...cert,
+    archivo_pdf_url,
+    observaciones: obs,
+    estado: cert.estado || estado
+  };
+}
 certificacionesRouter.get("/", async (req, res) => {
   try {
     const supabase = getSupabase();
-    const { estado, legajo, proveedor_id } = req.query;
+    const { legajo, proveedor_id } = req.query;
     let query = supabase.from("certificaciones_externas").select("*");
-    if (estado) query = query.eq("estado", String(estado));
     if (legajo) query = query.eq("legajo", Number(legajo));
     if (proveedor_id) query = query.eq("proveedor_id", String(proveedor_id));
     const { data, error } = await query.order("id", { ascending: false });
     if (error) return res.status(500).json({ error: error.message });
-    return res.json({ data: data || [] });
+    const certsProcesados = (data || []).map(procesarCertificadoParaCliente);
+    return res.json({ data: certsProcesados });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -1006,10 +1038,16 @@ certificacionesRouter.get("/:id", async (req, res) => {
   try {
     const supabase = getSupabase();
     const id = req.params.id;
-    const { data, error } = await supabase.from("certificaciones_externas").select("*").eq("id", id).maybeSingle();
+    let query = supabase.from("certificaciones_externas").select("*");
+    if (/^\d+$/.test(id)) {
+      query = query.eq("id", Number(id));
+    } else {
+      query = query.eq("codigo", id);
+    }
+    const { data, error } = await query.maybeSingle();
     if (error) return res.status(500).json({ error: error.message });
     if (!data) return res.status(404).json({ error: "Certificaci\xF3n no encontrada" });
-    return res.json({ data });
+    return res.json({ data: procesarCertificadoParaCliente(data) });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -1018,35 +1056,38 @@ certificacionesRouter.post("/", async (req, res) => {
   try {
     const supabase = getSupabase();
     const body = req.body;
-    const registro = {
-      codigo: body.codigo || `CERT-${Date.now()}`,
-      alcance: body.alcance || "",
-      categoria: body.categoria || "",
-      subcategoria: body.subcategoria || "",
-      legajo: body.legajo ? Number(body.legajo) : null,
-      apellido_nombre: body.apellido_nombre || "",
-      puesto: body.puesto || "",
-      area_jefatura: body.area_jefatura || "",
-      proveedor_id: body.proveedor_id || "",
-      proveedor_ente: body.proveedor_ente || "",
-      fecha_emision: body.fecha_emision || "",
-      fecha_vencimiento: body.fecha_vencimiento || "",
-      tiene_vencimiento: body.tiene_vencimiento !== false,
-      archivo_pdf_nombre: body.archivo_pdf_nombre || "",
-      archivo_pdf_url: body.archivo_pdf_url || "",
-      archivo_pdf_base64: body.archivo_pdf_base64 || body.archivo_pdf_data || "",
-      estado: body.estado || "Vigente"
-    };
-    let { data, error } = await supabase.from("certificaciones_externas").insert(registro).select().single();
-    if (error && error.message && error.message.includes("archivo_pdf_url")) {
-      delete registro.archivo_pdf_url;
-      const resRetry = await supabase.from("certificaciones_externas").insert(registro).select().single();
-      data = resRetry.data;
-      error = resRetry.error;
+    let observacionesFinal = String(body.observaciones || "").trim();
+    const pdfUrl = body.archivo_pdf_url || "";
+    if (pdfUrl && !observacionesFinal.includes("[PDF_URL:")) {
+      observacionesFinal = observacionesFinal ? `${observacionesFinal}
+
+[PDF_URL: ${pdfUrl}]` : `[PDF_URL: ${pdfUrl}]`;
     }
-    if (error) return res.status(500).json({ error: error.message });
-    return res.status(201).json({ success: true, data });
+    const registro = {
+      codigo: String(body.codigo || `CERT-${Date.now()}`).trim(),
+      alcance: String(body.alcance || "").trim(),
+      categoria: String(body.categoria || "").trim(),
+      subcategoria: String(body.subcategoria || "").trim(),
+      legajo: body.legajo ? Number(body.legajo) : null,
+      apellido_nombre: String(body.apellido_nombre || "").trim(),
+      puesto: String(body.puesto || "").trim(),
+      area_jefatura: String(body.area_jefatura || "").trim(),
+      proveedor_id: String(body.proveedor_id || "").trim(),
+      proveedor_ente: String(body.proveedor_ente || "").trim(),
+      fecha_emision: body.fecha_emision || "",
+      fecha_vencimiento: body.fecha_vencimiento || null,
+      tiene_vencimiento: body.tiene_vencimiento !== false,
+      archivo_pdf_nombre: String(body.archivo_pdf_nombre || "").trim(),
+      observaciones: observacionesFinal
+    };
+    const { data, error } = await supabase.from("certificaciones_externas").insert(registro).select().single();
+    if (error) {
+      console.error("[Certificaciones API] Error al insertar en Supabase:", error);
+      return res.status(500).json({ error: error.message });
+    }
+    return res.status(201).json({ success: true, data: procesarCertificadoParaCliente(data) });
   } catch (err) {
+    console.error("[Certificaciones API] Excepci\xF3n al crear certificado:", err);
     return res.status(500).json({ error: err.message });
   }
 });
@@ -1056,34 +1097,57 @@ certificacionesRouter.put("/:id", async (req, res) => {
     const id = req.params.id;
     const body = req.body;
     const actualizacion = {};
-    if (body.codigo !== void 0) actualizacion.codigo = body.codigo;
-    if (body.alcance !== void 0) actualizacion.alcance = body.alcance;
-    if (body.categoria !== void 0) actualizacion.categoria = body.categoria;
-    if (body.subcategoria !== void 0) actualizacion.subcategoria = body.subcategoria;
+    if (body.codigo !== void 0) actualizacion.codigo = String(body.codigo).trim();
+    if (body.alcance !== void 0) actualizacion.alcance = String(body.alcance).trim();
+    if (body.categoria !== void 0) actualizacion.categoria = String(body.categoria).trim();
+    if (body.subcategoria !== void 0) actualizacion.subcategoria = String(body.subcategoria).trim();
     if (body.legajo !== void 0) actualizacion.legajo = body.legajo ? Number(body.legajo) : null;
-    if (body.apellido_nombre !== void 0) actualizacion.apellido_nombre = body.apellido_nombre;
-    if (body.puesto !== void 0) actualizacion.puesto = body.puesto;
-    if (body.area_jefatura !== void 0) actualizacion.area_jefatura = body.area_jefatura;
-    if (body.proveedor_id !== void 0) actualizacion.proveedor_id = body.proveedor_id;
-    if (body.proveedor_ente !== void 0) actualizacion.proveedor_ente = body.proveedor_ente;
+    if (body.apellido_nombre !== void 0) actualizacion.apellido_nombre = String(body.apellido_nombre).trim();
+    if (body.puesto !== void 0) actualizacion.puesto = String(body.puesto).trim();
+    if (body.area_jefatura !== void 0) actualizacion.area_jefatura = String(body.area_jefatura).trim();
+    if (body.proveedor_id !== void 0) actualizacion.proveedor_id = String(body.proveedor_id).trim();
+    if (body.proveedor_ente !== void 0) actualizacion.proveedor_ente = String(body.proveedor_ente).trim();
     if (body.fecha_emision !== void 0) actualizacion.fecha_emision = body.fecha_emision;
-    if (body.fecha_vencimiento !== void 0) actualizacion.fecha_vencimiento = body.fecha_vencimiento;
-    if (body.tiene_vencimiento !== void 0) actualizacion.tiene_vencimiento = body.tiene_vencimiento;
-    if (body.archivo_pdf_nombre !== void 0) actualizacion.archivo_pdf_nombre = body.archivo_pdf_nombre;
-    if (body.archivo_pdf_url !== void 0) actualizacion.archivo_pdf_url = body.archivo_pdf_url;
-    if (body.archivo_pdf_base64 !== void 0) actualizacion.archivo_pdf_base64 = body.archivo_pdf_base64;
-    if (body.archivo_pdf_data !== void 0) actualizacion.archivo_pdf_data = body.archivo_pdf_data;
-    if (body.estado !== void 0) actualizacion.estado = body.estado;
-    let { data, error } = await supabase.from("certificaciones_externas").update(actualizacion).eq("id", id).select().maybeSingle();
-    if (error && error.message && error.message.includes("archivo_pdf_url")) {
-      delete actualizacion.archivo_pdf_url;
-      const resRetry = await supabase.from("certificaciones_externas").update(actualizacion).eq("id", id).select().maybeSingle();
-      data = resRetry.data;
-      error = resRetry.error;
+    if (body.fecha_vencimiento !== void 0) actualizacion.fecha_vencimiento = body.fecha_vencimiento || null;
+    if (body.tiene_vencimiento !== void 0) actualizacion.tiene_vencimiento = body.tiene_vencimiento !== false;
+    if (body.archivo_pdf_nombre !== void 0) actualizacion.archivo_pdf_nombre = String(body.archivo_pdf_nombre).trim();
+    let obsFinal = body.observaciones !== void 0 ? String(body.observaciones).trim() : null;
+    const pdfUrl = body.archivo_pdf_url;
+    if (pdfUrl) {
+      const urlTag = `[PDF_URL: ${pdfUrl}]`;
+      if (obsFinal !== null) {
+        if (!obsFinal.includes("[PDF_URL:")) {
+          obsFinal = obsFinal ? `${obsFinal}
+
+${urlTag}` : urlTag;
+        }
+      } else {
+        const { data: prevCert } = await supabase.from("certificaciones_externas").select("observaciones").eq("id", id).maybeSingle();
+        let prevObs = prevCert?.observaciones || "";
+        if (!prevObs.includes("[PDF_URL:")) {
+          obsFinal = prevObs ? `${prevObs}
+
+${urlTag}` : urlTag;
+        }
+      }
     }
-    if (error) return res.status(500).json({ error: error.message });
-    return res.json({ success: true, data });
+    if (obsFinal !== null) {
+      actualizacion.observaciones = obsFinal;
+    }
+    let query = supabase.from("certificaciones_externas").update(actualizacion);
+    if (/^\d+$/.test(id)) {
+      query = query.eq("id", Number(id));
+    } else {
+      query = query.eq("codigo", id);
+    }
+    const { data, error } = await query.select().maybeSingle();
+    if (error) {
+      console.error("[Certificaciones API] Error al actualizar en Supabase:", error);
+      return res.status(500).json({ error: error.message });
+    }
+    return res.json({ success: true, data: procesarCertificadoParaCliente(data) });
   } catch (err) {
+    console.error("[Certificaciones API] Excepci\xF3n al actualizar:", err);
     return res.status(500).json({ error: err.message });
   }
 });
@@ -1091,9 +1155,15 @@ certificacionesRouter.delete("/:id", async (req, res) => {
   try {
     const supabase = getSupabase();
     const id = req.params.id;
-    const { error } = await supabase.from("certificaciones_externas").delete().eq("id", id);
+    let query = supabase.from("certificaciones_externas").delete();
+    if (/^\d+$/.test(id)) {
+      query = query.eq("id", Number(id));
+    } else {
+      query = query.eq("codigo", id);
+    }
+    const { error } = await query;
     if (error) return res.status(500).json({ error: error.message });
-    return res.json({ success: true, message: `Certificaci\xF3n ${id} eliminada` });
+    return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

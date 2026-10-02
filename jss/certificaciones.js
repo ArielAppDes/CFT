@@ -171,15 +171,46 @@ function cargarDatosDesdeDB() {
     }
 }
 
-async function guardarCertificadosEnDB() {
+async function guardarCertificadosEnDB(certAGuardar = null, esEdicion = false) {
     try {
-        if (window.apiClient && window.apiClient.certificaciones && CertificacionesState.certificados.length > 0) {
-            // Guardar o sincronizar certificados en el backend
-            const ultimo = CertificacionesState.certificados[CertificacionesState.certificados.length - 1];
-            if (ultimo) {
-                window.apiClient.certificaciones.guardar(ultimo).catch(e => console.warn('[certificaciones] Error guardando en API:', e));
+        // 1. Guardar en el backend (Supabase a través de API)
+        if (window.apiClient && window.apiClient.certificaciones) {
+            if (certAGuardar) {
+                if (esEdicion && certAGuardar.id) {
+                    try {
+                        const res = await window.apiClient.certificaciones.actualizar(certAGuardar.id, certAGuardar);
+                        if (res && res.data) {
+                            Object.assign(certAGuardar, res.data);
+                        }
+                    } catch (e) {
+                        console.warn('[certificaciones] Error actualizando en API:', e);
+                    }
+                } else {
+                    try {
+                        const res = await window.apiClient.certificaciones.guardar(certAGuardar);
+                        if (res && res.data && res.data.id) {
+                            certAGuardar.id = res.data.id;
+                        }
+                    } catch (e) {
+                        console.error('[certificaciones] Error guardando en API:', e);
+                    }
+                }
+            } else if (CertificacionesState.certificados.length > 0) {
+                const ultimo = CertificacionesState.certificados[CertificacionesState.certificados.length - 1];
+                if (ultimo) {
+                    try {
+                        const res = await window.apiClient.certificaciones.guardar(ultimo);
+                        if (res && res.data && res.data.id) {
+                            ultimo.id = res.data.id;
+                        }
+                    } catch (e) {
+                        console.error('[certificaciones] Error guardando en API:', e);
+                    }
+                }
             }
         }
+
+        // 2. Guardar en dbLocal (IndexedDB)
         if (window.dbLocal && window.dbLocal.raw) {
             if (typeof window.dbLocal.raw.guardarTablaAsync === 'function') {
                 await window.dbLocal.raw.guardarTablaAsync('certificaciones_externas', CertificacionesState.certificados);
@@ -187,8 +218,17 @@ async function guardarCertificadosEnDB() {
                 window.dbLocal.raw.escribirTabla('certificaciones_externas', CertificacionesState.certificados);
             }
         }
+
+        // 3. Guardar en localStorage de forma segura
         try {
-            localStorage.setItem('SIGA_DB_certificaciones_externas', JSON.stringify(CertificacionesState.certificados));
+            const certsLivianos = CertificacionesState.certificados.map(c => {
+                const copia = { ...c };
+                if (copia.archivo_pdf_data && copia.archivo_pdf_data.length > 1000) {
+                    delete copia.archivo_pdf_data; // para no saturar cuota de 5MB
+                }
+                return copia;
+            });
+            localStorage.setItem('SIGA_DB_certificaciones_externas', JSON.stringify(certsLivianos));
         } catch (e) {
             console.warn("localStorage saturated (handled safely via IndexedDB):", e);
         }
@@ -1600,6 +1640,7 @@ async function guardarCertificadoForm(e) {
                 archivo_pdf_url: archivoPdfUrl || certActual.archivo_pdf_url || null,
                 archivo_pdf_data: archivoPdfData || certActual.archivo_pdf_data
             };
+            await guardarCertificadosEnDB(CertificacionesState.certificados[idx], true);
         }
     } else {
         // Nuevo registro
@@ -1626,9 +1667,9 @@ async function guardarCertificadoForm(e) {
             archivo_pdf_data: archivoPdfData
         };
         CertificacionesState.certificados.push(nuevoCert);
+        await guardarCertificadosEnDB(nuevoCert, false);
     }
 
-    await guardarCertificadosEnDB();
     cerrarModalFormCert();
     renderizarVista();
 }
@@ -1961,7 +2002,7 @@ async function guardarRenovacionCertificado(e) {
 
     CertificacionesState.certificados.push(nuevoCert);
 
-    await guardarCertificadosEnDB();
+    await guardarCertificadosEnDB(nuevoCert, false);
     cerrarModalRenovar();
     renderizarVista();
     alert(`✅ Certificado renovado exitosamente como N° ${nuevoCodigo}.\nEl certificado N° ${certAnterior.codigo} ha quedado guardado como histórico de capacitación.`);

@@ -19,7 +19,7 @@ const ESQUEMA_COLUMNAS_SUPABASE = {
     evaluaciones: ['id', 'id_cap', 'instructor', 'puntaje_objetivos', 'puntaje_aplicabilidad', 'puntaje_instructor', 'puntaje_material', 'puntaje_entorno', 'puntaje_general', 'puntaje_docente', 'puntaje_contenido', 'destacados', 'sugerencias', 'comentarios', 'fecha_registro'],
     transferencias: ['id', 'id_cap', 'jefatura', 'nombre_curso', 'fecha_curso', 'legajo', 'nombre', 'aplica_contenidos', 'motivo_dificultad', 'plan_accion', 'firma_responsable', 'fecha_registro'],
     profiles: ['id', 'usuario', 'clave', 'nombre', 'email', 'rol', 'estado', 'creado_el'],
-    certificaciones_externas: ['id', 'codigo', 'alcance', 'categoria', 'subcategoria', 'legajo', 'apellido_nombre', 'puesto', 'area_jefatura', 'proveedor_id', 'proveedor_ente', 'fecha_emision', 'fecha_vencimiento', 'tiene_vencimiento', 'archivo_pdf_nombre', 'archivo_pdf_url', 'archivo_pdf_data', 'observaciones']
+    certificaciones_externas: ['id', 'codigo', 'alcance', 'categoria', 'subcategoria', 'legajo', 'apellido_nombre', 'puesto', 'area_jefatura', 'proveedor_id', 'proveedor_ente', 'fecha_emision', 'fecha_vencimiento', 'tiene_vencimiento', 'archivo_pdf_nombre', 'observaciones']
 };
 
 window.mapearNombreTablaSupabase = function(nombreTabla) {
