@@ -195,18 +195,6 @@ async function guardarCertificadosEnDB(certAGuardar = null, esEdicion = false) {
                         console.error('[certificaciones] Error guardando en API:', e);
                     }
                 }
-            } else if (CertificacionesState.certificados.length > 0) {
-                const ultimo = CertificacionesState.certificados[CertificacionesState.certificados.length - 1];
-                if (ultimo) {
-                    try {
-                        const res = await window.apiClient.certificaciones.guardar(ultimo);
-                        if (res && res.data && res.data.id) {
-                            ultimo.id = res.data.id;
-                        }
-                    } catch (e) {
-                        console.error('[certificaciones] Error guardando en API:', e);
-                    }
-                }
             }
         }
 
@@ -1682,8 +1670,65 @@ async function eliminarCertificado(certId) {
     }
 
     if (confirm(`¿Está seguro de eliminar el certificado "${cert.codigo || ''}" de ${cert.apellido_nombre || ''}?`)) {
-        CertificacionesState.certificados = CertificacionesState.certificados.filter(c => c !== cert && String(c.id) !== String(cert.id));
-        await guardarCertificadosEnDB();
+        const idAEliminar = cert.id;
+        const codigoAEliminar = cert.codigo;
+
+        // 1. Quitar del estado en memoria
+        CertificacionesState.certificados = CertificacionesState.certificados.filter(c => 
+            c !== cert && 
+            String(c.id) !== String(certId) && 
+            (c.codigo && codigoAEliminar ? c.codigo !== codigoAEliminar : true)
+        );
+
+        // 2. Eliminar en el Backend / Supabase vía API
+        if (window.apiClient && window.apiClient.certificaciones) {
+            try {
+                if (idAEliminar) {
+                    await window.apiClient.certificaciones.eliminar(idAEliminar);
+                } else if (codigoAEliminar) {
+                    await window.apiClient.certificaciones.eliminar(codigoAEliminar);
+                }
+            } catch (e) {
+                console.warn("[Certificaciones] Error al eliminar en API backend:", e);
+            }
+        }
+
+        // 3. Eliminar directamente en Supabase si el cliente existe
+        if (window.supabaseCloudClient) {
+            try {
+                if (idAEliminar) {
+                    await window.supabaseCloudClient.from('certificaciones_externas').delete().eq('id', idAEliminar);
+                } else if (codigoAEliminar) {
+                    await window.supabaseCloudClient.from('certificaciones_externas').delete().eq('codigo', codigoAEliminar);
+                }
+            } catch (eSup) {
+                console.warn("[Certificaciones] Error en borrado directo Supabase:", eSup);
+            }
+        }
+
+        // 4. Actualizar dbLocal (IndexedDB)
+        if (window.dbLocal && window.dbLocal.raw) {
+            if (typeof window.dbLocal.raw.guardarTablaAsync === 'function') {
+                await window.dbLocal.raw.guardarTablaAsync('certificaciones_externas', CertificacionesState.certificados);
+            } else if (typeof window.dbLocal.raw.escribirTabla === 'function') {
+                window.dbLocal.raw.escribirTabla('certificaciones_externas', CertificacionesState.certificados);
+            }
+        }
+
+        // 5. Actualizar localStorage
+        try {
+            const certsLivianos = CertificacionesState.certificados.map(c => {
+                const copia = { ...c };
+                if (copia.archivo_pdf_data && copia.archivo_pdf_data.length > 1000) {
+                    delete copia.archivo_pdf_data;
+                }
+                return copia;
+            });
+            localStorage.setItem('SIGA_DB_certificaciones_externas', JSON.stringify(certsLivianos));
+        } catch (e) {
+            console.warn("localStorage saturated:", e);
+        }
+
         renderizarVista();
     }
 }
