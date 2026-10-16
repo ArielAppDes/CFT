@@ -344,42 +344,41 @@ async function cargarInstructores() {
 
 async function cargarProveedores() {
     let provs = [];
+    let consultoAPI = false;
 
-    // 1. Backend API
+    // 1. Backend API (Supabase)
     if (window.apiClient && window.apiClient.proveedores) {
         try {
             const apiData = await window.apiClient.proveedores.listar();
-            if (Array.isArray(apiData) && apiData.length > 0) provs = apiData;
+            if (Array.isArray(apiData)) {
+                provs = apiData;
+                consultoAPI = true;
+            }
         } catch (e) {
             console.warn('[Proveedores] Error consultando backend:', e);
         }
     }
 
-    if (provs.length === 0) {
+    // 2. Consulta directa a Supabase si no hubo respuesta del API
+    if (!consultoAPI) {
         const db = obtenerDB();
         if (db) {
             try {
                 const { data } = await db.from('proveedores').select('*').order('codigo_proveedor', { ascending: true });
-                if (data && data.length > 0) provs = data;
+                if (Array.isArray(data)) {
+                    provs = data;
+                    consultoAPI = true;
+                }
             } catch (e) {
                 console.warn('[Proveedores] Error consulta:', e);
             }
         }
     }
-    if (provs.length === 0 && window.dbLocal && window.dbLocal.raw) {
+
+    // 3. Fallback solo a caché local previa (nunca recrear datos semilla)
+    if (!consultoAPI && window.dbLocal && window.dbLocal.raw) {
         provs = window.dbLocal.raw.leerTabla('proveedores') || [];
     }
-
-    // Si la lista está vacía, recuperar siempre desde SIGA_DATOS_INICIALES
-    if (!provs || !Array.isArray(provs) || provs.length === 0) {
-        if (window.SIGA_DATOS_INICIALES && Array.isArray(window.SIGA_DATOS_INICIALES['proveedores'])) {
-            provs = JSON.parse(JSON.stringify(window.SIGA_DATOS_INICIALES['proveedores']));
-            if (window.dbLocal && window.dbLocal.raw) {
-                window.dbLocal.raw.escribirTabla('proveedores', provs);
-            }
-        }
-    }
-    localStorage.setItem('SIGA_DB_proveedores_inicializado', 'true');
 
     // Normalizar y reparar registros sin perder códigos ni carpetas de seguimiento
     let huboCambio = false;
@@ -2054,55 +2053,62 @@ let vistaNominaModalAbierta = {};
 async function asegurarCargasAuxiliaresProgramas(forzarRecarga = false) {
     try {
         if (forzarRecarga || !cacheDotacionProg || cacheDotacionProg.length === 0) {
-            if (window.dbLocal && window.dbLocal.raw) {
-                cacheDotacionProg = window.dbLocal.raw.leerTabla('dotacion') || [];
+            if (window.apiClient && window.apiClient.dotacion) {
+                try {
+                    const dotApi = await window.apiClient.dotacion.listar();
+                    if (Array.isArray(dotApi) && dotApi.length > 0) cacheDotacionProg = dotApi;
+                } catch (e) {}
             }
             if (!cacheDotacionProg || cacheDotacionProg.length === 0) {
-                const raw = localStorage.getItem('SIGA_DB_dotacion');
-                if (raw) {
-                    try { cacheDotacionProg = JSON.parse(raw); } catch (e) {}
+                if (window.dbLocal && window.dbLocal.raw) {
+                    cacheDotacionProg = window.dbLocal.raw.leerTabla('dotacion') || [];
                 }
-            }
-            if (!cacheDotacionProg || cacheDotacionProg.length === 0) {
-                const resp = await fetch('data/dotacion.json');
-                if (resp.ok) cacheDotacionProg = await resp.json();
             }
             cacheDotacionProg = Array.isArray(cacheDotacionProg) ? cacheDotacionProg : [];
         }
 
-        // Cursos: sincronizar siempre con dbLocal si contiene cursos para reflejar inmediatamente altas/modificaciones
-        let cursosDB = [];
-        if (window.dbLocal && window.dbLocal.raw) {
-            cursosDB = window.dbLocal.raw.leerTabla('cursos') || [];
-        }
-        if (Array.isArray(cursosDB) && cursosDB.length > 0) {
-            cacheCursosProg = cursosDB;
-            window.cacheCursosProg = cursosDB;
-        } else if (forzarRecarga || !cacheCursosProg || cacheCursosProg.length === 0) {
-            const resp = await fetch('data/cursos.json');
-            if (resp.ok) cacheCursosProg = await resp.json();
+        if (forzarRecarga || !cacheCursosProg || cacheCursosProg.length === 0) {
+            if (window.apiClient && window.apiClient.cursos) {
+                try {
+                    const curApi = await window.apiClient.cursos.listar();
+                    if (Array.isArray(curApi) && curApi.length > 0) cacheCursosProg = curApi;
+                } catch (e) {}
+            }
+            if (!cacheCursosProg || cacheCursosProg.length === 0) {
+                if (window.dbLocal && window.dbLocal.raw) {
+                    cacheCursosProg = window.dbLocal.raw.leerTabla('cursos') || [];
+                }
+            }
             cacheCursosProg = Array.isArray(cacheCursosProg) ? cacheCursosProg : [];
             window.cacheCursosProg = cacheCursosProg;
         }
 
         if (forzarRecarga || !cacheAsistentesProg || cacheAsistentesProg.length === 0) {
-            if (window.dbLocal && window.dbLocal.raw) {
-                cacheAsistentesProg = window.dbLocal.raw.leerTabla('asistentes') || [];
+            if (window.apiClient && window.apiClient.asistentes) {
+                try {
+                    const asisApi = await window.apiClient.asistentes.listar();
+                    if (Array.isArray(asisApi) && asisApi.length > 0) cacheAsistentesProg = asisApi;
+                } catch (e) {}
             }
             if (!cacheAsistentesProg || cacheAsistentesProg.length === 0) {
-                const resp = await fetch('data/asistentes.json');
-                if (resp.ok) cacheAsistentesProg = await resp.json();
+                if (window.dbLocal && window.dbLocal.raw) {
+                    cacheAsistentesProg = window.dbLocal.raw.leerTabla('asistentes') || [];
+                }
             }
             cacheAsistentesProg = Array.isArray(cacheAsistentesProg) ? cacheAsistentesProg : [];
         }
 
         if (forzarRecarga || !cacheCapacitacionesProg || cacheCapacitacionesProg.length === 0) {
-            if (window.dbLocal && window.dbLocal.raw) {
-                cacheCapacitacionesProg = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+            if (window.apiClient && window.apiClient.capacitaciones) {
+                try {
+                    const capApi = await window.apiClient.capacitaciones.listar();
+                    if (Array.isArray(capApi) && capApi.length > 0) cacheCapacitacionesProg = capApi;
+                } catch (e) {}
             }
             if (!cacheCapacitacionesProg || cacheCapacitacionesProg.length === 0) {
-                const resp = await fetch('data/capacitaciones.json');
-                if (resp.ok) cacheCapacitacionesProg = await resp.json();
+                if (window.dbLocal && window.dbLocal.raw) {
+                    cacheCapacitacionesProg = window.dbLocal.raw.leerTabla('capacitaciones') || [];
+                }
             }
             cacheCapacitacionesProg = Array.isArray(cacheCapacitacionesProg) ? cacheCapacitacionesProg : [];
         }

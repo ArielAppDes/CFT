@@ -240,7 +240,7 @@ function extraerFilasDotacion(hoja) {
         "Correo electrónico principal"
     ];
 
-    // Palabras clave para detectar la fila de encabezados (ignora celdas de título tipo 'Nómina Emova' en filas 1 y 2)
+    // Palabras clave para detectar la fila de encabezados (ignora celdas de título tipo 'Nómina de Personal' en filas 1 y 2)
     const keywordsDetect = ['persona', 'numerodepersona', 'legajo', 'leg', 'dni', 'ficha', 'apellido', 'ape', 'nombre', 'puesto', 'cargo', 'departamento', 'gerencia', 'direccion', 'coordinacion', 'jefatura', 'manager', 'correo', 'email', 'mail'];
 
     for (let r = 0; r < Math.min(15, filas.length); r++) {
@@ -1489,57 +1489,8 @@ window.exportarBaseJSON = exportarBaseJSON;
 //======================================================
 async function sincronizarDesdeCarpetaData() {
     const estado = document.getElementById("estadoBase");
-    if (estado) estado.value = "Leyendo archivos JSON de la carpeta /data/...";
-
-    const TABLAS_DATA = [
-        { archivo: 'dotacion.json', tabla: 'dotacion', pk: 'legajo' },
-        { archivo: 'capacitaciones.json', tabla: 'capacitaciones', pk: 'id_cap' },
-        { archivo: 'asistentes.json', tabla: 'asistentes', pk: 'id' },
-        { archivo: 'cursos.json', tabla: 'cursos', pk: 'codigo_curso' },
-        { archivo: 'programas.json', tabla: 'programas', pk: 'codigo_programa' },
-        { archivo: 'instructores.json', tabla: 'instructores', pk: 'codigo_instructor' },
-        { archivo: 'proveedores.json', tabla: 'proveedores', pk: 'codigo_proveedor' },
-        { archivo: 'evaluaciones_satisfaccion.json', tabla: 'evaluaciones_satisfaccion', pk: 'id' },
-        { archivo: 'transferencias.json', tabla: 'transferencias', pk: 'id_tra' },
-        { archivo: 'encuestas_transferencia.json', tabla: 'encuestas_transferencia', pk: 'id' },
-        { archivo: 'certificaciones_externas.json', tabla: 'certificaciones_externas', pk: 'id' },
-        { archivo: 'profiles.json', tabla: 'profiles', pk: 'usuario' }
-    ];
-
-    let tablasCargadas = 0;
-    let totalRegistros = 0;
-    const db = obtenerClienteDB();
-
-    for (const item of TABLAS_DATA) {
-        try {
-            const resp = await fetch(`data/${item.archivo}?v=${Date.now()}`);
-            if (resp.ok) {
-                const datos = await resp.json();
-                if (Array.isArray(datos) && datos.length > 0) {
-                    if (db) {
-                        await db.from(item.tabla).upsert(datos, { onConflict: item.pk });
-                    } else {
-                        localStorage.setItem('SIGA_DB_' + item.tabla, JSON.stringify(datos));
-                    }
-                    if (item.tabla === 'dotacion') {
-                        registrarFechaDotacion(datos.length);
-                    }
-                    tablasCargadas++;
-                    totalRegistros += datos.length;
-                }
-            }
-        } catch (e) {
-            console.warn(`No se pudo leer data/${item.archivo}:`, e);
-        }
-    }
-
-    if (tablasCargadas > 0) {
-        if (estado) estado.value = `¡Sincronizado! ${tablasCargadas} tablas cargadas (${totalRegistros} registros).`;
-        alert(`¡Sincronización exitosa!\n\nSe cargaron ${tablasCargadas} tablas locales con un total de ${totalRegistros} registros desde la carpeta /data/.`);
-    } else {
-        if (estado) estado.value = "Los archivos de /data/ están vacíos o no disponibles.";
-        alert("Atención: Los archivos en la carpeta /data/ están vacíos o no se pudieron leer. Podés reemplazar los archivos .json en /data/ y volver a presionar el botón.");
-    }
+    if (estado) estado.value = "Sistema sincronizado con Supabase Cloud.";
+    alert("La plataforma ahora opera de forma 100% directa e integrada con Supabase PostgreSQL. La información se gestiona en la nube en tiempo real.");
 }
 window.sincronizarDesdeCarpetaData = sincronizarDesdeCarpetaData;
 

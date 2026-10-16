@@ -171,30 +171,11 @@ async function cargarColeccionRobusta(nombreTabla) {
         }
     }
 
-    // 4. Fallback ÚNICAMENTE si la base local está completamente virgen o vacía
-    const rutasJson = [
-        `data/${nombreTabla}.json?v=${Date.now()}`,
-        `/data/${nombreTabla}.json`,
-        `./data/${nombreTabla}.json`
-    ];
-    for (const ruta of rutasJson) {
-        try {
-            const resLocal = await fetch(ruta);
-            if (resLocal && resLocal.ok) {
-                const dataLocal = await resLocal.json();
-                if (Array.isArray(dataLocal) && dataLocal.length > 0) {
-                    console.log(`[Reportes] ${nombreTabla} cargada desde JSON inicial ${ruta} (${dataLocal.length} registros).`);
-                    return dataLocal;
-                }
-            }
-        } catch (e) {}
-    }
-
-    // 5. Supabase Cloud SDK o REST como último recurso
+    // 4. Supabase Cloud SDK o REST
     if (window.supabaseCloudClient) {
         try {
             const { data, error } = await window.supabaseCloudClient.from(nombreTabla).select('*');
-            if (!error && Array.isArray(data) && data.length > 0) {
+            if (!error && Array.isArray(data)) {
                 console.log(`[Reportes] ${nombreTabla} cargada desde Supabase Cloud SDK (${data.length} registros).`);
                 return data;
             }

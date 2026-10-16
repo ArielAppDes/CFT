@@ -790,7 +790,7 @@ function renderizarNivel1(contenedor) {
                 </div>
                 <div class="cert-card-body">
                     <h3>Certificaciones Internas</h3>
-                    <p>Emisión y gestión de diplomas oficiales emitidos internamente por Academia / SIGA con correlatividad automática.</p>
+                    <p>Emisión y gestión de diplomas oficiales emitidos internamente por CFT / SIGA con correlatividad automática.</p>
                 </div>
                 <div class="cert-card-footer">
                     <span>Certificados Internos</span>
@@ -1458,10 +1458,7 @@ function poblarSelectorProveedoresModal(proveedorSeleccionado = null) {
     let lista = CertificacionesState.proveedores || [];
     if (window.dbLocal && window.dbLocal.raw) {
         const provsDB = window.dbLocal.raw.leerTabla('proveedores');
-        if (provsDB && provsDB.length > 0) lista = provsDB;
-    }
-    if ((!lista || lista.length === 0) && window.SIGA_DATOS_INICIALES && window.SIGA_DATOS_INICIALES.proveedores) {
-        lista = window.SIGA_DATOS_INICIALES.proveedores;
+        if (Array.isArray(provsDB)) lista = provsDB;
     }
 
     sel.innerHTML = '<option value="">-- Seleccionar Proveedor --</option>';
@@ -1913,10 +1910,7 @@ function poblarSelectorProveedoresRenovar(proveedorSeleccionado = null) {
     let lista = CertificacionesState.proveedores || [];
     if (window.dbLocal && window.dbLocal.raw) {
         const provsDB = window.dbLocal.raw.leerTabla('proveedores');
-        if (provsDB && provsDB.length > 0) lista = provsDB;
-    }
-    if ((!lista || lista.length === 0) && window.SIGA_DATOS_INICIALES && window.SIGA_DATOS_INICIALES.proveedores) {
-        lista = window.SIGA_DATOS_INICIALES.proveedores;
+        if (Array.isArray(provsDB)) lista = provsDB;
     }
 
     sel.innerHTML = '<option value="">-- Seleccionar Proveedor / Ente --</option>';

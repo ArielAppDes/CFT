@@ -50,8 +50,8 @@
         instructores: [
             { id: 1, codigo_instructor: 'INS-2026-001', nombre: 'Juan', apellido: 'Pérez', dni: '30000001', email: 'juan.pérez@empresa.com', especialidad: 'Liderazgo', tipo: 'Interno', estado: 'Activo' },
             { id: 2, codigo_instructor: 'INS-2026-002', nombre: 'Maria', apellido: 'Gómez', dni: '30000002', email: 'maria.gómez@empresa.com', especialidad: 'Seguridad Industrial', tipo: 'Interno', estado: 'Activo' },
-            { id: 3, codigo_instructor: 'INS-2026-003', nombre: 'ARIEL', apellido: 'PIZZUTTO', dni: '', email: 'APIZZUTTO@EMOVA.COM.AR', especialidad: '', tipo: 'Interno', estado: 'Activo' },
-            { id: 4, codigo_instructor: 'INS-2026-004', nombre: 'ANTONIO', apellido: 'PADULA', dni: '', email: 'apadula@emova.com.ar', especialidad: 'ESPECIALISTA SEÑALES ALSTOM', tipo: 'Interno', estado: 'Activo' },
+            { id: 3, codigo_instructor: 'INS-2026-003', nombre: 'ARIEL', apellido: 'PIZZUTTO', dni: '', email: 'apizzutto@cft.edu.ar', especialidad: '', tipo: 'Interno', estado: 'Activo' },
+            { id: 4, codigo_instructor: 'INS-2026-004', nombre: 'ANTONIO', apellido: 'PADULA', dni: '', email: 'apadula@cft.edu.ar', especialidad: 'ESPECIALISTA SEÑALES ALSTOM', tipo: 'Interno', estado: 'Activo' },
             { id: 5, codigo_instructor: 'INS-2026-005', nombre: 'Luis', apellido: 'Rodríguez', dni: '30000005', email: 'luis.rodríguez@empresa.com', especialidad: 'Logística integral ', tipo: 'Externo', estado: 'Inactivo' },
             { id: 6, codigo_instructor: 'INS-2026-006', nombre: 'Laura', apellido: 'Fernández', dni: '30000006', email: 'laura.fernández@empresa.com', especialidad: 'Recursos Humanos', tipo: 'Interno', estado: 'Baja' },
             { id: 7, codigo_instructor: 'INS-2026-007', nombre: 'Diego', apellido: 'Sánchez', dni: '30000007', email: 'diego.sánchez@empresa.com', especialidad: 'Sistemas y Datos', tipo: 'Interno', estado: 'Inactivo' },
@@ -219,18 +219,7 @@
                 observaciones: "Operación de Puente Grúa con Cabina y Mando Radial hasta 50 Tn"
             }
         ],
-        proveedores: [
-            { id: 1, codigo_proveedor: "PRV-001", razon_social: "IRAM - Instituto Argentino de Normalización y Certificación", ente: "IRAM", rubro: "Normas Técnicas, END y Soldadura", contacto: "Ing. Gustavo Martínez", telefono: "+54 11 4346-0600", email: "certificaciones@iram.org.ar", estado: "Activo" },
-            { id: 2, codigo_proveedor: "PRV-002", razon_social: "Bureau Veritas Argentina S.A.", ente: "Bureau Veritas", rubro: "Inspección, END e Izaje", contacto: "Lic. Mariana Gómez", telefono: "+54 11 4338-0000", email: "info.ar@bureauveritas.com", estado: "Activo" },
-            { id: 3, codigo_proveedor: "PRV-003", razon_social: "TÜV Rheinland Argentina S.A.", ente: "TÜV Rheinland", rubro: "Certificación y Calificación Técnica", contacto: "Ing. Roberto Soler", telefono: "+54 11 4555-8800", email: "certificaciones@ar.tuv.com", estado: "Activo" },
-            { id: 4, codigo_proveedor: "PRV-004", razon_social: "CNEA - Comisión Nacional de Energía Atómica / AAENDE", ente: "CNEA / AAENDE", rubro: "Ensayos No Destructivos ISO 9712", contacto: "Dr. Fernando Morales", telefono: "+54 11 6772-7000", email: "calificacion@cnea.gob.ar", estado: "Activo" },
-            { id: 5, codigo_proveedor: "PRV-005", razon_social: "UTN FRBA - Facultad Regional Buenos Aires", ente: "UTN FRBA", rubro: "Capacitación y Homologación Técnica", contacto: "Ing. Pablo Rossi", telefono: "+54 11 4867-7500", email: "extension@frba.utn.edu.ar", estado: "Activo" },
-            { id: 6, codigo_proveedor: "PRV-006", razon_social: "Elektro-Thermit Argentina S.R.L.", ente: "Elektro-Thermit / IRAM", rubro: "Soldadura Ferroviaria y Aluminotérmica", contacto: "Ing. Javier Bianchi", telefono: "+54 11 4756-1200", email: "tecnica@thermit.com.ar", estado: "Activo" },
-            { id: 7, codigo_proveedor: "PRV-007", razon_social: "IAPG - Instituto Argentino del Petróleo y del Gas", ente: "IAPG / IRAM 3923", rubro: "Certificación de Grúas y Equipos de Izaje", contacto: "Ing. Marcelo Domínguez", telefono: "+54 11 5277-4274", email: "certificaciones@iapg.org.ar", estado: "Activo" },
-            { id: 8, codigo_proveedor: "PRV-008", razon_social: "SGS Argentina S.A.", ente: "SGS", rubro: "Inspección y Ensayos Industriales", contacto: "Ing. Carolina Varela", telefono: "+54 11 4124-2000", email: "ar.industrial@sgs.com", estado: "Activo" },
-            { id: 9, codigo_proveedor: "PRV-009", razon_social: "DNV GL Argentina", ente: "DNV", rubro: "Certificación Industrial y Calidad", contacto: "Lic. Andrés Bellini", telefono: "+54 11 4310-9100", email: "argentina@dnv.com", estado: "Activo" },
-            { id: 10, codigo_proveedor: "PRV-010", razon_social: "Lincoln Electric Argentina S.A.", ente: "Lincoln Electric / IRAM", rubro: "Calificación Soldadura SMAW/MIG", contacto: "Ing. Daniel Pereyra", telefono: "+54 11 4762-8000", email: "calidad@lincolnelectric.com.ar", estado: "Activo" }
-        ]
+        proveedores: []
     };
 
     // Helper IndexedDB y Promesa de DB Lista
@@ -343,22 +332,8 @@
             }
         }
 
-        // Asegurar que proveedores tenga datos iniciales si es el primer arranque y quedó vacía
-        if (!yaInicializado && (!CACHE_TABLAS['proveedores'] || CACHE_TABLAS['proveedores'].length === 0)) {
-            if (DATOS_INICIALES['proveedores'] && DATOS_INICIALES['proveedores'].length > 0) {
-                CACHE_TABLAS['proveedores'] = [...DATOS_INICIALES['proveedores']];
-                guardarTablaAsync('proveedores', CACHE_TABLAS['proveedores']);
-            }
-        }
-
-        // Asegurar que certificaciones_externas tenga datos si es el primer arranque y quedó vacía
-        if (!yaInicializado && (!CACHE_TABLAS['certificaciones_externas'] || CACHE_TABLAS['certificaciones_externas'].length === 0)) {
-            if (DATOS_INICIALES['certificaciones_externas'] && DATOS_INICIALES['certificaciones_externas'].length > 0) {
-                CACHE_TABLAS['certificaciones_externas'] = [...DATOS_INICIALES['certificaciones_externas']];
-                guardarTablaAsync('certificaciones_externas', CACHE_TABLAS['certificaciones_externas']);
-            }
-        } else if (CACHE_TABLAS['certificaciones_externas']) {
-            // Migrar o asignar alcance en certificados existentes que no lo posean
+        // Migrar o asignar alcance en certificados existentes que no lo posean
+        if (CACHE_TABLAS['certificaciones_externas'] && Array.isArray(CACHE_TABLAS['certificaciones_externas'])) {
             let certsActualizados = false;
             CACHE_TABLAS['certificaciones_externas'].forEach(c => {
                 if (!c.alcance || String(c.alcance).trim() === '') {
@@ -373,35 +348,6 @@
             if (certsActualizados) {
                 guardarTablaAsync('certificaciones_externas', CACHE_TABLAS['certificaciones_externas']);
             }
-        }
-
-        // Cargar desde data/*.json ÚNICAMENTE si es el primer inicio virgen (nunca se importaron ni persistieron datos)
-        if (!yaInicializado) {
-            const tablasCriticas = ['capacitaciones', 'asistentes', 'cursos', 'programas', 'dotacion', 'evaluaciones_satisfaccion'];
-            await Promise.all(tablasCriticas.map(async tabla => {
-                if (!CACHE_TABLAS[tabla] || CACHE_TABLAS[tabla].length === 0) {
-                    const rutas = [`data/${tabla}.json?v=${Date.now()}`, `/data/${tabla}.json`, `./data/${tabla}.json`];
-                    for (const ruta of rutas) {
-                        try {
-                            const res = await fetch(ruta);
-                            if (res && res.ok) {
-                                const datos = await res.json();
-                                if (Array.isArray(datos) && datos.length > 0) {
-                                    CACHE_TABLAS[tabla] = datos;
-                                    await guardarTablaAsync(tabla, datos);
-                                    if (tabla === 'dotacion' || tabla === 'asistentes') {
-                                        actualizarVariableGlobalEmpleados();
-                                    }
-                                    break;
-                                }
-                            }
-                        } catch (e) {}
-                    }
-                }
-            }));
-            try {
-                localStorage.setItem('SIGA_SISTEMA_INICIALIZADO', 'true');
-            } catch (e) {}
         }
 
         // Normalizar y reparar catálogos básicos si faltan códigos o hay registros undefined
